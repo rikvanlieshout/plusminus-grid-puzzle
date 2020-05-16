@@ -54,7 +54,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #wrapper {
-  width: 70vh;
+  width: 70vmin;
   min-width: 450px;
   margin: 0 auto 10px auto;
   text-align: center;
@@ -80,13 +80,6 @@ h1, h2, h3, h4, h5, h6 {
 #highScoreText {
   float: right;
 }
-
-/* #container {
-  background-color: red;
-  width: 100%;
-  padding-top: 100%;
-  position: relative;
-} */
 
 #grid {
   width: var(--grid_size);
