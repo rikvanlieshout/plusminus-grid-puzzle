@@ -49,7 +49,7 @@ nav {
 
 .button {
   width: 7em;
-  margin: 0 20px 5px 20px;
+  margin: 20px 40px 5px 40px;
   border-radius: 5px;
   border-color: inherit;
   font-weight: 500;
@@ -86,12 +86,19 @@ nav {
   float: right;
 }
 
+#lvlText {
+  float: left;
+}
+
+#highScoreText {
+  float: right;
+}
+
 #grid {
   width: 400px;
+  min-width: 400px;
   height: 400px;
-  margin: 30px auto 30px auto;
-  /* margin-left: auto;
-  margin-right: auto; */
+  margin: 15px auto 0 auto;
   padding: 0;
   box-sizing: border-box;
   border: 1px solid black;

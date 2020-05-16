@@ -7,27 +7,23 @@
   </head>
   <body>
 
-    <nav>
-      <button class="button" id="newLevelButton" type="button" onclick="onPressNewLevel();">New Puzzle</button>
-      <p class="gameText">
-        Current puzzle ID: <span id="lvlText">1</span> <br> <br>
-        Highscore: <span id="highScoreText">0</span>
-      </p>
-    </nav>
-
     <div id="wrapper">
       <h2>Plus-minus grid puzzle</h2>
       <p>
         <span class="gameText" id="signText">Next sign: +</span>
         <span class="gameText" id="scoreText">Score: 0</span>
-        <br>
       </p>
-      <!-- <div class="clearfix"></div> -->
+      <div class="clearfix"></div>
       <div id="grid"></div>
-      <!-- <div class="clearfix"></div> -->
+      <div class="clearfix"></div>
+      <p>
+        <span class="gameText" id="lvlText">Puzzle ID: 1</span>
+        <span class="gameText" id="highScoreText">Highscore: 0</span>
+      </p>
+      <div class="clearfix"></div>
       <button class="button" id="restartButton" type="button" onclick="onPressRestart();">Start Over</button>
-      <!-- <button class="button" id="undoButton" type="button" onclick="onPressUndo();">Undo</button> -->
-      <!-- <div class="clearfix"></div> -->
+      <button class="button" id="newLevelButton" type="button" onclick="onPressNewLevel();">New Puzzle</button>
+      <div class="clearfix"></div>
       <p>
         <span class="gameText" id="resultText">&nbsp;</span>
       </p>

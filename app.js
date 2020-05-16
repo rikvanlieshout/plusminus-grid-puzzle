@@ -13,7 +13,7 @@ let highScore = localStorage.getItem("highScore");
 if (highScore == null) {
   highScore = 0;
 }
-document.getElementById('highScoreText').innerHTML = `${highScore}`;
+document.getElementById('highScoreText').innerHTML = `Highscore: ${highScore}`;
 
 let nLevels = 100;
 let score = 0;
@@ -137,7 +137,7 @@ function onPressNewLevel() {
 function endGame() {
   if (score > highScore) {
     highScore = score;
-    document.getElementById('highScoreText').innerHTML = `${highScore}`;
+    document.getElementById('highScoreText').innerHTML = `Highscore: ${highScore}`;
     localStorage.setItem("highScore", highScore);
   }
 }
@@ -224,5 +224,5 @@ function showSign() {
 
 
 function showLevel() {
-  document.getElementById('lvlText').innerHTML = `${lvl_id}`;
+  document.getElementById('lvlText').innerHTML = `Puzzle ID: ${lvl_id}`;
 }
