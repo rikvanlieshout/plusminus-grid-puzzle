@@ -1,0 +1,42 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <link type="text/css" rel="stylesheet" href="style.css">
+
+    <title>Plus-minus grid puzzle</title>
+  </head>
+  <body>
+
+    <nav>
+      <button class="button" id="newLevelButton" type="button" onclick="onPressNewLevel();">New Puzzle</button>
+      <p class="gameText">
+        Current puzzle ID: <span id="lvlText">1</span> <br> <br>
+        Highscore: <span id="highScoreText">0</span>
+      </p>
+    </nav>
+
+    <div id="wrapper">
+      <h2>Plus-minus grid puzzle</h2>
+      <p>
+        <span class="gameText" id="signText">Next sign: +</span>
+        <span class="gameText" id="scoreText">Score: 0</span>
+        <br>
+      </p>
+      <!-- <div class="clearfix"></div> -->
+      <div id="grid"></div>
+      <!-- <div class="clearfix"></div> -->
+      <button class="button" id="restartButton" type="button" onclick="onPressRestart();">Start Over</button>
+      <!-- <button class="button" id="undoButton" type="button" onclick="onPressUndo();">Undo</button> -->
+      <!-- <div class="clearfix"></div> -->
+      <p>
+        <span class="gameText" id="resultText">&nbsp;</span>
+      </p>
+
+    </div>
+
+  </body>
+
+  <script src=http://cdnjs.cloudflare.com/ajax/libs/seedrandom/2.3.10/seedrandom.min.js></script>
+  <script type ="text/javascript" src="app.js"></script>
+
+</html>

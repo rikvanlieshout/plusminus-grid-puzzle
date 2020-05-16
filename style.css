@@ -1,0 +1,141 @@
+:root{
+  --cell_size: 20%;
+  --col_bg: #1D2A3A;
+  --col_game_text: #888;
+  --col_header_bg: #1b1b2f;
+  --col_grid_bg1: #1f4068;
+  --col_grid_bg2: #162447;
+  --col_grid_text: #e43f5a;
+}
+
+.clearfix {
+  clear: both;
+}
+
+html {
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--col_bg);
+}
+
+header {
+  height: 100px;
+  padding: 5px;
+  box-sizing: border-box;
+  text-align: center;
+  background-color: var(--col_header_bg);
+  color: #888;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--col_game_text);
+  padding: 20px 0 10px 0;
+}
+
+nav {
+  float: right;
+  height: 100%;
+  width: 300px;
+  padding: 50px 10px 10px 10px;
+  box-sizing: border-box;
+  background-color: var(--col_header_bg); /* #263238; */
+}
+
+.button {
+  width: 7em;
+  margin: 0 20px 5px 20px;
+  border-radius: 5px;
+  border-color: inherit;
+  font-weight: 500;
+  font-size: 1.2em;
+}
+
+.button:hover {
+  color: tomato;
+  border-color: tomato;
+}
+
+.button:active {
+  position: relative;
+  top: 1px;
+}
+
+#wrapper {
+  width: 450px;
+  height: 500px;
+  margin: 0 auto 10px auto;
+  text-align: center;
+}
+
+.gameText {
+  font-size: 1.2em;
+  color: var(--col_game_text);
+}
+
+#signText {
+  float: left;
+}
+
+#scoreText {
+  float: right;
+}
+
+#grid {
+  width: 400px;
+  height: 400px;
+  margin: 30px auto 30px auto;
+  /* margin-left: auto;
+  margin-right: auto; */
+  padding: 0;
+  box-sizing: border-box;
+  border: 1px solid black;
+  background-color: black;
+  text-align: center;
+  line-height: 70px;
+}
+
+.row {
+  width: 100%;
+  height: var(--cell_size);
+}
+
+#grid .row:nth-child(even) > button:nth-child(even) {
+  background-color: var(--col_grid_bg2);
+}
+
+#grid .row:nth-child(odd) > button:nth-child(odd) {
+  background-color: var(--col_grid_bg2);
+}
+
+#grid button {
+  display: inline-block;
+  width: var(--cell_size);
+  height: 100%;
+  box-sizing: border-box;
+  border: 1px solid black;
+  background-color: var(--col_grid_bg1);
+  color: tomato;
+  /* color: var(--col_grid_text); */
+  font-size: 2em;
+}
+
+#grid button:enabled:hover {
+  color: yellow;
+  border-color: yellow;
+}
+
+#grid button:disabled {
+  /* color: tomato; */
+  border-color: black;
+}
+
+#grid button:enabled {
+  /* color: tomato; */
+  /* border-color: tomato; */
+}
