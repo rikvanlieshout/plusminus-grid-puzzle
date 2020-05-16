@@ -127,9 +127,11 @@ function onPressRestart() {
 }
 
 
-function onPressNewLevel() {
+function onPressNextLevel() {
   highScore = 0;
-  lvl_id = Math.ceil(Math.random() * nLevels);
+  document.getElementById('highScoreText').innerHTML = `Highscore: ${highScore}`;
+  lvl_id++;
+  // lvl_id = Math.ceil(Math.random() * nLevels);
   onPressRestart();
 }
 
