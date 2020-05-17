@@ -41,7 +41,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .button {
   width: 7em;
-  margin: 20px 40px 5px 40px;
+  margin: 5px;
   border-radius: 5px;
   border-color: inherit;
   font-weight: 500;

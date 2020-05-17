@@ -1,8 +1,32 @@
 const gridSize = 6;
-const maxVal = 7;
-const minVal = 1;
+const maxTileVal = 7;
+const minTileVal = 1;
 
-document.documentElement.style.setProperty('--cell_size', 100/gridSize + "%");
+const maxMoves = gridSize * gridSize;
+
+let nLevels = 100;
+// let sumText = '';
+
+class gameRecord {
+  constructor(lvlID) {
+    this.lvlID = lvlID;
+    this.coords = [];
+    this.vals = [];
+    this.iMoveCur = -1;
+    this.nMoves = 0;
+    this.score = 0;
+    this.sign = 1;
+    this.started = false;
+  }
+}
+
+let lvl_id = 1;
+
+let thisGame = new gameRecord(lvl_id);
+
+let iRowCur, iColCur;
+
+document.documentElement.style.setProperty('--cell_size', 100/gridSize + '%');
 
 grid();
 
@@ -15,16 +39,9 @@ if (highScore == null) {
 }
 document.getElementById('highScoreText').innerHTML = `Highscore: ${highScore}`;
 
-let nLevels = 100;
-let score = 0;
-let currentSign = 1;
-let prestart = true;
-let sumText = '';
-
-let iRowCur, iColCur;
-
-let lvl_id = 1;
 resetGame(lvl_id);
+
+
 
 
 // Creating the grid
@@ -36,11 +53,11 @@ function grid() {
         row.className = 'row';
 
         for (let iCol = 0; iCol < gridSize; iCol += 1) {
-            let btn = document.createElement('button');
-            btn.className = 'btn';
-            btn.id = `btn${iRow}${iCol}`;
-            btn.addEventListener('click', () => btnClick([iRow, iCol]));
-            row.appendChild(btn);
+            let tile = document.createElement('button');
+            tile.className = 'tile';
+            tile.id = `tile${iRow}${iCol}`;
+            tile.addEventListener('click', () => newMove([iRow, iCol]));
+            row.appendChild(tile);
         };
 
         grid.appendChild(row);
@@ -48,11 +65,21 @@ function grid() {
 };
 
 
+function onPressRestart() {
+  resetGame(lvl_id);
+}
+
+
 function resetGame(lvl_id) {
 
-  showSign();
-  showScore();
-  showLevel();
+  thisGame = new gameRecord(lvl_id);
+  // sumText = '';
+  // document.getElementById('resultText').innerHTML = '\&nbsp;';
+
+
+  showSign(thisGame.sign);
+  showScore(thisGame.score);
+  showLevel(lvl_id);
 
   // Seed PRNG
   let lvlRNG = new Math.seedrandom(lvl_id);
@@ -60,13 +87,13 @@ function resetGame(lvl_id) {
   for (let iRow = 0; iRow < gridSize; iRow++) {
     for (let iCol = 0; iCol < gridSize; iCol++) {
 
-      let val = Math.floor(lvlRNG() * (maxVal - minVal + 1)) + minVal;
+      let val = Math.floor(lvlRNG() * (maxTileVal - minTileVal + 1)) + minTileVal;
 
-      let btn = document.getElementById(`btn${iRow}${iCol}`);
-      btn.disabled = false;
-      btn.innerHTML = val;
-      btn.style.setProperty('color', 'tomato');
-      btn.style.setProperty('opacity', 1);
+      let tile = document.getElementById(`tile${iRow}${iCol}`);
+      tile.disabled = false;
+      tile.innerHTML = val;
+      tile.style.setProperty('color', 'tomato');
+      tile.style.setProperty('opacity', 1);
 
     }
   }
@@ -75,70 +102,132 @@ function resetGame(lvl_id) {
 
 function checkMove([iRow, iCol]) {
   if (iRow >= 0 && iRow < gridSize && iCol >= 0 && iCol < gridSize) {
-    let btn = document.getElementById(`btn${iRow}${iCol}`);
-    if (btn.innerHTML > 0) {
-      btnClick([iRow, iCol]);
+    let tile = document.getElementById(`tile${iRow}${iCol}`);
+    if (tile.innerHTML > 0) {
+      newMove([iRow, iCol]);
     }
   }
 }
 
 
-function btnClick([iRow, iCol]) {
-  if (prestart) {
-    prestart = false;
-  }
+function newMove([iRow, iCol]) {
+  if (!thisGame.started) thisGame.started = true;
   else {
-    let btnOrigin = document.getElementById(`btn${iRowCur}${iColCur}`);
-    btnOrigin.innerHTML = '\&nbsp;';
-    btnOrigin.style.setProperty('opacity', 0.5);
+    let tileOrigin = document.getElementById(`tile${iRowCur}${iColCur}`);
+    tileOrigin.innerHTML = '\&nbsp;';
+    tileOrigin.style.setProperty('opacity', 0.5);
   }
-  let btnDestin = document.getElementById(`btn${iRow}${iCol}`);
-  btnDestin.style.setProperty('color', 'white');
-  let val = btnDestin.innerHTML;
+  let tileDestin = document.getElementById(`tile${iRow}${iCol}`);
+  tileDestin.style.setProperty('color', 'white');
+  let val = tileDestin.innerHTML;
   [iRowCur, iColCur] = [iRow, iCol];
 
-  score += currentSign * val;
-  showScore();
-  showResult(val);
-  currentSign *= -1;
-  showSign();
+  thisGame.iMoveCur++;
+  thisGame.vals.splice(thisGame.iMoveCur, maxMoves, val);
+  thisGame.coords.splice(thisGame.iMoveCur, maxMoves, [iRowCur, iColCur]);
+  thisGame.nMoves = thisGame.iMoveCur;
 
-  disableButtons();
+  thisGame.score += thisGame.sign * val;
+  showScore(thisGame.score);
+  // showResult(val);
+  thisGame.sign *= -1;
+  showSign(thisGame.sign);
 
-  let btn = document.getElementById(`btn${iRow}${iCol}`);
-  btnDestin.innerHTML = '&#9787;';
-  btnDestin.disabled = true;
+  // move player marker
+  let tile = document.getElementById(`tile${iRow}${iCol}`);
+  tileDestin.innerHTML = '&#9787;';
+  tileDestin.disabled = true;
 
-  let nOptions = enableButtons([iRow, iCol]);
-  if (nOptions == 0) {
-    btnDestin.style.setProperty('opacity', 0.5);
-    endGame();
+  disableAllTiles();
+
+  // check for game end
+  if (!enableAdjacentTiles([iRow, iCol])) {
+    tileDestin.style.setProperty('opacity', 0.5);
+    checkForHighScore();
   }
 }
 
 
-function onPressRestart() {
-  score = 0;
-  currentSign = 1;
-  prestart = true;
-  sumText = '';
-  document.getElementById('resultText').innerHTML = '\&nbsp;';
-  resetGame(lvl_id);
+function onPressUndo() {
+  if (thisGame.iMoveCur <= 0) resetGame(lvl_id);
+  else {
+    undoVal = thisGame.vals[thisGame.iMoveCur];
+    [iRowUndo, iColUndo] = thisGame.coords[thisGame.iMoveCur];
+    thisGame.sign *= -1;
+    thisGame.score -= thisGame.sign * undoVal;
+    thisGame.iMoveCur--;
+    showScore(thisGame.score);
+    showSign(thisGame.sign);
+
+    // restore tiles
+    let tileLast = document.getElementById(`tile${iRowUndo}${iColUndo}`);
+    tileLast.disabled = false;
+    tileLast.innerHTML = undoVal;
+    tileLast.style.setProperty('color', 'tomato');
+    tileLast.style.setProperty('opacity', 1);
+
+    // move back player marker
+    [iRowCur, iColCur] = thisGame.coords[thisGame.iMoveCur];
+    let tileBack = document.getElementById(`tile${iRowCur}${iColCur}`);
+    tileBack.innerHTML = '&#9787;';
+    tileBack.style.setProperty('color', 'white');
+    tileBack.style.setProperty('opacity', 1);
+
+    disableAllTiles();
+
+    enableAdjacentTiles([iRowCur, iColCur]);
+  }
+}
+
+
+function onPressRedo() {
+  if (thisGame.started && thisGame.iMoveCur < thisGame.nMoves) {
+    thisGame.iMoveCur++;
+    redoVal = thisGame.vals[thisGame.iMoveCur];
+    [iRowRedo, iColRedo] = thisGame.coords[thisGame.iMoveCur - 1];
+    thisGame.score += thisGame.sign * redoVal;
+    thisGame.sign *= -1;
+    showScore(thisGame.score);
+    showSign(thisGame.sign);
+
+    // remove tile
+    let tilePrev = document.getElementById(`tile${iRowRedo}${iColRedo}`);
+    tilePrev.innerHTML = '\&nbsp;';
+    tilePrev.style.setProperty('opacity', 0.5);
+
+    // move forward player marker
+    [iRowCur, iColCur] = thisGame.coords[thisGame.iMoveCur];
+    let tileBack = document.getElementById(`tile${iRowCur}${iColCur}`);
+    tileBack.innerHTML = '&#9787;';
+    tileBack.style.setProperty('color', 'white');
+    tileBack.style.setProperty('opacity', 1);
+
+    disableAllTiles();
+
+    enableAdjacentTiles([iRowCur, iColCur]);
+  }
+}
+
+
+function onPressPrevLevel() {
+  highScore = 0;
+  document.getElementById('highScoreText').innerHTML = `Highscore: ${highScore}`;
+  lvl_id = Math.max(lvl_id - 1, 1);
+  onPressRestart();
 }
 
 
 function onPressNextLevel() {
   highScore = 0;
   document.getElementById('highScoreText').innerHTML = `Highscore: ${highScore}`;
-  lvl_id++;
-  // lvl_id = Math.ceil(Math.random() * nLevels);
+  lvl_id = Math.min(lvl_id + 1, nLevels);
   onPressRestart();
 }
 
 
-function endGame() {
-  if (score > highScore) {
-    highScore = score;
+function checkForHighScore() {
+  if (thisGame.score > highScore) {
+    highScore = thisGame.score;
     document.getElementById('highScoreText').innerHTML = `Highscore: ${highScore}`;
     localStorage.setItem("highScore", highScore);
   }
@@ -146,7 +235,7 @@ function endGame() {
 
 
 function keyDownHandler(event) {
-  if (!prestart) {
+  if (thisGame.started) {
     let keyCode = event.keyCode;
     if (keyCode == 37) { // left
       checkMove([iRowCur, iColCur - 1]);
@@ -164,67 +253,65 @@ function keyDownHandler(event) {
 }
 
 
-function enableButtons([iRowNow, iColNow]) {
-  let nOptions = 0;
+function enableAdjacentTiles([iRowNow, iColNow]) {
+  let enabledTiles = false;
 
   for (const iRow of [iRowNow + 1, iRowNow - 1]) {
-    nOptions += toggleButton([iRow, iColNow]);
+    if (enableTileIfPresent([iRow, iColNow])) enabledTiles = true;
   }
   for (const iCol of [iColNow + 1, iColNow - 1]) {
-    nOptions += toggleButton([iRowNow, iCol]);
+    if (enableTileIfPresent([iRowNow, iCol])) enabledTiles = true;
   }
 
-  return nOptions;
+  return enabledTiles;
 }
 
-function toggleButton([iRow, iCol]) {
-  let enabledButton = 0;
+
+function enableTileIfPresent([iRow, iCol]) {
+  let enabledTile = false;
   if (iRow >= 0 && iRow < gridSize && iCol >= 0 && iCol < gridSize) {
-    let btn = document.getElementById(`btn${iRow}${iCol}`);
-    if (btn.innerHTML > 0) {
-      btn.disabled = false;
-      enabledButton = 1;
-    }
-    else {
-      btn.disabled = true;
+    let tile = document.getElementById(`tile${iRow}${iCol}`);
+    if (tile.innerHTML > 0) {
+      tile.disabled = false;
+      enabledTile = true;
     }
   }
-  return enabledButton;
+  return enabledTile;
 }
 
 
-function disableButtons() {
+function disableAllTiles() {
   for (let iRow = 0; iRow < gridSize; iRow++) {
     for (let iCol = 0; iCol < gridSize; iCol++) {
-      let btn = document.getElementById(`btn${iRow}${iCol}`);
-      btn.disabled = true;
+      let tile = document.getElementById(`tile${iRow}${iCol}`);
+      tile.disabled = true;
     }
   }
 }
 
 
-function showResult(val) {
-  if (sumText == '') {
-    sumText += `${val} `;
-    document.getElementById('resultText').innerHTML = `Score = ${score}`;
-  }
-  else {
-    sumText += `${currentSign == -1 ? '-' : '+'} ${val} `;
-    document.getElementById('resultText').innerHTML = `Score = ${sumText} = ${score}`;
-  }
-}
+// function showResult(val) {
+//   if (sumText == '') {
+//     sumText += `${val} `;
+//     document.getElementById('resultText').innerHTML = `Score = ${score}`;
+//   }
+//   else {
+//     sumText += `${currentSign == -1 ? '-' : '+'} ${val} `;
+//     document.getElementById('resultText').innerHTML = `Score = ${sumText} = ${score}`;
+//   }
+// }
 
 
-function showScore() {
+function showScore(score) {
   document.getElementById('scoreText').innerHTML = `Score: ${score.toString().padStart(3, ' ')}`;
 }
 
 
-function showSign() {
-  document.getElementById('signText').innerHTML = `Next sign: ${currentSign == -1 ? '-' : '+'}`;
+function showSign(sign) {
+  document.getElementById('signText').innerHTML = `Next sign: ${sign == 1 ? '+' : '-'}`;
 }
 
 
-function showLevel() {
+function showLevel(lvl_id) {
   document.getElementById('lvlText').innerHTML = `Puzzle ID: ${lvl_id}`;
 }
