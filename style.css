@@ -1,5 +1,6 @@
 :root{
-  --grid_size: 60vmin;
+  --grid_size: 30vh;
+  --min_grid_size: 400px;
   --cell_size: 20%;
   --col_bg: #1D2A3A;
   --col_game_text: #888;
@@ -9,26 +10,37 @@
   --col_grid_text: #e43f5a;
 }
 
-.clearfix {
-  clear: both;
+.clearfix_after::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.float_left {
+  float: left;
+}
+
+.float_right {
+  float: right;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 html {
-  margin: 0;
-  padding: 0;
   font-family: sans-serif;
 }
 
 body {
-  margin: 0;
-  padding: 0;
   background-color: var(--col_bg);
 }
 
 header {
   height: 100px;
   padding: 5px;
-  box-sizing: border-box;
   text-align: center;
   background-color: var(--col_header_bg);
   color: #888;
@@ -36,16 +48,17 @@ header {
 
 h1, h2, h3, h4, h5, h6 {
   color: var(--col_game_text);
-  padding: 20px 0 10px 0;
+  padding: 15px 0 10px 0;
 }
 
 .button {
-  width: 7em;
+  /* width: 7em; */
   margin: 5px;
+  padding: 5px;
   border-radius: 5px;
   border-color: inherit;
   font-weight: 500;
-  font-size: 1.2em;
+  font-size: 1.5em;
 }
 
 .button:hover {
@@ -54,48 +67,30 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 #wrapper {
-  width: 70vmin;
-  min-width: 450px;
+  width: var(--grid_size);
+  min-width: var(--min_grid_size);
   margin: 0 auto 10px auto;
   text-align: center;
 }
 
 .gameText {
-  font-size: 1.2em;
+  font-size: 1.3em;
   color: var(--col_game_text);
-}
-
-#signText {
-  float: left;
-}
-
-#scoreText {
-  float: right;
-}
-
-#lvlText {
-  float: left;
-}
-
-#highScoreText {
-  float: right;
 }
 
 #grid {
   width: var(--grid_size);
   height: var(--grid_size);
-  min-width: 400px;
-  min-height: 400px;
-  margin: 15px auto 0 auto;
-  padding: 0;
-  box-sizing: border-box;
+  min-width: var(--min_grid_size);
+  min-height: var(--min_grid_size);
+  margin: 10px auto 10px auto;
   border: 1px solid black;
   background-color: black;
   text-align: center;
-  line-height: 70px;
+  line-height: 100%;
 }
 
-.row {
+#grid .row {
   width: 100%;
   height: var(--cell_size);
 }
@@ -112,25 +107,18 @@ h1, h2, h3, h4, h5, h6 {
   display: inline-block;
   width: var(--cell_size);
   height: 100%;
-  box-sizing: border-box;
   border: 1px solid black;
   background-color: var(--col_grid_bg1);
-  color: tomato;
+  /* color: tomato; */
   /* color: var(--col_grid_text); */
   font-size: 2em;
 }
 
 #grid button:enabled:hover {
-  color: yellow;
+  /* color: yellow; */
   border-color: yellow;
 }
 
 #grid button:disabled {
-  /* color: tomato; */
   border-color: black;
-}
-
-#grid button:enabled {
-  /* color: tomato; */
-  /* border-color: tomato; */
 }
