@@ -6,7 +6,13 @@
 
     <title>Plus-minus grid puzzle</title>
   </head>
-  <body>
+  <body class="light">
+
+    <nav class="clearfix_after">
+      <button type="button" class="button" id="prevLevelButton" onclick="onPressPrevLevel();">Prev. Puzzle</button>
+      <button type="button" class="button" id="nextLevelButton" onclick="onPressNextLevel();">Next Puzzle</button>
+      <button type="button" class="button" id="toggleColorsButton" onclick="onPressToggleColors();">Colors</button>
+    </nav>
 
     <div id="wrapper">
       <h2>Plus-minus grid puzzle</h2>
@@ -21,12 +27,11 @@
         <span class="gameText float_left" id="lvlText">Puzzle ID: 1</span>
         <span class="gameText float_right" id="highScoreText">Highscore: 0</span>
       </p>
+      <br>
       <div  class="clearfix_after">
-        <button class="button" id="restartButton" type="button" onclick="onPressRestart();">Start Over</button>
-        <button class="button" id="undoButton" type="button" onclick="onPressUndo();">Undo</button>
-        <button class="button" id="redoButton" type="button" onclick="onPressRedo();">Redo</button> <br>
-        <button class="button" id="prevLevelButton" type="button" onclick="onPressPrevLevel();">Prev. Puzzle</button>
-        <button class="button" id="nextLevelButton" type="button" onclick="onPressNextLevel();">Next Puzzle</button>
+        <button type="button" class="button" id="restartButton" onclick="onPressRestart();">Start Over</button>
+        <button type="button" class="button" id="undoButton" onclick="onPressUndo();">Undo</button>
+        <button type="button" class="button" id="redoButton" onclick="onPressRedo();">Redo</button> <br>
       </div>
       <p>
         <span class="gameText" id="resultText">&nbsp;</span>

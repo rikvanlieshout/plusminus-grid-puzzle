@@ -1,3 +1,5 @@
+let color_theme = 'light';
+
 const nLevels = 100;
 
 const gridSize = 6;
@@ -214,7 +216,7 @@ function doMove([iRow, iCol]) {
 function showTile([iRow, iCol]) {
   let tile = document.getElementById(`tile${iRow}${iCol}`);
   tile.innerHTML = tiles[iRow][iCol].value;
-  tile.style.setProperty('color', 'tomato');
+  tile.style.setProperty('color', 'var(--col_grid_text)');
   tile.style.setProperty('opacity', 1);
 }
 
@@ -234,7 +236,7 @@ function dimTile([iRow, iCol]) {
 function showPlayer([iRow, iCol]) {
   let tileCur = document.getElementById(`tile${iRow}${iCol}`);
   tileCur.innerHTML = '&#9787;';
-  tileCur.style.setProperty('color', 'white');
+  tileCur.style.setProperty('color', 'var(--col_player)');
   tileCur.style.setProperty('opacity', 1);
 }
 
@@ -293,6 +295,20 @@ function onPressNextLevel() {
   document.getElementById('highScoreText').innerHTML = `Highscore: ${highScore}`;
   lvl_id = Math.min(lvl_id + 1, nLevels);
   onPressRestart();
+}
+
+
+function onPressToggleColors() {
+  const body = document.body;
+  if (color_theme == 'dark') {
+    body.classList.remove('dark');
+    body.classList.add('light');
+    color_theme = 'light';
+  } else {
+    body.classList.remove('light');
+    body.classList.add('dark');
+    color_theme = 'dark';
+  }
 }
 
 
