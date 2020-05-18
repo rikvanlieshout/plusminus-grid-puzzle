@@ -43,13 +43,6 @@ grid();
 
 document.addEventListener('keydown', () => keyDownHandler(event), false);
 
-localStorage.setItem("highScore", 0);
-let highScore = localStorage.getItem("highScore");
-if (highScore == null) {
-  highScore = 0;
-}
-document.getElementById('highScoreText').innerHTML = `Highscore: ${highScore}`;
-
 resetGame(lvl_id);
 
 
@@ -75,21 +68,24 @@ function grid() {
 
 
 // add values to tiles
-function resetGame(lvl_id) {
+function resetGame(lvlID) {
 
-  thisGame = new GameRecord(lvl_id);
+  let highScore = +getHighScoreFromLocalStorage(lvlID);
+  document.getElementById('highScoreText')
+    .innerHTML = `Highscore: ${highScore}`;
 
-  document.getElementById('lvlText').innerHTML = `Puzzle ID: ${lvl_id}`;
-
+  document.getElementById('lvlText').innerHTML = `Puzzle ID: ${lvlID}`;
+  thisGame = new GameRecord(lvlID);
   showGameSpecs();
 
   // Create random number generator for this level
-  let lvlRNG = new Math.seedrandom(lvl_id);
+  let lvlRNG = new Math.seedrandom(lvlID);
 
   for (let iRow = 0; iRow < gridSize; iRow++) {
     for (let iCol = 0; iCol < gridSize; iCol++) {
 
-      let val = Math.floor(lvlRNG() * (maxTileVal - minTileVal + 1)) + minTileVal;
+      let val =
+        Math.floor(lvlRNG() * (maxTileVal - minTileVal + 1)) + minTileVal;
 
       tiles[iRow][iCol] = new TileTemplate(val);
 
@@ -178,7 +174,6 @@ function onPressUndo() {
 
 function onPressRedo() {
   if (thisGame.iMoveCur >= 0 && thisGame.iMoveCur < thisGame.nMoves - 1) {
-
     thisGame.iMoveCur++;
     redoVal = thisGame.vals[thisGame.iMoveCur];
     const [iRowRedo, iColRedo] = thisGame.coords[thisGame.iMoveCur - 1];
@@ -208,7 +203,7 @@ function doMove([iRow, iCol]) {
   if (!optionsLeft) {
     thisGame.finished = true;
     dimTile([iRow, iCol]);
-    checkForHighScore();
+    checkForHighScore(thisGame.lvlID);
   }
 }
 
@@ -216,7 +211,6 @@ function doMove([iRow, iCol]) {
 function showTile([iRow, iCol]) {
   let tile = document.getElementById(`tile${iRow}${iCol}`);
   tile.innerHTML = tiles[iRow][iCol].value;
-  tile.style.setProperty('color', 'var(--col_grid_text)');
   tile.style.setProperty('opacity', 1);
 }
 
@@ -235,8 +229,7 @@ function dimTile([iRow, iCol]) {
 
 function showPlayer([iRow, iCol]) {
   let tileCur = document.getElementById(`tile${iRow}${iCol}`);
-  tileCur.innerHTML = '&#9787;';
-  tileCur.style.setProperty('color', 'var(--col_player)');
+  tileCur.innerHTML = '<span class="player_token">&#9787;</span>';
   tileCur.style.setProperty('opacity', 1);
 }
 
@@ -277,24 +270,28 @@ function disableAllTiles() {
 }
 
 
+function showGameSpecs() {
+  let scoreString = thisGame.score.toString().padStart(3, ' ');
+  document.getElementById('scoreText').innerHTML = `Score: ${scoreString}`;
+  let signString = thisGame.sign == 1 ? '+' : '-';
+  document.getElementById('signText').innerHTML = `Next sign: ${signString}`;
+}
+
+
 function onPressRestart() {
   resetGame(lvl_id);
 }
 
 
 function onPressPrevLevel() {
-  highScore = 0;
-  document.getElementById('highScoreText').innerHTML = `Highscore: ${highScore}`;
   lvl_id = Math.max(lvl_id - 1, 1);
-  onPressRestart();
+  resetGame(lvl_id);
 }
 
 
 function onPressNextLevel() {
-  highScore = 0;
-  document.getElementById('highScoreText').innerHTML = `Highscore: ${highScore}`;
   lvl_id = Math.min(lvl_id + 1, nLevels);
-  onPressRestart();
+  resetGame(lvl_id);
 }
 
 
@@ -312,18 +309,31 @@ function onPressToggleColors() {
 }
 
 
-function checkForHighScore() {
+function checkForHighScore(lvlID) {
+  let highScore = +getHighScoreFromLocalStorage(lvlID);
+
   if (thisGame.score > highScore) {
     highScore = thisGame.score;
-    document.getElementById('highScoreText').innerHTML = `Highscore: ${highScore}`;
-    localStorage.setItem("highScore", highScore);
+    document.getElementById('highScoreText')
+      .innerHTML = `Highscore: ${highScore}`;
+    setHighScoreToLocalStorage(lvlID, highScore);
   }
 }
 
 
-function showGameSpecs() {
-  let scoreString = thisGame.score.toString().padStart(3, ' ');
-  document.getElementById('scoreText').innerHTML = `Score: ${scoreString}`;
-  let signString = thisGame.sign == 1 ? '+' : '-';
-  document.getElementById('signText').innerHTML = `Next sign: ${signString}`;
+function getHighScoreFromLocalStorage(lvlID) {
+  let key = localStorageKeyString(lvlID);
+  if (!(key in localStorage)) return 0;
+  else return localStorage.getItem(key);
+}
+
+
+function setHighScoreToLocalStorage(lvlID, highScore) {
+  let key = localStorageKeyString(lvlID);
+  localStorage.setItem(key, highScore);
+}
+
+
+function localStorageKeyString(lvlID) {
+  return `plusminus_grid_puzzle_highscore_lvl${lvlID}`;
 }

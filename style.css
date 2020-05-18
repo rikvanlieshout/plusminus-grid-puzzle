@@ -45,20 +45,16 @@ body.light {
   --col_bg: lightyellow;
   --col_game_text: saddlebrown;
   --col_button_bg1: honeydew;
-  --col_grid_bg0: chocolate;
+  --col_grid_bg0: black;
   --col_grid_bg1: lavender;
   --col_grid_bg2: peachpuff;
   --col_grid_text: rebeccapurple;
-  --col_grid_hover: black;
+  --col_grid_hover: tomato;
   --col_player: brown;
 }
 
 body {
   background-color: var(--col_bg);
-}
-
-nav {
-  text-align: center;
 }
 
 h2 {
@@ -71,11 +67,11 @@ h2 {
   /* width: 7em; */
   margin: 1vh;
   padding: 1vh;
-  border-radius: 5px;
+  border-radius: 1vh;
   border-color: inherit;
   background-color: var(--col_button_bg1);
   color: var(--col_game_text);
-  font-size: 2.5vh;
+  font-size: 2.4vh;
 }
 
 .button:hover {
@@ -128,15 +124,21 @@ h2 {
   width: var(--cell_size);
   height: 100%;
   border: 1px solid var(--col_grid_bg0);
+  color: var(--col_grid_text);
   background-color: var(--col_grid_bg1);
   font-size: 4vh;
 }
 
 #grid button:enabled:hover {
-  /* color: yellow; */
+  color: var(--col_grid_hover);
   border-color: var(--col_grid_hover);
 }
 
 #grid button:disabled {
+  color: var(--col_grid_text);
   border-color: var(--col_grid_bg0);
+}
+
+.player_token {
+  color: var(--col_player);
 }
