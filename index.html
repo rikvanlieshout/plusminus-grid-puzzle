@@ -1,40 +1,102 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <link type="text/css" rel="stylesheet" href="style.css">
-    <!-- <link href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet" type="text/css"> -->
+    <link type="text/css"
+          rel="stylesheet"
+          href="style.css">
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css?family=Rubik">
+    <link type="text/css"
+          rel="stylesheet"
+          href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
 
     <title>Plus-minus grid puzzle</title>
   </head>
   <body class="light">
 
     <div id="wrapper">
-      <div class="clearfix_after">
-        <button type="button" class="button" id="prevLevelButton" onclick="onPressPrevLevel();">Prev. Puzzle</button>
-        <button type="button" class="button" id="nextLevelButton" onclick="onPressNextLevel();">Next Puzzle</button>
-        <button type="button" class="button" id="toggleColorsButton" onclick="onPressToggleColors();">Colors</button>
-      </div>
-      <h2>Plus-minus grid puzzle</h2>
+
+      <h2 class="clearfix_after">Plus-minus grid puzzle</h2>
+
+      <br>
+
       <p class="clearfix_after">
-        <span class="gameText float_left" id="signText">Next sign: +</span>
-        <span class="gameText float_right" id="scoreText">Score: 0</span>
+        <span class="gameText left" id="signText">Next sign: +</span>
+        <span class="gameText right" id="scoreText">Score: 0</span>
       </p>
+
       <div class="clearfix_after" id="container">
         <div id="grid"></div>
       </div>
+
       <p class="clearfix_after">
-        <span class="gameText float_left" id="lvlText">Puzzle ID: 1</span>
-        <span class="gameText float_right" id="highScoreText">Highscore: 0</span>
+        <span class="gameText left" id="lvlText">Puzzle ID: 1</span>
+        <span class="gameText right" id="highScoreText">Highscore: 0</span>
       </p>
-      <br>
-      <div  class="clearfix_after">
-        <button type="button" class="button" id="restartButton" onclick="onPressRestart();">Start Over</button>
-        <button type="button" class="button" id="undoButton" onclick="onPressUndo();">Undo</button>
-        <button type="button" class="button" id="redoButton" onclick="onPressRedo();">Redo</button> <br>
+
+      <div class="buttons_holder clearfix_after">
+
+        <!-- <div class="button_pair"> -->
+
+        <button type="button" class="btn" onclick="onPressPrevLevel();">
+          <span class="icon ion-ios-arrow-back"></span>
+          <br>
+          Prev.
+        </button>
+
+        <!-- <span class="horizontal_space"></span> -->
+
+        <button type="button" class="btn" onclick="onPressNextLevel();">
+          <span class="icon ion-ios-arrow-forward"></span>
+          <br>
+          Next
+        </button>
+
+        <!-- </div> -->
+
+        <div></div>
+
+        <!-- <span class="horizontal_space"></span> -->
+
+        <button type="button" class="btn" onclick="onPressRestart();">
+          <span class="icon ion-ios-refresh"></span>
+          <br>
+          Restart
+        </button>
+
+        <!-- <span class="horizontal_space"></span> -->
+
+        <div></div>
+
+        <!-- <div class="button_pair"> -->
+
+        <button type="button" class="btn" onclick="onPressUndo();">
+          <span class="icon ion-ios-undo"></span>
+          <br>
+          Undo
+        </button>
+
+        <!-- <span class="horizontal_space"></span> -->
+
+        <button type="button" class="btn" onclick="onPressRedo();">
+          <span class="icon ion-ios-redo"></span>
+          <br>
+          Redo
+        </button>
+
+        <!-- </div> -->
+
+        <div></div>
+
+        <!-- <span class="horizontal_space"></span> -->
+
+        <button type="button" class="btn" onclick="onPressToggleColors();">
+          <span class="icon ion-contrast"></span>
+          <br>
+          Colors
+        </button>
+
       </div>
-      <p>
-        <span class="gameText" id="resultText">&nbsp;</span>
-      </p>
 
     </div>
 

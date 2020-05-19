@@ -37,25 +37,24 @@ let lvl_id = 1;
 
 let thisGame = new GameRecord(lvl_id);
 
-document.documentElement.style.setProperty('--cell_size', 100/gridSize + '%');
+document.documentElement.style.setProperty('--grid_size', gridSize);
 
 grid();
 
-document.addEventListener('keydown', () => keyDownHandler(event), false);
-
 resetGame(lvl_id);
 
+document.addEventListener('keydown', () => keyDownHandler(event), false);
 
 // creating the grid
 function grid() {
-    let grid = document.getElementById('grid');
+    const grid = document.getElementById('grid');
 
     for (let iRow = 0; iRow < gridSize; iRow += 1) {
-        let row = document.createElement('div');
+        const row = document.createElement('div');
         row.className = 'row';
 
         for (let iCol = 0; iCol < gridSize; iCol += 1) {
-            let tile = document.createElement('button');
+            const tile = document.createElement('button');
             tile.className = 'tile';
             tile.id = `tile${iRow}${iCol}`;
             tile.addEventListener('click', () => newMove([iRow, iCol]));
@@ -229,7 +228,8 @@ function dimTile([iRow, iCol]) {
 
 function showPlayer([iRow, iCol]) {
   let tileCur = document.getElementById(`tile${iRow}${iCol}`);
-  tileCur.innerHTML = '<span class="player_token">&#9787;</span>';
+  tileCur.innerHTML = '<i class="ion-happy player_token"></i>';
+  // tileCur.innerHTML = '<span class="player_token">&#9787;</span>';
   tileCur.style.setProperty('opacity', 1);
 }
 
