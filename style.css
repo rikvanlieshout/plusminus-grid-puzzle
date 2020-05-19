@@ -1,8 +1,7 @@
 :root{
-  --grid_size: 45vh;
-  --min_grid_size: 400px;
-  --max_grid_size: 95vw;
-  --cell_size: 20%;
+  --grid_size: 6;
+  --grid_width: 95vw;
+  --max_grid_width: 55vh;
 }
 
 .clearfix_after::after {
@@ -11,11 +10,11 @@
     clear: both;
 }
 
-.float_left {
+.left {
   float: left;
 }
 
-.float_right {
+.right {
   float: right;
 }
 
@@ -26,13 +25,13 @@
 }
 
 html {
-  font-family: sans-serif;
+  font-family: 'Rubik', sans-serif;
 }
 
 body.dark {
   --col_bg: #1D2A3A;
   --col_game_text: #888;
-  --col_button_bg1: #1b1b2f;
+  --col_button_bg1: var(--col_bg);
   --col_grid_bg0: black;
   --col_grid_bg1: #1f4068;
   --col_grid_bg2: #162447;
@@ -44,7 +43,7 @@ body.dark {
 body.light {
   --col_bg: lightyellow;
   --col_game_text: saddlebrown;
-  --col_button_bg1: honeydew;
+  --col_button_bg1: var(--col_bg);
   --col_grid_bg0: black;
   --col_grid_bg1: lavender;
   --col_grid_bg2: peachpuff;
@@ -59,31 +58,65 @@ body {
 
 h2 {
   color: var(--col_game_text);
-  padding: 15px 0 10px 0;
-  font-size: 2vh;
+  padding: 1vh 0 1vh 0;
+  font-size: 3vh;
+  font-weight: 500;
+  text-shadow: 4px 4px 4px var(--col_grid_bg2);
 }
 
-.button {
-  /* width: 7em; */
-  margin: 1vh;
-  padding: 1vh;
-  border-radius: 1vh;
-  border-color: inherit;
-  background-color: var(--col_button_bg1);
+.buttons_holder {
+  margin-top: 2vh;
+  display: grid;
+  height: 10vh;
+  grid-template-columns: 1fr 1fr 0.99fr 1fr 0.99fr 1fr 1fr 0.99fr 1fr;
+  grid-gap: 0;
+}
+
+/* .button_pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: -5vmin;
+}
+
+.horizontal_space {
+  display: inline-block;
+  width: 0.25vmin;
+} */
+
+.btn {
+  /* margin: 1vh; */
+  border: none;
+  outline: none;
+  background: none;
+  text-align: center;
   color: var(--col_game_text);
-  font-size: 2.4vh;
+  font-size: 2vh;
+  font-weight: 300;
+  transition: color 0.4s, transform 0.25s ease-in-out;
+  /* transform-origin: center; */
 }
 
-.button:hover {
+.btn:active {
   color: tomato;
-  border-color: tomato;
+}
+
+@media (hover: hover) {
+  .btn:hover {
+    transform: scale(1.15);
+    color: tomato;
+  }
+}
+
+.icon {
+    display: inline-block;
+    font-size: 5vh;
+    margin-right: -4px;
 }
 
 #wrapper {
-  width: var(--grid_size);
-  min-width: var(--min_grid_size);
-  max-width: var(--max_grid_size);
-  margin: 0 auto 10px auto;
+  width: var(--grid_width);
+  max-width: var(--max_grid_width);
+  margin: 0 auto 0 auto;
   text-align: center;
 }
 
@@ -93,40 +126,37 @@ h2 {
 }
 
 #grid {
-  width: var(--grid_size);
-  height: var(--grid_size);
-  min-width: var(--min_grid_size);
-  min-height: var(--min_grid_size);
-  max-width: var(--max_grid_size);
-  max-height: var(--max_grid_size);
-  margin: 5px auto 5px auto;
+  width: var(--grid_width);
+  height: var(--grid_width);
+  max-width: var(--max_grid_width);
+  max-height: var(--max_grid_width);
+  margin: 0.5vh auto 0.5vh auto;
   border: 1px solid var(--col_grid_bg0);
   background-color: var(--col_grid_bg0);
-  text-align: center;
-  line-height: 100%;
+  display: grid;
+  grid-template-rows: repeat(var(--grid_size), 1fr);
 }
 
 #grid .row {
-  width: 100%;
-  height: var(--cell_size);
+  display: grid;
+  grid-template-columns: repeat(var(--grid_size), 1fr);
 }
 
-#grid .row:nth-child(even) > button:nth-child(even) {
+#grid .row:nth-child(even) button:nth-child(even) {
   background-color: var(--col_grid_bg2);
 }
 
-#grid .row:nth-child(odd) > button:nth-child(odd) {
+#grid .row:nth-child(odd) button:nth-child(odd) {
   background-color: var(--col_grid_bg2);
 }
 
 #grid button {
-  display: inline-block;
-  width: var(--cell_size);
-  height: 100%;
   border: 1px solid var(--col_grid_bg0);
-  color: var(--col_grid_text);
   background-color: var(--col_grid_bg1);
+  color: var(--col_grid_text);
   font-size: 4vh;
+  line-height: 0;
+  overflow: hidden;
 }
 
 #grid button:enabled:hover {
@@ -140,5 +170,7 @@ h2 {
 }
 
 .player_token {
+  display: inline-block;
+  font-size: 4vh;
   color: var(--col_player);
 }
