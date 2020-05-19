@@ -284,13 +284,13 @@ function onPressRestart() {
 
 
 function onPressPrevLevel() {
-  lvl_id = Math.max(lvl_id - 1, 1);
+  lvl_id = (lvl_id - nLevels - 1) % nLevels + nLevels;
   resetGame(lvl_id);
 }
 
 
 function onPressNextLevel() {
-  lvl_id = Math.min(lvl_id + 1, nLevels);
+  lvl_id = lvl_id % nLevels + 1;
   resetGame(lvl_id);
 }
 
