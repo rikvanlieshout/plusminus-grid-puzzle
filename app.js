@@ -1,6 +1,6 @@
 let color_theme = 'light';
 
-const nLevels = 100;
+const nLevels = 10;
 
 const gridSize = 6;
 const nTiles = gridSize * gridSize;
