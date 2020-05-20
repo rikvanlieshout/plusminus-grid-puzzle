@@ -1,108 +1,116 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
-    <link type="text/css"
-          rel="stylesheet"
-          href="style.css">
-    <link rel="stylesheet"
-          href="https://fonts.googleapis.com/css?family=Rubik">
-    <link type="text/css"
-          rel="stylesheet"
-          href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="style.css">
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Rubik">
+    <link
+      rel="stylesheet"
+      href="https://cdn.materialdesignicons.com/5.2.45/css/materialdesignicons.min.css">
+    <link
+      type="text/css"
+      rel="stylesheet"
+      href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- <script type="module"
+            src="https://unpkg.com/ionicons@5.0.0/dist/ionicons/ionicons.esm.js">
+    </script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/2.3.10/seedrandom.min.js">
+    </script>
 
     <title>Plus-minus grid puzzle</title>
   </head>
   <body class="light">
 
-    <div id="wrapper">
+    <header>
+      <h2>Plus-minus grid puzzle</h2>
+    </header>
 
-      <h2 class="clearfix_after">Plus-minus grid puzzle</h2>
+    <div class="width_wrapper">
+
+      <div class="spread align_bottom">
+
+        <div id="plusminus_pair">
+          <div id="plus_box"><p>+</p></div>
+          <div id="minus_box"><p>-</p></div>
+        </div>
+
+        <p class="gameText" id="scoreText">Score: 0</p>
+
+      </div>
+
+      <!-- <p class="clearfix_after">
+        <span class="gameText left" id="signText">Next sign: +</span>
+        <span class="gameText right" id="scoreText">Score: 0</span>
+      </p> -->
+
+      <div id="grid"></div>
+
+      <div class="spread">
+        <span class="gameText" id="lvlText">Puzzle ID: 1</span>
+        <span class="gameText" id="highScoreText">Highscore: 0</span>
+      </div>
 
       <br>
 
-      <p class="clearfix_after">
-        <span class="gameText left" id="signText">Next sign: +</span>
-        <span class="gameText right" id="scoreText">Score: 0</span>
-      </p>
+      <div class="spread">
 
-      <div class="clearfix_after" id="container">
-        <div id="grid"></div>
-      </div>
+        <div class="btn_pair">
+          <button type="button" class="btn" onclick="onPressPrevLevel();">
+            <span class="mdi mdi-chevron-left"></span>
+            <!-- <span class="icon ion-ios-arrow-back"></span> -->
+            <br>
+            Prev.
+          </button>
 
-      <p class="clearfix_after">
-        <span class="gameText left" id="lvlText">Puzzle ID: 1</span>
-        <span class="gameText right" id="highScoreText">Highscore: 0</span>
-      </p>
-
-      <div class="buttons_holder clearfix_after">
-
-        <!-- <div class="button_pair"> -->
-
-        <button type="button" class="btn" onclick="onPressPrevLevel();">
-          <span class="icon ion-ios-arrow-back"></span>
-          <br>
-          Prev.
-        </button>
-
-        <!-- <span class="horizontal_space"></span> -->
-
-        <button type="button" class="btn" onclick="onPressNextLevel();">
-          <span class="icon ion-ios-arrow-forward"></span>
-          <br>
-          Next
-        </button>
-
-        <!-- </div> -->
-
-        <div></div>
-
-        <!-- <span class="horizontal_space"></span> -->
+          <button type="button" class="btn" onclick="onPressNextLevel();">
+            <span class="mdi mdi-chevron-right"></span>
+            <!-- <span class="icon ion-ios-arrow-forward"></span> -->
+            <br>
+            Next
+          </button>
+        </div>
 
         <button type="button" class="btn" onclick="onPressRestart();">
-          <span class="icon ion-ios-refresh"></span>
+          <span class="mdi mdi-restart"></span>
+          <!-- <span class="icon ion-ios-refresh"></span> -->
           <br>
-          Restart
+          Start Over
         </button>
 
-        <!-- <span class="horizontal_space"></span> -->
+        <div class="btn_pair">
+          <button type="button" class="btn" onclick="onPressUndo();">
+            <span class="mdi mdi-undo"></span>
+            <!-- <span class="icon ion-ios-undo"></span> -->
+            <br>
+            Undo
+          </button>
 
-        <div></div>
-
-        <!-- <div class="button_pair"> -->
-
-        <button type="button" class="btn" onclick="onPressUndo();">
-          <span class="icon ion-ios-undo"></span>
-          <br>
-          Undo
-        </button>
-
-        <!-- <span class="horizontal_space"></span> -->
-
-        <button type="button" class="btn" onclick="onPressRedo();">
-          <span class="icon ion-ios-redo"></span>
-          <br>
-          Redo
-        </button>
-
-        <!-- </div> -->
-
-        <div></div>
-
-        <!-- <span class="horizontal_space"></span> -->
+          <button type="button" class="btn" onclick="onPressRedo();">
+            <span class="mdi mdi-redo"></span>
+            <!-- <span class="icon ion-ios-redo"></span> -->
+            <br>
+            Redo
+          </button>
+        </div>
 
         <button type="button" class="btn" onclick="onPressToggleColors();">
-          <span class="icon ion-contrast"></span>
+          <span class="mdi mdi-theme-light-dark"></span>
+          <!-- <span class="icon ion-contrast"></span> -->
           <br>
           Colors
+          <!-- Color<br>Theme -->
         </button>
 
       </div>
 
     </div>
 
-  </body>
+    <script type ="text/javascript" src="app.js"></script>
 
-  <script src=https://cdnjs.cloudflare.com/ajax/libs/seedrandom/2.3.10/seedrandom.min.js></script>
-  <script type ="text/javascript" src="app.js"></script>
+  </body>
 
 </html>

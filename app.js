@@ -69,6 +69,8 @@ function grid() {
 // add values to tiles
 function resetGame(lvlID) {
 
+  resetSignBoxColors();
+
   let highScore = +getHighScoreFromLocalStorage(lvlID);
   document.getElementById('highScoreText')
     .innerHTML = `Highscore: ${highScore}`;
@@ -126,6 +128,8 @@ function checkMove([iRow, iCol]) {
 
 
 function newMove([iRow, iCol]) {
+
+  if (thisGame.iMoveCur < 0) setSignBoxColors([iRow, iCol]);
 
   // remove player token from previous tile, if game started
   if (thisGame.iMoveCur >= 0) hideTile(thisGame.coords[thisGame.iMoveCur]);
@@ -228,7 +232,9 @@ function dimTile([iRow, iCol]) {
 
 function showPlayer([iRow, iCol]) {
   let tileCur = document.getElementById(`tile${iRow}${iCol}`);
-  tileCur.innerHTML = '<i class="ion-happy player_token"></i>';
+  tileCur.innerHTML =
+    '<span class="mdi mdi-emoticon-happy-outline player_token"></span>';
+  // tileCur.innerHTML = '<i class="ion-happy player_token"></i>';
   // tileCur.innerHTML = '<span class="player_token">&#9787;</span>';
   tileCur.style.setProperty('opacity', 1);
 }
@@ -271,10 +277,40 @@ function disableAllTiles() {
 
 
 function showGameSpecs() {
-  let scoreString = thisGame.score.toString().padStart(3, ' ');
+  // let scoreString = thisGame.score.toString().padStart(3, ' ');
+  let scoreString = thisGame.score.toString();
   document.getElementById('scoreText').innerHTML = `Score: ${scoreString}`;
-  let signString = thisGame.sign == 1 ? '+' : '-';
-  document.getElementById('signText').innerHTML = `Next sign: ${signString}`;
+  // let signString = thisGame.sign == 1 ? '+' : '-';
+  // document.getElementById('signText').innerHTML = `Next sign: ${signString}`;
+}
+
+
+function resetSignBoxColors() {
+  const plusBox = document.getElementById('plus_box')
+  const minusBox = document.getElementById('minus_box')
+
+  plusBox.style.setProperty('background-color', 'var(--col_bg1)');
+  plusBox.style.setProperty('color', 'var(--col_game_text)');
+  minusBox.style.setProperty('background-color', 'var(--col_bg1)');
+  minusBox.style.setProperty('color', 'var(--col_game_text)');
+}
+
+
+function setSignBoxColors([iRow, iCol]) {
+  const signIndex = (iRow + iCol) % 2;
+  const plusBox = document.getElementById('plus_box')
+  const minusBox = document.getElementById('minus_box')
+
+  if (signIndex == 1) {
+    plusBox.style.setProperty('background-color', 'var(--col_grid_bg1)');
+    minusBox.style.setProperty('background-color', 'var(--col_grid_bg2)');
+  } else {
+    plusBox.style.setProperty('background-color', 'var(--col_grid_bg2)');
+    minusBox.style.setProperty('background-color', 'var(--col_grid_bg1)');
+  }
+
+  plusBox.style.setProperty('color', 'var(--col_grid_text)');
+  minusBox.style.setProperty('color', 'var(--col_grid_text)');
 }
 
 

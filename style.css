@@ -2,20 +2,7 @@
   --grid_size: 6;
   --grid_width: 95vw;
   --max_grid_width: 55vh;
-}
-
-.clearfix_after::after {
-    content: "";
-    display: table;
-    clear: both;
-}
-
-.left {
-  float: left;
-}
-
-.right {
-  float: right;
+  --max_cell_width: calc(var(--max_grid_width) / var(--grid_size));
 }
 
 * {
@@ -29,21 +16,25 @@ html {
 }
 
 body.dark {
-  --col_bg: #1D2A3A;
+  --col_bg1: #1d2a3a;
+  --col_bg2: #1b1b2f;
   --col_game_text: #888;
-  --col_button_bg1: var(--col_bg);
+  --col_button_bg1: var(--col_bg1);
+  --col_btn_press: tomato;
   --col_grid_bg0: black;
   --col_grid_bg1: #1f4068;
   --col_grid_bg2: #162447;
   --col_grid_text: #e43f5a;
-  --col_grid_hover: yellow;
+  --col_grid_hover: tomato;
   --col_player: white;
 }
 
 body.light {
-  --col_bg: lightyellow;
+  --col_bg1: lightyellow;
+  --col_bg2: lavender;
   --col_game_text: saddlebrown;
-  --col_button_bg1: var(--col_bg);
+  --col_button_bg1: var(--col_bg1);
+  --col_btn_press: tomato;
   --col_grid_bg0: black;
   --col_grid_bg1: lavender;
   --col_grid_bg2: peachpuff;
@@ -53,35 +44,77 @@ body.light {
 }
 
 body {
-  background-color: var(--col_bg);
+  background-color: var(--col_bg1);
+}
+
+.width_wrapper {
+  width: var(--grid_width);
+  max-width: var(--max_grid_width);
+  margin: 0 auto 0 auto;
+  text-align: center;
+}
+
+.spread {
+  display: flex;
+  justify-content: space-between;
+}
+
+.align_bottom {
+  align-items: flex-end;
+}
+
+header {
+  padding: 0.5vh 0 0.5vh 0;
+  background-color: var(--col_bg2);
+  text-align: center;
 }
 
 h2 {
   color: var(--col_game_text);
-  padding: 1vh 0 1vh 0;
-  font-size: 3vh;
+  /* padding: 1vh 0 1vh 0; */
+  font-size: 2.5vh;
   font-weight: 500;
-  text-shadow: 4px 4px 4px var(--col_grid_bg2);
+  /* text-shadow: 4px 4px 4px var(--col_grid_bg2); */
 }
 
-.buttons_holder {
-  margin-top: 2vh;
-  display: grid;
-  height: 10vh;
-  grid-template-columns: 1fr 1fr 0.99fr 1fr 0.99fr 1fr 1fr 0.99fr 1fr;
-  grid-gap: 0;
-}
-
-/* .button_pair {
+#plusminus_pair {
+  margin-top: 0.75vh;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-gap: -5vmin;
+  border: 1px solid var(--col_grid_bg0);
 }
 
-.horizontal_space {
-  display: inline-block;
-  width: 0.25vmin;
+#plusminus_pair div {
+  display: flex;
+  width: 3.5vh;
+  height: 3.5vh;
+  border: 1px solid var(--col_grid_bg0);
+}
+
+#plusminus_pair div p {
+  margin: auto;
+  font-size: 2.3vh;
+}
+
+#plus_box {
+  background-color: var(--col_grid_bg1);
+  color: var(--col_game_text);
+}
+
+#minus_box {
+  background-color: var(--col_grid_bg2);
+  color: var(--col_game_text);
+}
+
+/* #scoreText {
+  margin-bottom: -3px;
 } */
+
+.btn_pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 1vh;
+}
 
 .btn {
   /* margin: 1vh; */
@@ -97,27 +130,20 @@ h2 {
 }
 
 .btn:active {
-  color: tomato;
+  color: var(--col_btn_press);
 }
 
 @media (hover: hover) {
   .btn:hover {
     transform: scale(1.15);
-    color: tomato;
+    color: var(--col_btn_press);
   }
 }
 
-.icon {
-    display: inline-block;
+.mdi {
+    /* display: inline-block; */
     font-size: 5vh;
     margin-right: -4px;
-}
-
-#wrapper {
-  width: var(--grid_width);
-  max-width: var(--max_grid_width);
-  margin: 0 auto 0 auto;
-  text-align: center;
 }
 
 .gameText {
@@ -151,15 +177,19 @@ h2 {
 }
 
 #grid button {
+  outline: none;
+  max-width: var(--max_cell_width);
+  max-height: var(--max_cell_width);
   border: 1px solid var(--col_grid_bg0);
   background-color: var(--col_grid_bg1);
   color: var(--col_grid_text);
   font-size: 4vh;
-  line-height: 0;
-  overflow: hidden;
+  /* font-family: inherit; */
+  /* line-height: 0; */
+  /* overflow: hidden; */
 }
 
-#grid button:enabled:hover {
+#grid button:hover {
   color: var(--col_grid_hover);
   border-color: var(--col_grid_hover);
 }
