@@ -42,6 +42,9 @@ grid();
 
 resetGame(lvl_id);
 
+//initalize plus sign with border
+togglePlusMinusStyle();
+
 document.addEventListener("keydown", () => keyDownHandler(event), false);
 
 // creating the grid
@@ -197,6 +200,9 @@ function doMove([iRow, iCol]) {
   //enables adjacent tiles, and returns boolean of whether any moves are left
   const optionsLeft = enableAdjacentTiles([iRow, iCol]);
 
+  //change plus-minus style
+  togglePlusMinusStyle();
+
   // check for game end
   if (!optionsLeft) {
     thisGame.finished = true;
@@ -232,9 +238,12 @@ function dimTile([iRow, iCol]) {
 function showPlayer([iRow, iCol]) {
   let tileCur = document.getElementById(`tile${iRow}${iCol}`);
   //happy smiley if score higher or equal to 0, sad if less than 0
-  if (thisGame.score >= 0) {
+  if (thisGame.score > 0) {
     tileCur.innerHTML =
       '<span class="mdi mdi-emoticon-happy-outline player_token"></span>';
+  } else if (thisGame.score == 0) {
+    tileCur.innerHTML =
+      '<span class="mdi mdi-emoticon-neutral-outline player_token"></span>';
   } else {
     tileCur.innerHTML =
       '<span class="mdi mdi-emoticon-sad-outline player_token"></span>';
@@ -281,6 +290,9 @@ function enableTileIfPresent([iRow, iCol]) {
   return enabledTile;
 }
 
+// 3 FUNCTIONS TO CHANGE DISPLAY
+
+//change game score
 function showGameSpecs() {
   // let scoreString = thisGame.score.toString().padStart(3, ' ');
   let scoreString = thisGame.score.toString();
@@ -316,6 +328,8 @@ function setSignBoxColors([iRow, iCol]) {
   minusBox.style.setProperty("color", "var(--col_grid_text)");
 }
 
+// BUTTON FUNCTIONS
+
 function onPressRestart() {
   resetGame(lvl_id);
 }
@@ -343,6 +357,8 @@ function onPressToggleColors() {
   }
 }
 
+//HIGH SCORE FUNCTIONS
+
 function checkForHighScore(lvlID) {
   let highScore = +getHighScoreFromLocalStorage(lvlID);
 
@@ -368,4 +384,22 @@ function setHighScoreToLocalStorage(lvlID, highScore) {
 
 function localStorageKeyString(lvlID) {
   return `plusminus_grid_puzzle_highscore_lvl${lvlID}`;
+}
+
+//PLUS MINUS STYLE
+
+function togglePlusMinusStyle() {
+  console.log("togglePlusMinusStyle");
+  const plus_box = document.getElementById("plus_box");
+  const plus_minus = document.getElementById("minus_box");
+
+  var sign = thisGame.sign;
+
+  if (sign == 1) {
+    plus_box.classList.add("current_sign");
+    plus_minus.classList.remove("current_sign");
+  } else {
+    plus_box.classList.remove("current_sign");
+    plus_minus.classList.add("current_sign");
+  }
 }
