@@ -1,4 +1,4 @@
-let color_theme = 'light';
+let color_theme = "light";
 
 const nLevels = 10;
 
@@ -19,7 +19,6 @@ for (let iRow = 0; iRow < gridSize; iRow++) {
   tiles[iRow] = new Array(gridSize);
 }
 
-
 class GameRecord {
   constructor(lvlID) {
     this.lvlID = lvlID;
@@ -37,45 +36,44 @@ let lvl_id = 1;
 
 let thisGame = new GameRecord(lvl_id);
 
-document.documentElement.style.setProperty('--grid_size', gridSize);
+document.documentElement.style.setProperty("--grid_size", gridSize);
 
 grid();
 
 resetGame(lvl_id);
 
-document.addEventListener('keydown', () => keyDownHandler(event), false);
+document.addEventListener("keydown", () => keyDownHandler(event), false);
 
 // creating the grid
 function grid() {
-    const grid = document.getElementById('grid');
+  const grid = document.getElementById("grid");
 
-    for (let iRow = 0; iRow < gridSize; iRow += 1) {
-        const row = document.createElement('div');
-        row.className = 'row';
+  for (let iRow = 0; iRow < gridSize; iRow += 1) {
+    const row = document.createElement("div");
+    row.className = "row";
 
-        for (let iCol = 0; iCol < gridSize; iCol += 1) {
-            const tile = document.createElement('button');
-            tile.className = 'tile';
-            tile.id = `tile${iRow}${iCol}`;
-            tile.addEventListener('click', () => newMove([iRow, iCol]));
-            row.appendChild(tile);
-        };
+    for (let iCol = 0; iCol < gridSize; iCol += 1) {
+      const tile = document.createElement("button");
+      tile.className = "tile";
+      tile.id = `tile${iRow}${iCol}`;
+      tile.addEventListener("click", () => newMove([iRow, iCol]));
+      row.appendChild(tile);
+    }
 
-        grid.appendChild(row);
-    };
-};
-
+    grid.appendChild(row);
+  }
+}
 
 // add values to tiles
 function resetGame(lvlID) {
-
   resetSignBoxColors();
 
   let highScore = +getHighScoreFromLocalStorage(lvlID);
-  document.getElementById('highScoreText')
-    .innerHTML = `Highscore: ${highScore}`;
+  document.getElementById(
+    "highScoreText"
+  ).innerHTML = `Highscore: ${highScore}`;
 
-  document.getElementById('lvlText').innerHTML = `Puzzle ID: ${lvlID}`;
+  document.getElementById("lvlText").innerHTML = `Puzzle ID: ${lvlID}`;
   thisGame = new GameRecord(lvlID);
   showGameSpecs();
 
@@ -84,7 +82,6 @@ function resetGame(lvlID) {
 
   for (let iRow = 0; iRow < gridSize; iRow++) {
     for (let iCol = 0; iCol < gridSize; iCol++) {
-
       let val =
         Math.floor(lvlRNG() * (maxTileVal - minTileVal + 1)) + minTileVal;
 
@@ -99,26 +96,25 @@ function resetGame(lvlID) {
   }
 }
 
-
 function keyDownHandler(event) {
   if (thisGame.iMoveCur >= 0) {
     let [iRowCur, iColCur] = thisGame.coords[thisGame.iMoveCur];
     let keyCode = event.keyCode;
-    if (keyCode == 37) { // left
+    if (keyCode == 37) {
+      // left
       checkMove([iRowCur, iColCur - 1]);
-    }
-    else if (keyCode == 38) { // up
+    } else if (keyCode == 38) {
+      // up
       checkMove([iRowCur - 1, iColCur]);
-    }
-    else if (keyCode == 39) { // right
+    } else if (keyCode == 39) {
+      // right
       checkMove([iRowCur, iColCur + 1]);
-    }
-    else if (keyCode == 40) { // down
+    } else if (keyCode == 40) {
+      // down
       checkMove([iRowCur + 1, iColCur]);
     }
   }
 }
-
 
 function checkMove([iRow, iCol]) {
   if (iRow >= 0 && iRow < gridSize && iCol >= 0 && iCol < gridSize) {
@@ -126,9 +122,7 @@ function checkMove([iRow, iCol]) {
   }
 }
 
-
 function newMove([iRow, iCol]) {
-
   if (thisGame.iMoveCur < 0) setSignBoxColors([iRow, iCol]);
 
   // remove player token from previous tile, if game started
@@ -151,8 +145,8 @@ function newMove([iRow, iCol]) {
   doMove([iRow, iCol]);
 }
 
-
 function onPressUndo() {
+  //If first move - reset game
   if (thisGame.iMoveCur <= 0) resetGame(lvl_id);
   else {
     undoVal = thisGame.vals[thisGame.iMoveCur];
@@ -174,8 +168,8 @@ function onPressUndo() {
   }
 }
 
-
 function onPressRedo() {
+  //only redo if not first move, and if current move is less than number of moves made (nothing to redo)
   if (thisGame.iMoveCur >= 0 && thisGame.iMoveCur < thisGame.nMoves - 1) {
     thisGame.iMoveCur++;
     redoVal = thisGame.vals[thisGame.iMoveCur];
@@ -193,52 +187,61 @@ function onPressRedo() {
   }
 }
 
-
 function doMove([iRow, iCol]) {
-
+  //show icon on new tile coords
   showPlayer([iRow, iCol]);
 
   disableAllTiles();
 
+  //enables adjacent tiles, and returns boolean of whether any moves are left
   const optionsLeft = enableAdjacentTiles([iRow, iCol]);
 
   // check for game end
   if (!optionsLeft) {
     thisGame.finished = true;
+    //changes opacity of current tile
     dimTile([iRow, iCol]);
     checkForHighScore(thisGame.lvlID);
   }
 }
 
+// 4 FUNCTIONS TO CONTROL TILES APPEARANCE
 
+//add number and opacity 1
 function showTile([iRow, iCol]) {
   let tile = document.getElementById(`tile${iRow}${iCol}`);
   tile.innerHTML = tiles[iRow][iCol].value;
-  tile.style.setProperty('opacity', 1);
+  tile.style.setProperty("opacity", 1);
 }
 
-
+//remove number and decreases opacity
 function hideTile([iRow, iCol]) {
-  document.getElementById(`tile${iRow}${iCol}`).innerHTML = '&nbsp;';
+  document.getElementById(`tile${iRow}${iCol}`).innerHTML = "&nbsp;";
   dimTile([iRow, iCol]);
 }
 
-
+//decreases opacity to .5
 function dimTile([iRow, iCol]) {
-  document.getElementById(`tile${iRow}${iCol}`)
-    .style.setProperty('opacity', 0.5);
+  document
+    .getElementById(`tile${iRow}${iCol}`)
+    .style.setProperty("opacity", 0.5);
 }
 
-
+//add icon of player, and sets opacity to 1 (for undoMove)
 function showPlayer([iRow, iCol]) {
   let tileCur = document.getElementById(`tile${iRow}${iCol}`);
-  tileCur.innerHTML =
-    '<span class="mdi mdi-emoticon-happy-outline player_token"></span>';
+  if (thisGame.score >= 0) {
+    tileCur.innerHTML =
+      '<span class="mdi mdi-emoticon-happy-outline player_token"></span>';
+  } else {
+    tileCur.innerHTML =
+      '<span class="mdi mdi-emoticon-sad-outline player_token"></span>';
+  }
+
   // tileCur.innerHTML = '<i class="ion-happy player_token"></i>';
   // tileCur.innerHTML = '<span class="player_token">&#9787;</span>';
-  tileCur.style.setProperty('opacity', 1);
+  tileCur.style.setProperty("opacity", 1);
 }
-
 
 function enableAdjacentTiles([iRowNow, iColNow]) {
   let enabledTiles = false;
@@ -253,7 +256,6 @@ function enableAdjacentTiles([iRowNow, iColNow]) {
   return enabledTiles;
 }
 
-
 function enableTileIfPresent([iRow, iCol]) {
   let enabledTile = false;
   if (iRow >= 0 && iRow < gridSize && iCol >= 0 && iCol < gridSize) {
@@ -265,7 +267,6 @@ function enableTileIfPresent([iRow, iCol]) {
   return enabledTile;
 }
 
-
 function disableAllTiles() {
   for (let iRow = 0; iRow < gridSize; iRow++) {
     for (let iCol = 0; iCol < gridSize; iCol++) {
@@ -275,87 +276,79 @@ function disableAllTiles() {
   }
 }
 
-
 function showGameSpecs() {
   // let scoreString = thisGame.score.toString().padStart(3, ' ');
   let scoreString = thisGame.score.toString();
-  document.getElementById('scoreText').innerHTML = `Score: ${scoreString}`;
+  document.getElementById("scoreText").innerHTML = `Score: ${scoreString}`;
   // let signString = thisGame.sign == 1 ? '+' : '-';
   // document.getElementById('signText').innerHTML = `Next sign: ${signString}`;
 }
 
-
 function resetSignBoxColors() {
-  const plusBox = document.getElementById('plus_box')
-  const minusBox = document.getElementById('minus_box')
+  const plusBox = document.getElementById("plus_box");
+  const minusBox = document.getElementById("minus_box");
 
-  plusBox.style.setProperty('background-color', 'var(--col_bg1)');
-  plusBox.style.setProperty('color', 'var(--col_game_text)');
-  minusBox.style.setProperty('background-color', 'var(--col_bg1)');
-  minusBox.style.setProperty('color', 'var(--col_game_text)');
+  plusBox.style.setProperty("background-color", "var(--col_bg1)");
+  plusBox.style.setProperty("color", "var(--col_game_text)");
+  minusBox.style.setProperty("background-color", "var(--col_bg1)");
+  minusBox.style.setProperty("color", "var(--col_game_text)");
 }
-
 
 function setSignBoxColors([iRow, iCol]) {
   const signIndex = (iRow + iCol) % 2;
-  const plusBox = document.getElementById('plus_box')
-  const minusBox = document.getElementById('minus_box')
+  const plusBox = document.getElementById("plus_box");
+  const minusBox = document.getElementById("minus_box");
 
   if (signIndex == 1) {
-    plusBox.style.setProperty('background-color', 'var(--col_grid_bg1)');
-    minusBox.style.setProperty('background-color', 'var(--col_grid_bg2)');
+    plusBox.style.setProperty("background-color", "var(--col_grid_bg1)");
+    minusBox.style.setProperty("background-color", "var(--col_grid_bg2)");
   } else {
-    plusBox.style.setProperty('background-color', 'var(--col_grid_bg2)');
-    minusBox.style.setProperty('background-color', 'var(--col_grid_bg1)');
+    plusBox.style.setProperty("background-color", "var(--col_grid_bg2)");
+    minusBox.style.setProperty("background-color", "var(--col_grid_bg1)");
   }
 
-  plusBox.style.setProperty('color', 'var(--col_grid_text)');
-  minusBox.style.setProperty('color', 'var(--col_grid_text)');
+  plusBox.style.setProperty("color", "var(--col_grid_text)");
+  minusBox.style.setProperty("color", "var(--col_grid_text)");
 }
-
 
 function onPressRestart() {
   resetGame(lvl_id);
 }
 
-
 function onPressPrevLevel() {
-  lvl_id = (lvl_id - nLevels - 1) % nLevels + nLevels;
+  lvl_id = ((lvl_id - nLevels - 1) % nLevels) + nLevels;
   resetGame(lvl_id);
 }
-
 
 function onPressNextLevel() {
-  lvl_id = lvl_id % nLevels + 1;
+  lvl_id = (lvl_id % nLevels) + 1;
   resetGame(lvl_id);
 }
-
 
 function onPressToggleColors() {
   const body = document.body;
-  if (color_theme == 'dark') {
-    body.classList.remove('dark');
-    body.classList.add('light');
-    color_theme = 'light';
+  if (color_theme == "dark") {
+    body.classList.remove("dark");
+    body.classList.add("light");
+    color_theme = "light";
   } else {
-    body.classList.remove('light');
-    body.classList.add('dark');
-    color_theme = 'dark';
+    body.classList.remove("light");
+    body.classList.add("dark");
+    color_theme = "dark";
   }
 }
-
 
 function checkForHighScore(lvlID) {
   let highScore = +getHighScoreFromLocalStorage(lvlID);
 
   if (thisGame.score > highScore) {
     highScore = thisGame.score;
-    document.getElementById('highScoreText')
-      .innerHTML = `Highscore: ${highScore}`;
+    document.getElementById(
+      "highScoreText"
+    ).innerHTML = `Highscore: ${highScore}`;
     setHighScoreToLocalStorage(lvlID, highScore);
   }
 }
-
 
 function getHighScoreFromLocalStorage(lvlID) {
   let key = localStorageKeyString(lvlID);
@@ -363,12 +356,10 @@ function getHighScoreFromLocalStorage(lvlID) {
   else return localStorage.getItem(key);
 }
 
-
 function setHighScoreToLocalStorage(lvlID, highScore) {
   let key = localStorageKeyString(lvlID);
   localStorage.setItem(key, highScore);
 }
-
 
 function localStorageKeyString(lvlID) {
   return `plusminus_grid_puzzle_highscore_lvl${lvlID}`;
