@@ -169,7 +169,8 @@ function onPressUndo() {
 }
 
 function onPressRedo() {
-  //only redo if not first move, and if current move is less than number of moves made (nothing to redo)
+  // only redo if not first move, and if current move is less than number
+  // of moves made (nothing to redo)
   if (thisGame.iMoveCur >= 0 && thisGame.iMoveCur < thisGame.nMoves - 1) {
     thisGame.iMoveCur++;
     redoVal = thisGame.vals[thisGame.iMoveCur];
@@ -230,6 +231,7 @@ function dimTile([iRow, iCol]) {
 //add icon of player, and sets opacity to 1 (for undoMove)
 function showPlayer([iRow, iCol]) {
   let tileCur = document.getElementById(`tile${iRow}${iCol}`);
+  //happy smiley if score higher or equal to 0, sad if less than 0
   if (thisGame.score >= 0) {
     tileCur.innerHTML =
       '<span class="mdi mdi-emoticon-happy-outline player_token"></span>';
@@ -241,6 +243,17 @@ function showPlayer([iRow, iCol]) {
   // tileCur.innerHTML = '<i class="ion-happy player_token"></i>';
   // tileCur.innerHTML = '<span class="player_token">&#9787;</span>';
   tileCur.style.setProperty("opacity", 1);
+}
+
+//3 FUNCTIONS FOR ENABLING AND DISABLING TILES
+
+function disableAllTiles() {
+  for (let iRow = 0; iRow < gridSize; iRow++) {
+    for (let iCol = 0; iCol < gridSize; iCol++) {
+      let tile = document.getElementById(`tile${iRow}${iCol}`);
+      tile.disabled = true;
+    }
+  }
 }
 
 function enableAdjacentTiles([iRowNow, iColNow]) {
@@ -258,6 +271,7 @@ function enableAdjacentTiles([iRowNow, iColNow]) {
 
 function enableTileIfPresent([iRow, iCol]) {
   let enabledTile = false;
+  //enable tiles if not beyond edge and not taken return if tile enabled
   if (iRow >= 0 && iRow < gridSize && iCol >= 0 && iCol < gridSize) {
     if (!tiles[iRow][iCol].taken) {
       document.getElementById(`tile${iRow}${iCol}`).disabled = false;
@@ -265,15 +279,6 @@ function enableTileIfPresent([iRow, iCol]) {
     }
   }
   return enabledTile;
-}
-
-function disableAllTiles() {
-  for (let iRow = 0; iRow < gridSize; iRow++) {
-    for (let iCol = 0; iCol < gridSize; iCol++) {
-      let tile = document.getElementById(`tile${iRow}${iCol}`);
-      tile.disabled = true;
-    }
-  }
 }
 
 function showGameSpecs() {
