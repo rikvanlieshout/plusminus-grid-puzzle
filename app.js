@@ -42,9 +42,6 @@ grid();
 
 resetGame(lvl_id);
 
-//initalize plus sign with border
-togglePlusMinusStyle();
-
 document.addEventListener('keydown', () => keyDownHandler(event), false);
 
 // creating the grid
@@ -69,7 +66,10 @@ function grid() {
 
 // add values to tiles
 function resetGame(lvlID) {
+
+  // remove colors and focus borders from sign boxes
   resetSignBoxColors();
+  resetPlusMinusBorders();
 
   let highScore = +getHighScoreFromLocalStorage(lvlID);
   document.getElementById('highScoreText')
@@ -195,19 +195,20 @@ function doMove([iRow, iCol]) {
   //enables adjacent tiles, and returns boolean of whether any moves are left
   const optionsLeft = enableAdjacentTiles([iRow, iCol]);
 
-  //change plus-minus style
-  togglePlusMinusStyle();
-
   // check for game end
-  if (!optionsLeft) {
+  if (optionsLeft) {
+    // change plus-minus style
+    togglePlusMinusBorders();
+  } else {
     thisGame.finished = true;
-    //changes opacity of current tile
+    // changes opacity of current tile
     dimTile([iRow, iCol]);
+    resetPlusMinusBorders();
     checkForHighScore(thisGame.lvlID);
   }
 
   showGameSpecs();
-  
+
 }
 
 // 4 FUNCTIONS TO CONTROL TILES APPEARANCE
@@ -285,7 +286,7 @@ function enableTileIfPresent([iRow, iCol]) {
   return enabledTile;
 }
 
-// 3 FUNCTIONS TO CHANGE DISPLAY
+// 5 FUNCTIONS TO CHANGE DISPLAY
 
 //change game score
 function showGameSpecs() {
@@ -300,16 +301,21 @@ function resetSignBoxColors() {
   const plusBox = document.getElementById('plus_box');
   const minusBox = document.getElementById('minus_box');
 
+  plusBox.classList.remove('sign_box_in_game');
+  minusBox.classList.remove('sign_box_in_game');
+
   plusBox.style.setProperty('background-color', 'var(--col_bg1)');
-  plusBox.style.setProperty('color', 'var(--col_game_text)');
   minusBox.style.setProperty('background-color', 'var(--col_bg1)');
-  minusBox.style.setProperty('color', 'var(--col_game_text)');
 }
 
 function setSignBoxColors([iRow, iCol]) {
-  const signIndex = (iRow + iCol) % 2;
   const plusBox = document.getElementById('plus_box');
   const minusBox = document.getElementById('minus_box');
+
+  const signIndex = (iRow + iCol) % 2;
+
+  plusBox.classList.add('sign_box_in_game');
+  minusBox.classList.add('sign_box_in_game');
 
   if (signIndex == 1) {
     plusBox.style.setProperty('background-color', 'var(--col_grid_bg1)');
@@ -318,9 +324,24 @@ function setSignBoxColors([iRow, iCol]) {
     plusBox.style.setProperty('background-color', 'var(--col_grid_bg2)');
     minusBox.style.setProperty('background-color', 'var(--col_grid_bg1)');
   }
+}
 
-  plusBox.style.setProperty('color', 'var(--col_grid_text)');
-  minusBox.style.setProperty('color', 'var(--col_grid_text)');
+function togglePlusMinusBorders() {
+  const plusBox = document.getElementById('plus_box');
+  const minusBox = document.getElementById('minus_box');
+
+  if (thisGame.sign == 1) {
+    plusBox.classList.add('current_sign');
+    minusBox.classList.remove('current_sign');
+  } else {
+    plusBox.classList.remove('current_sign');
+    minusBox.classList.add('current_sign');
+  }
+}
+
+function resetPlusMinusBorders() {
+  document.getElementById('plus_box').classList.remove('current_sign');
+  document.getElementById('minus_box').classList.remove('current_sign');
 }
 
 // BUTTON FUNCTIONS
@@ -337,6 +358,12 @@ function onPressPrevLevel() {
 function onPressNextLevel() {
   lvl_id = (lvl_id % nLevels) + 1;
   resetGame(lvl_id);
+}
+
+function onPressInfo() {
+  const infoText = document.getElementById('info_text');
+  if (infoText.style.display == 'none') infoText.style.display = 'block';
+  else infoText.style.display = 'none';
 }
 
 function onPressToggleColors() {
@@ -383,22 +410,4 @@ function setHighScoreToLocalStorage(lvlID, highScore) {
 
 function localStorageKeyString(lvlID) {
   return `plusminus_grid_puzzle_highscore_lvl${lvlID}`;
-}
-
-//PLUS MINUS STYLE
-
-function togglePlusMinusStyle() {
-  console.log("togglePlusMinusStyle");
-  const plus_box = document.getElementById("plus_box");
-  const plus_minus = document.getElementById("minus_box");
-
-  var sign = thisGame.sign;
-
-  if (sign == 1) {
-    plus_box.classList.add("current_sign");
-    plus_minus.classList.remove("current_sign");
-  } else {
-    plus_box.classList.remove("current_sign");
-    plus_minus.classList.add("current_sign");
-  }
 }

@@ -31,7 +31,7 @@ body.dark {
 
 body.light {
   --col_bg1: lightyellow;
-  --col_bg2: mistyrose;
+  --col_bg2: lavenderblush;
   --col_game_text: saddlebrown;
   --col_button_bg1: var(--col_bg1);
   --col_btn_press: tomato;
@@ -75,7 +75,6 @@ header {
   position: relative;
   padding: 0.5vh 0 0.5vh 0;
   background-color: var(--col_bg2);
-  text-align: center;
 }
 
 h2 {
@@ -94,8 +93,6 @@ h2 {
 }
 
 #plusminus_pair {
-  /* margin-top: 0.75vh; */
-  width: 7.2vh;
   display: grid;
   grid-template-columns: 1fr 1fr;
   border: 1px solid var(--col_grid_bg0);
@@ -103,34 +100,23 @@ h2 {
 
 #plusminus_pair div {
   display: flex;
+  align-items: center;
+  justify-content: center;
   width: 3.5vh;
   height: 3.5vh;
   border: 1px solid var(--col_grid_bg0);
-}
-
-#plusminus_pair div p {
-  margin: auto;
+  color: var(--col_game_text);
   font-size: 2.3vh;
 }
 
-#plus_box {
-  background-color: var(--col_grid_bg1);
-  color: var(--col_game_text);
+#plusminus_pair div.sign_box_in_game {
+  color: var(--col_grid_text);
 }
 
-#minus_box {
-  background-color: var(--col_grid_bg2);
-  color: var(--col_game_text);
-}
-
-#plus_box.current_sign {
+#plusminus_pair div.current_sign {
+  color: var(--col_grid_hover);
   border-color: var(--col_grid_hover);
-  border-width: 0.35vw;
-}
-
-#minus_box.current_sign {
-  border-color: var(--col_grid_hover);
-  border-width: 0.35vw;
+  border-width: 0.45vh;
 }
 
 #toggle_box {
@@ -143,9 +129,19 @@ h2 {
   font-size: 2.5vh;
 }
 
-#toggle_box #col_tog {
+#col_tog {
   font-size: 3.3vh;
   margin-bottom: -2px;
+}
+
+#toggle_box:active #col_tog {
+  color: var(--col_btn_press);
+}
+
+@media (hover: hover) {
+  #toggle_box:hover #col_tog {
+    color: var(--col_btn_press);
+  }
 }
 
 .btn_pair {
@@ -189,6 +185,13 @@ h2 {
   color: var(--col_game_text);
 }
 
+#info_text {
+  margin-top: 2vh;
+  margin-left: 2vh;
+  text-align: left;
+  font-size: 1em;
+}
+
 #grid {
   width: var(--grid_width);
   height: var(--grid_width);
@@ -230,11 +233,13 @@ h2 {
 #grid button:hover {
   color: var(--col_grid_hover);
   border-color: var(--col_grid_hover);
+  border-width: 0.45vh;
 }
 
 #grid button:disabled {
   color: var(--col_grid_text);
   border-color: var(--col_grid_bg0);
+  border-width: 1px;
 }
 
 .player_token {
