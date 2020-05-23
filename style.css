@@ -26,12 +26,12 @@ body.dark {
   --col_grid_bg2: #162447;
   --col_grid_text: #e43f5a;
   --col_grid_hover: tomato;
-  --col_player: white;
+  --col_player: goldenrod;
 }
 
 body.light {
   --col_bg1: lightyellow;
-  --col_bg2: lavender;
+  --col_bg2: mistyrose;
   --col_game_text: saddlebrown;
   --col_button_bg1: var(--col_bg1);
   --col_btn_press: tomato;
@@ -45,6 +45,14 @@ body.light {
 
 body {
   background-color: var(--col_bg1);
+}
+
+.left {
+  float: left;
+}
+
+.right {
+  float: right;
 }
 
 .width_wrapper {
@@ -64,6 +72,7 @@ body {
 }
 
 header {
+  position: relative;
   padding: 0.5vh 0 0.5vh 0;
   background-color: var(--col_bg2);
   text-align: center;
@@ -77,8 +86,16 @@ h2 {
   /* text-shadow: 4px 4px 4px var(--col_grid_bg2); */
 }
 
+#title {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
 #plusminus_pair {
-  margin-top: 0.75vh;
+  /* margin-top: 0.75vh; */
+  width: 7.2vh;
   display: grid;
   grid-template-columns: 1fr 1fr;
   border: 1px solid var(--col_grid_bg0);
@@ -106,9 +123,20 @@ h2 {
   color: var(--col_game_text);
 }
 
-/* #scoreText {
-  margin-bottom: -3px;
-} */
+#toggle_box {
+  display: flex;
+  align-items: center;
+  border: none;
+  outline: none;
+  background: none;
+  color: var(--col_game_text);
+  font-size: 2.5vh;
+}
+
+#toggle_box #col_tog {
+  font-size: 3.3vh;
+  margin-bottom: -2px;
+}
 
 .btn_pair {
   display: grid;
@@ -140,7 +168,7 @@ h2 {
   }
 }
 
-.mdi {
+.btn .mdi {
     /* display: inline-block; */
     font-size: 5vh;
     margin-right: -4px;
@@ -200,7 +228,6 @@ h2 {
 }
 
 .player_token {
-  display: inline-block;
   font-size: 4vh;
   color: var(--col_player);
 }
