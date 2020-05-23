@@ -1,4 +1,4 @@
-let color_theme = "light";
+let color_theme = 'light';
 
 const nLevels = 10;
 
@@ -36,27 +36,27 @@ let lvl_id = 1;
 
 let thisGame = new GameRecord(lvl_id);
 
-document.documentElement.style.setProperty("--grid_size", gridSize);
+document.documentElement.style.setProperty('--grid_size', gridSize);
 
 grid();
 
 resetGame(lvl_id);
 
-document.addEventListener("keydown", () => keyDownHandler(event), false);
+document.addEventListener('keydown', () => keyDownHandler(event), false);
 
 // creating the grid
 function grid() {
-  const grid = document.getElementById("grid");
+  const grid = document.getElementById('grid');
 
   for (let iRow = 0; iRow < gridSize; iRow += 1) {
-    const row = document.createElement("div");
-    row.className = "row";
+    const row = document.createElement('div');
+    row.className = 'row';
 
     for (let iCol = 0; iCol < gridSize; iCol += 1) {
-      const tile = document.createElement("button");
-      tile.className = "tile";
+      const tile = document.createElement('button');
+      tile.className = 'tile';
       tile.id = `tile${iRow}${iCol}`;
-      tile.addEventListener("click", () => newMove([iRow, iCol]));
+      tile.addEventListener('click', () => newMove([iRow, iCol]));
       row.appendChild(tile);
     }
 
@@ -66,15 +66,19 @@ function grid() {
 
 // add values to tiles
 function resetGame(lvlID) {
+
+  // remove colors and focus borders from sign boxes
   resetSignBoxColors();
+  resetPlusMinusBorders();
 
   let highScore = +getHighScoreFromLocalStorage(lvlID);
-  document.getElementById(
-    "highScoreText"
-  ).innerHTML = `Highscore: ${highScore}`;
+  document.getElementById('highScoreText')
+    .innerHTML = `Highscore: ${highScore}`;
 
-  document.getElementById("lvlText").innerHTML = `Puzzle ID: ${lvlID}`;
+  document.getElementById('lvlText').innerHTML = `Puzzle ID: ${lvlID}`;
+
   thisGame = new GameRecord(lvlID);
+
   showGameSpecs();
 
   // Create random number generator for this level
@@ -140,8 +144,6 @@ function newMove([iRow, iCol]) {
   thisGame.score += thisGame.sign * val;
   thisGame.sign *= -1;
 
-  showGameSpecs();
-
   doMove([iRow, iCol]);
 }
 
@@ -154,8 +156,6 @@ function onPressUndo() {
     thisGame.sign *= -1;
     thisGame.score -= thisGame.sign * undoVal;
     thisGame.iMoveCur--;
-
-    showGameSpecs();
 
     // restore tile
     tiles[iRowUndo][iColUndo].taken = false;
@@ -178,8 +178,6 @@ function onPressRedo() {
     thisGame.score += thisGame.sign * redoVal;
     thisGame.sign *= -1;
 
-    showGameSpecs();
-
     // remove tile
     tiles[iRowRedo][iColRedo].taken = true;
     hideTile([iRowRedo, iColRedo]);
@@ -198,12 +196,19 @@ function doMove([iRow, iCol]) {
   const optionsLeft = enableAdjacentTiles([iRow, iCol]);
 
   // check for game end
-  if (!optionsLeft) {
+  if (optionsLeft) {
+    // change plus-minus style
+    togglePlusMinusBorders();
+  } else {
     thisGame.finished = true;
-    //changes opacity of current tile
+    // changes opacity of current tile
     dimTile([iRow, iCol]);
+    resetPlusMinusBorders();
     checkForHighScore(thisGame.lvlID);
   }
+
+  showGameSpecs();
+
 }
 
 // 4 FUNCTIONS TO CONTROL TILES APPEARANCE
@@ -212,12 +217,12 @@ function doMove([iRow, iCol]) {
 function showTile([iRow, iCol]) {
   let tile = document.getElementById(`tile${iRow}${iCol}`);
   tile.innerHTML = tiles[iRow][iCol].value;
-  tile.style.setProperty("opacity", 1);
+  tile.style.setProperty('opacity', 1);
 }
 
 //remove number and decreases opacity
 function hideTile([iRow, iCol]) {
-  document.getElementById(`tile${iRow}${iCol}`).innerHTML = "&nbsp;";
+  document.getElementById(`tile${iRow}${iCol}`).innerHTML = '';
   dimTile([iRow, iCol]);
 }
 
@@ -225,24 +230,24 @@ function hideTile([iRow, iCol]) {
 function dimTile([iRow, iCol]) {
   document
     .getElementById(`tile${iRow}${iCol}`)
-    .style.setProperty("opacity", 0.5);
+    .style.setProperty('opacity', 0.5);
 }
 
 //add icon of player, and sets opacity to 1 (for undoMove)
 function showPlayer([iRow, iCol]) {
   let tileCur = document.getElementById(`tile${iRow}${iCol}`);
-  //happy smiley if score higher or equal to 0, sad if less than 0
-  if (thisGame.score >= 0) {
-    tileCur.innerHTML =
-      '<span class="mdi mdi-emoticon-happy-outline player_token"></span>';
+  let emoji;
+  //happy/neutral/sad depending on score
+  if (thisGame.score > 0) {
+    emoji = 'happy';
+  } else if (thisGame.score == 0) {
+    emoji = 'neutral';
   } else {
-    tileCur.innerHTML =
-      '<span class="mdi mdi-emoticon-sad-outline player_token"></span>';
+    emoji = 'sad';
   }
-
-  // tileCur.innerHTML = '<i class="ion-happy player_token"></i>';
-  // tileCur.innerHTML = '<span class="player_token">&#9787;</span>';
-  tileCur.style.setProperty("opacity", 1);
+  tileCur.innerHTML =
+    `<span class="mdi mdi-emoticon-${emoji}-outline player_token"></span>`;
+  tileCur.style.setProperty('opacity', 1);
 }
 
 //3 FUNCTIONS FOR ENABLING AND DISABLING TILES
@@ -281,6 +286,9 @@ function enableTileIfPresent([iRow, iCol]) {
   return enabledTile;
 }
 
+// 5 FUNCTIONS TO CHANGE DISPLAY
+
+//change game score
 function showGameSpecs() {
   // let scoreString = thisGame.score.toString().padStart(3, ' ');
   let scoreString = thisGame.score.toString();
@@ -290,31 +298,53 @@ function showGameSpecs() {
 }
 
 function resetSignBoxColors() {
-  const plusBox = document.getElementById("plus_box");
-  const minusBox = document.getElementById("minus_box");
+  const plusBox = document.getElementById('plus_box');
+  const minusBox = document.getElementById('minus_box');
 
-  plusBox.style.setProperty("background-color", "var(--col_bg1)");
-  plusBox.style.setProperty("color", "var(--col_game_text)");
-  minusBox.style.setProperty("background-color", "var(--col_bg1)");
-  minusBox.style.setProperty("color", "var(--col_game_text)");
+  plusBox.classList.remove('sign_box_in_game');
+  minusBox.classList.remove('sign_box_in_game');
+
+  plusBox.style.setProperty('background-color', 'var(--col_bg1)');
+  minusBox.style.setProperty('background-color', 'var(--col_bg1)');
 }
 
 function setSignBoxColors([iRow, iCol]) {
+  const plusBox = document.getElementById('plus_box');
+  const minusBox = document.getElementById('minus_box');
+
   const signIndex = (iRow + iCol) % 2;
-  const plusBox = document.getElementById("plus_box");
-  const minusBox = document.getElementById("minus_box");
+
+  plusBox.classList.add('sign_box_in_game');
+  minusBox.classList.add('sign_box_in_game');
 
   if (signIndex == 1) {
-    plusBox.style.setProperty("background-color", "var(--col_grid_bg1)");
-    minusBox.style.setProperty("background-color", "var(--col_grid_bg2)");
+    plusBox.style.setProperty('background-color', 'var(--col_grid_bg1)');
+    minusBox.style.setProperty('background-color', 'var(--col_grid_bg2)');
   } else {
-    plusBox.style.setProperty("background-color", "var(--col_grid_bg2)");
-    minusBox.style.setProperty("background-color", "var(--col_grid_bg1)");
+    plusBox.style.setProperty('background-color', 'var(--col_grid_bg2)');
+    minusBox.style.setProperty('background-color', 'var(--col_grid_bg1)');
   }
-
-  plusBox.style.setProperty("color", "var(--col_grid_text)");
-  minusBox.style.setProperty("color", "var(--col_grid_text)");
 }
+
+function togglePlusMinusBorders() {
+  const plusBox = document.getElementById('plus_box');
+  const minusBox = document.getElementById('minus_box');
+
+  if (thisGame.sign == 1) {
+    plusBox.classList.add('current_sign');
+    minusBox.classList.remove('current_sign');
+  } else {
+    plusBox.classList.remove('current_sign');
+    minusBox.classList.add('current_sign');
+  }
+}
+
+function resetPlusMinusBorders() {
+  document.getElementById('plus_box').classList.remove('current_sign');
+  document.getElementById('minus_box').classList.remove('current_sign');
+}
+
+// BUTTON FUNCTIONS
 
 function onPressRestart() {
   resetGame(lvl_id);
@@ -330,27 +360,39 @@ function onPressNextLevel() {
   resetGame(lvl_id);
 }
 
+function onPressInfo() {
+  const infoText = document.getElementById('info_text');
+  if (infoText.style.display == 'none') infoText.style.display = 'block';
+  else infoText.style.display = 'none';
+}
+
 function onPressToggleColors() {
   const body = document.body;
-  if (color_theme == "dark") {
-    body.classList.remove("dark");
-    body.classList.add("light");
-    color_theme = "light";
+  const toggle = document.getElementById('col_tog');
+  if (color_theme == 'dark') {
+    color_theme = 'light';
+    body.classList.remove('dark');
+    body.classList.add('light');
+    toggle.classList.remove('mdi-toggle-switch-outline');
+    toggle.classList.add('mdi-toggle-switch-off-outline');
   } else {
-    body.classList.remove("light");
-    body.classList.add("dark");
-    color_theme = "dark";
+    color_theme = 'dark';
+    body.classList.remove('light');
+    body.classList.add('dark');
+    toggle.classList.remove('mdi-toggle-switch-off-outline');
+    toggle.classList.add('mdi-toggle-switch-outline');
   }
 }
+
+//HIGH SCORE FUNCTIONS
 
 function checkForHighScore(lvlID) {
   let highScore = +getHighScoreFromLocalStorage(lvlID);
 
   if (thisGame.score > highScore) {
     highScore = thisGame.score;
-    document.getElementById(
-      "highScoreText"
-    ).innerHTML = `Highscore: ${highScore}`;
+    document.getElementById('highScoreText')
+      .innerHTML = `Highscore: ${highScore}`;
     setHighScoreToLocalStorage(lvlID, highScore);
   }
 }

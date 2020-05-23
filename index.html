@@ -2,10 +2,6 @@
   <head>
     <meta charset="UTF-8">
     <link
-      type="text/css"
-      rel="stylesheet"
-      href="style.css">
-    <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css?family=Rubik">
     <link
@@ -14,10 +10,7 @@
     <link
       type="text/css"
       rel="stylesheet"
-      href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-    <!-- <script type="module"
-            src="https://unpkg.com/ionicons@5.0.0/dist/ionicons/ionicons.esm.js">
-    </script> -->
+      href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/2.3.10/seedrandom.min.js">
     </script>
 
@@ -26,31 +19,33 @@
   <body class="light">
 
     <header>
-      <h2>Plus-minus grid puzzle</h2>
-    </header>
 
-    <div class="width_wrapper">
+      <h2 id="title">Plus-minus grid puzzle</h2>
 
-      <div class="spread align_bottom">
+      <div class="width_wrapper spread">
 
         <div id="plusminus_pair">
-          <div id="plus_box"><p>+</p></div>
-          <div id="minus_box"><p>-</p></div>
+          <div id="plus_box">+</div>
+          <div id="minus_box">-</div>
         </div>
 
-        <p class="gameText" id="scoreText">Score: 0</p>
+        <button type="button" id="toggle_box" onclick="onPressToggleColors();">
+          <span class="mdi mdi-weather-sunny"></span>
+          <span class="mdi mdi-toggle-switch-off-outline" id="col_tog"></span>
+          <span class="mdi mdi-weather-night"></span>
+        </div>
 
       </div>
 
-      <!-- <p class="clearfix_after">
-        <span class="gameText left" id="signText">Next sign: +</span>
-        <span class="gameText right" id="scoreText">Score: 0</span>
-      </p> -->
+    </header>
+
+    <div class="width_wrapper">
 
       <div id="grid"></div>
 
       <div class="spread">
         <span class="gameText" id="lvlText">Puzzle ID: 1</span>
+        <span class="gameText" id="scoreText">Score: 0</span>
         <span class="gameText" id="highScoreText">Highscore: 0</span>
       </div>
 
@@ -61,22 +56,25 @@
         <div class="btn_pair">
           <button type="button" class="btn" onclick="onPressPrevLevel();">
             <span class="mdi mdi-chevron-left"></span>
-            <!-- <span class="icon ion-ios-arrow-back"></span> -->
             <br>
             Prev.
           </button>
 
           <button type="button" class="btn" onclick="onPressNextLevel();">
             <span class="mdi mdi-chevron-right"></span>
-            <!-- <span class="icon ion-ios-arrow-forward"></span> -->
             <br>
             Next
           </button>
         </div>
 
+        <button type="button" class="btn" onclick="onPressInfo();">
+          <span class="mdi mdi-help"></span>
+          <br>
+          Instructions
+        </button>
+
         <button type="button" class="btn" onclick="onPressRestart();">
           <span class="mdi mdi-restart"></span>
-          <!-- <span class="icon ion-ios-refresh"></span> -->
           <br>
           Start Over
         </button>
@@ -84,26 +82,29 @@
         <div class="btn_pair">
           <button type="button" class="btn" onclick="onPressUndo();">
             <span class="mdi mdi-undo"></span>
-            <!-- <span class="icon ion-ios-undo"></span> -->
             <br>
             Undo
           </button>
 
           <button type="button" class="btn" onclick="onPressRedo();">
             <span class="mdi mdi-redo"></span>
-            <!-- <span class="icon ion-ios-redo"></span> -->
             <br>
             Redo
           </button>
         </div>
 
-        <button type="button" class="btn" onclick="onPressToggleColors();">
-          <span class="mdi mdi-theme-light-dark"></span>
-          <!-- <span class="icon ion-contrast"></span> -->
-          <br>
-          Colors
-          <!-- Color<br>Theme -->
-        </button>
+      </div>
+
+      <div class="gameText" id="info_text" style="display: none;">
+
+        <ul>
+          <li>Start on any square by selecting it.</li>
+          <li>You add up numbers as you move through the grid,
+          but the sign (+/-) changes every move.</li>
+          <li>The game ends once you get stuck somewhere
+          (in a corner, or behind squares you already emptied).</li>
+          <li>Try to find a route that maximizes your score!</li>
+        </ul>
 
       </div>
 
