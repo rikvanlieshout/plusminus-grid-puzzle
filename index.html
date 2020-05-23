@@ -2,10 +2,6 @@
   <head>
     <meta charset="UTF-8">
     <link
-      type="text/css"
-      rel="stylesheet"
-      href="style.css">
-    <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css?family=Rubik">
     <link
@@ -14,10 +10,7 @@
     <link
       type="text/css"
       rel="stylesheet"
-      href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-    <!-- <script type="module"
-            src="https://unpkg.com/ionicons@5.0.0/dist/ionicons/ionicons.esm.js">
-    </script> -->
+      href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/2.3.10/seedrandom.min.js">
     </script>
 
@@ -26,32 +19,34 @@
   <body class="light">
 
     <header>
-      <h2>Plus-minus grid puzzle</h2>
-    </header>
 
-    <div class="width_wrapper">
+      <h2 id="title">Plus-minus grid puzzle</h2>
 
-      <div class="spread align_bottom">
+      <div class="width_wrapper spread" style="align-items: center">
 
         <div id="plusminus_pair">
           <div id="plus_box"><p>+</p></div>
           <div id="minus_box"><p>-</p></div>
         </div>
 
-        <p class="gameText" id="scoreText">Score: 0</p>
+        <button type="button" id="toggle_box" onclick="onPressToggleColors();">
+          <span class="mdi mdi-weather-sunny"></span>
+          <span class="mdi mdi-toggle-switch-off-outline" id="col_tog"></span>
+          <span class="mdi mdi-weather-night"></span>
+        </div>
 
       </div>
 
-      <!-- <p class="clearfix_after">
-        <span class="gameText left" id="signText">Next sign: +</span>
-        <span class="gameText right" id="scoreText">Score: 0</span>
-      </p> -->
+    </header>
+
+    <div class="width_wrapper">
 
       <div id="grid"></div>
 
       <div class="spread">
-        <span class="gameText" id="lvlText">Puzzle ID: 1</span>
-        <span class="gameText" id="highScoreText">Highscore: 0</span>
+        <span class="gameText left" id="lvlText">Puzzle ID: 1</span>
+        <span class="gameText right" id="scoreText">Score: 0</span>
+        <span class="gameText right" id="highScoreText">Highscore: 0</span>
       </div>
 
       <br>
@@ -96,14 +91,6 @@
             Redo
           </button>
         </div>
-
-        <button type="button" class="btn" onclick="onPressToggleColors();">
-          <span class="mdi mdi-theme-light-dark"></span>
-          <!-- <span class="icon ion-contrast"></span> -->
-          <br>
-          Colors
-          <!-- Color<br>Theme -->
-        </button>
 
       </div>
 
