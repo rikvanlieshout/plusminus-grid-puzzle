@@ -1,4 +1,4 @@
-:root{
+:root {
   --grid_size: 6;
   --grid_width: 95vw;
   --max_grid_width: 55vh;
@@ -12,7 +12,7 @@
 }
 
 html {
-  font-family: 'Rubik', sans-serif;
+  font-family: "Rubik", sans-serif;
 }
 
 body.dark {
@@ -121,6 +121,16 @@ h2 {
 #minus_box {
   background-color: var(--col_grid_bg2);
   color: var(--col_game_text);
+}
+
+#plus_box.current_sign {
+  border-color: var(--col_grid_hover);
+  border-width: 0.35vw;
+}
+
+#minus_box.current_sign {
+  border-color: var(--col_grid_hover);
+  border-width: 0.35vw;
 }
 
 #toggle_box {
