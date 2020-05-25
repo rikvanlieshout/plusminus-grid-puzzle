@@ -20,14 +20,14 @@
 
     <header>
 
-      <h2 id="title">Plus-minus grid puzzle</h2>
-
       <div class="width_wrapper spread">
 
         <div id="plusminus_pair">
           <div id="plus_box">+</div>
           <div id="minus_box">-</div>
         </div>
+
+        <h2 class="middle" id="title">Plus-minus grid puzzle</h2>
 
         <button type="button" id="toggle_box" onclick="onPressToggleColors();">
           <span class="mdi mdi-weather-sunny"></span>
@@ -45,50 +45,42 @@
 
       <div class="spread">
         <span class="gameText" id="lvlText">Puzzle ID: 1</span>
-        <span class="gameText" id="scoreText">Score: 0</span>
+        <span class="gameText middle" id="scoreText">Score: 0</span>
         <span class="gameText" id="highScoreText">Highscore: 0</span>
       </div>
 
-      <br>
-
-      <div class="spread">
+      <div class="btn_holder spread">
 
         <div class="btn_pair">
           <button type="button" class="btn" onclick="onPressPrevLevel();">
             <span class="mdi mdi-chevron-left"></span>
-            <br>
             Prev.
           </button>
 
           <button type="button" class="btn" onclick="onPressNextLevel();">
             <span class="mdi mdi-chevron-right"></span>
-            <br>
             Next
           </button>
         </div>
 
         <button type="button" class="btn" onclick="onPressInfo();">
           <span class="mdi mdi-help"></span>
-          <br>
           Instructions
         </button>
 
         <button type="button" class="btn" onclick="onPressRestart();">
           <span class="mdi mdi-restart"></span>
-          <br>
-          Start Over
+          Start&nbsp;Over
         </button>
 
         <div class="btn_pair">
           <button type="button" class="btn" onclick="onPressUndo();">
             <span class="mdi mdi-undo"></span>
-            <br>
             Undo
           </button>
 
           <button type="button" class="btn" onclick="onPressRedo();">
             <span class="mdi mdi-redo"></span>
-            <br>
             Redo
           </button>
         </div>
