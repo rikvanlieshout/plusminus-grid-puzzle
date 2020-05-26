@@ -16,22 +16,23 @@
 
     <title>Plus-minus grid puzzle</title>
   </head>
-  <body class="light">
+  <body>
 
     <header>
 
       <div class="width_wrapper spread">
 
-        <div id="plusminus_pair">
-          <div id="plus_box">+</div>
-          <div id="minus_box">-</div>
+        <div class="plusminus_pair_pregame" id="plusminus_pair">
+          <div class="plusminus_box" id="plus_box">+</div>
+          <div class="plusminus_box" id="minus_box">-</div>
         </div>
 
         <h2 class="middle" id="title">Plus-minus grid puzzle</h2>
 
-        <button type="button" id="toggle_box" onclick="onPressToggleColors();">
+        <button type="button" id="theme_toggler">
           <span class="mdi mdi-weather-sunny"></span>
-          <span class="mdi mdi-toggle-switch-off-outline" id="col_tog"></span>
+          <span class="mdi mdi-toggle-switch-outline"
+            id="theme_toggle_icon"></span>
           <span class="mdi mdi-weather-night"></span>
         </div>
 
@@ -44,42 +45,42 @@
       <div id="grid"></div>
 
       <div class="spread">
-        <span class="gameText" id="lvlText">Puzzle ID: 1</span>
-        <span class="gameText middle" id="scoreText">Score: 0</span>
-        <span class="gameText" id="highScoreText">Highscore: 0</span>
+        <span class="gameText" id="lvlText">Puzzle ID: --</span>
+        <span class="gameText middle" id="scoreDisplay">Score: --</span>
+        <span class="gameText" id="highScoreDisplay">Highscore: --</span>
       </div>
 
       <div class="btn_holder spread">
 
         <div class="btn_pair">
-          <button type="button" class="btn" onclick="onPressPrevLevel();">
+          <button type="button" class="btn" id="prev_lvl_button">
             <span class="mdi mdi-chevron-left"></span>
             Prev.
           </button>
 
-          <button type="button" class="btn" onclick="onPressNextLevel();">
+          <button type="button" class="btn" id="next_lvl_button">
             <span class="mdi mdi-chevron-right"></span>
             Next
           </button>
         </div>
 
-        <button type="button" class="btn" onclick="onPressInfo();">
+        <button type="button" class="btn" id="info_button">
           <span class="mdi mdi-help"></span>
           Instructions
         </button>
 
-        <button type="button" class="btn" onclick="onPressRestart();">
+        <button type="button" class="btn" id="restart_button">
           <span class="mdi mdi-restart"></span>
           Start&nbsp;Over
         </button>
 
         <div class="btn_pair">
-          <button type="button" class="btn" onclick="onPressUndo();">
+          <button type="button" class="btn" id="undo_button">
             <span class="mdi mdi-undo"></span>
             Undo
           </button>
 
-          <button type="button" class="btn" onclick="onPressRedo();">
+          <button type="button" class="btn" id="redo_button">
             <span class="mdi mdi-redo"></span>
             Redo
           </button>
@@ -87,7 +88,7 @@
 
       </div>
 
-      <div class="gameText" id="info_text" style="display: none;">
+      <div class="gameText hidden" id="info_text">
 
         <ul>
           <li>Start on any square by selecting it.</li>
@@ -102,7 +103,7 @@
 
     </div>
 
-    <script type ="text/javascript" src="app.js"></script>
+    <script type="module" src="./app.js"></script>
 
   </body>
 

@@ -1,8 +1,12 @@
 :root {
   --grid_size: 6;
-  --grid_width: 95vw;
+  --grid_width: 97vw;
   --max_grid_width: 55vh;
   --max_cell_width: calc(var(--max_grid_width) / var(--grid_size));
+}
+
+.hidden {
+  display: none;
 }
 
 html {
@@ -44,7 +48,7 @@ body {
   background-color: var(--col_bg1);
 }
 
-/* positioning classes */
+/* --- positioning classes --- */
 
 .width_wrapper {
   width: var(--grid_width);
@@ -87,9 +91,20 @@ header {
   grid-template-columns: 1fr 1fr;
   border: 1px solid var(--col_grid_bg0);
   box-sizing: border-box;
+  font-size: 2.3vh;
 }
 
-#plusminus_pair div {
+.plusminus_pair_pregame {
+  background-color: var(--col_bg1);
+  color: var(--col_game_text);
+}
+
+.plusminus_pair_in_game {
+  background-color: var(--col_grid_bg1);
+  color: var(--col_grid_text);
+}
+
+.plusminus_box {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -97,15 +112,13 @@ header {
   height: 3.5vh;
   border: 1px solid var(--col_grid_bg0);
   box-sizing: border-box;
-  color: var(--col_game_text);
-  font-size: 2.3vh;
 }
 
-#plusminus_pair div.sign_box_in_game {
-  color: var(--col_grid_text);
+.plusminus_box_bg {
+  background-color: var(--col_grid_bg2);
 }
 
-#plusminus_pair div.current_sign {
+.current_sign {
   color: var(--col_grid_hover);
   border-color: var(--col_grid_hover);
   border-width: 0.45vh;
@@ -113,7 +126,7 @@ header {
 
 /* --- color theme toggle --- */
 
-#toggle_box {
+#theme_toggler {
   display: flex;
   align-items: center;
   padding: 0;
@@ -124,17 +137,17 @@ header {
   font-size: 2.8vh;
 }
 
-#col_tog {
+#theme_toggle_icon {
   font-size: 3.3vh;
   transition: color 0.25s;
 }
 
-#toggle_box:active #col_tog {
+#theme_toggler:active #theme_toggle_icon {
   color: var(--col_btn_press);
 }
 
 @media (hover: hover) {
-  #toggle_box:hover #col_tog {
+  #theme_toggler:hover #theme_toggle_icon {
     color: var(--col_btn_press);
   }
 }
@@ -248,4 +261,8 @@ header {
 .player_token {
   font-size: 4vh;
   color: var(--col_player);
+}
+
+.tile_dimmed {
+  opacity: 0.5;
 }
