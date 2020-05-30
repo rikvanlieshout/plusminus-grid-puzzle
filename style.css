@@ -221,14 +221,39 @@ header {
   padding-left: 3.5vh;
 }
 
-/* --- leaderboard --- */
+/* --- post to leaderboard --- */
 
-#leaderboard_post_btn_hider {
+#leaderboard_post_hider {
   margin: 0;
-  padding: 10% 7.5%;
+  padding: 2vh 3vh;
   background-color: var(--col_bg2);
-  opacity: 0.85;
 }
+
+#leaderboard_post_wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+}
+
+#playername_input_lbl {
+  margin-top: 2vh;
+  display: inline-block;
+  color: var(--col_game_text);
+  font-size: 2vh;
+}
+
+#playername_input_field {
+  border: 2px solid var(--col_border);
+  outline: none;
+  background-color: var(--col_bg1);
+  color: var(--col_game_text);
+  font-size: 2.3vh;
+  /* width: 10ch; */
+  text-align: center;
+}
+
+/* --- show leaderboard --- */
 
 .leaderboard_list_item {
   display: grid;

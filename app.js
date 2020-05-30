@@ -568,24 +568,26 @@ function renderLeaderboard(leaderArray) {
 // reveal button to post score to the leaderboard
 function enableLeaderboardPost() {
   document
-    .getElementById('leaderboard_post_btn_hider')
+    .getElementById('leaderboard_post_hider')
     .classList.remove('hidden');
+
+  document.getElementById('playername_input_field').value = userName;
 }
 
 // hide button to post score to the leaderboard
 function disableLeaderboardPost() {
   document
-    .getElementById('leaderboard_post_btn_hider')
+    .getElementById('leaderboard_post_hider')
     .classList.add('hidden');
 }
 
 // post current score to the database
 function postToLeaderboard() {
-  // prompt user for name
-  userName = prompt('Enter a username to add to the leaderboard:', userName);
+  // get username from text input field
+  userName = document.getElementById('playername_input_field').value;
 
   // if cancelled, retrieve username and break out of posting function
-  if (userName === null) {
+  if (userName === '') {
     userName = getFromLocalStorage(userNameKey, defaultUserName);
     return;
   }
@@ -618,6 +620,12 @@ function postToLeaderboard() {
 document
   .getElementById('leaderboard_post_btn')
   .addEventListener('click', postToLeaderboard);
+
+document
+  .getElementById('playername_input_field')
+  .addEventListener('keyup', (event) => {
+    if (event.keyCode === 13) postToLeaderboard();
+  });
 
 /* -------------- STARTUP -------------- */
 
