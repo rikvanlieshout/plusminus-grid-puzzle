@@ -16,6 +16,7 @@ html {
 body.dark {
   --col_bg1: #1d2a3a;
   --col_bg2: #1b1b2f;
+  --col_border: black;
   --col_game_text: #888;
   --col_button_bg1: var(--col_bg1);
   --col_btn_press: tomato;
@@ -30,6 +31,7 @@ body.dark {
 body.light {
   --col_bg1: lightyellow;
   --col_bg2: lavenderblush;
+  --col_border: black;
   --col_game_text: saddlebrown;
   --col_button_bg1: var(--col_bg1);
   --col_btn_press: tomato;
@@ -53,14 +55,17 @@ body {
 .width_wrapper {
   width: var(--grid_width);
   max-width: var(--max_grid_width);
-  margin: 0 auto 0 auto;
+  margin: 0 auto;
   text-align: center;
 }
 
 .spread {
-  position: relative;
   display: flex;
   justify-content: space-between;
+}
+
+.pos_container {
+  position: relative;
 }
 
 .middle {
@@ -89,7 +94,7 @@ header {
 #plusminus_pair {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  border: 1px solid var(--col_grid_bg0);
+  border: 1px solid var(--col_border);
   box-sizing: border-box;
   font-size: 2.3vh;
 }
@@ -110,7 +115,7 @@ header {
   justify-content: center;
   width: 3.5vh;
   height: 3.5vh;
-  border: 1px solid var(--col_grid_bg0);
+  border: 1px solid var(--col_border);
   box-sizing: border-box;
 }
 
@@ -155,7 +160,7 @@ header {
 /* --- UI buttons --- */
 
 .btn_holder {
-  margin: 0.75vh 0;
+  margin: 1vh 0;
   box-sizing: border-box;
 }
 
@@ -175,7 +180,7 @@ header {
   outline: none;
   background: none;
   color: var(--col_game_text);
-  font-size: 2vh;
+  font-size: 1.8vh;
   font-weight: 300;
   transition: color 0.25s, transform 0.25s ease-in-out;
 }
@@ -202,19 +207,48 @@ header {
   color: var(--col_game_text);
 }
 
-#info_text {
-  position: relative;
-  margin-top: 2vh;
-  margin-left: 2vh;
-  text-align: left;
+.textBox {
+  margin: 1vh 0;
+  padding: 0.5vh;
+  box-sizing: border-box;
+  background-color: var(--col_bg2);
+  border: 2px solid var(--col_border);
   font-size: 1em;
+  text-align: left;
+}
+
+#info_text{
+  padding-left: 3.5vh;
+}
+
+/* --- leaderboard --- */
+
+#leaderboard_post_btn_hider {
+  margin: 0;
+  padding: 10% 7.5%;
+  background-color: var(--col_bg2);
+  opacity: 0.85;
+}
+
+.leaderboard_list_item {
+  display: grid;
+  grid-template-columns: 1fr 5fr;
+  grid-gap: 1vh;
+}
+
+.leaderboard_score {
+  text-align: center;
+}
+
+.leaderboard_names {
+  text-align: left;
 }
 
 /* --- game grid and tiles --- */
 
 #grid {
   margin: 0.75vh 0 0.5vh 0;
-  border: 1px solid var(--col_grid_bg0);
+  border: 1px solid var(--col_border);
   width: var(--grid_width);
   height: var(--grid_width);
   max-width: var(--max_grid_width);
@@ -242,7 +276,7 @@ header {
   outline: none;
   max-width: var(--max_cell_width);
   max-height: var(--max_cell_width);
-  border: 1px solid var(--col_grid_bg0);
+  border: 1px solid var(--col_border);
   background-color: var(--col_grid_bg1);
   color: var(--col_grid_text);
   font-size: 4vh;
