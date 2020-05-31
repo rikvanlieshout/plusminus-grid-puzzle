@@ -37,7 +37,8 @@ const currentLvlKey = keyRoot + 'current_lvl';
 let colorTheme
 
 // leaderboard
-const api = 'http://localhost:27017';
+// const api = 'http://localhost:27017';
+const api = 'https://plus-minus-grid-puzzle.herokuapp.com';
 let leaderboardMin;
 
 // game parameters
