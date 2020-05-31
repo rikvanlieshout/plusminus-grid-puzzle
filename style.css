@@ -1,14 +1,12 @@
 :root {
   --grid_size: 6;
-  --grid_width: 95vw;
+  --grid_width: 97vw;
   --max_grid_width: 55vh;
   --max_cell_width: calc(var(--max_grid_width) / var(--grid_size));
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+.hidden {
+  display: none;
 }
 
 html {
@@ -18,6 +16,7 @@ html {
 body.dark {
   --col_bg1: #1d2a3a;
   --col_bg2: #1b1b2f;
+  --col_border: black;
   --col_game_text: #888;
   --col_button_bg1: var(--col_bg1);
   --col_btn_press: tomato;
@@ -32,6 +31,7 @@ body.dark {
 body.light {
   --col_bg1: lightyellow;
   --col_bg2: lavenderblush;
+  --col_border: black;
   --col_game_text: saddlebrown;
   --col_button_bg1: var(--col_bg1);
   --col_btn_press: tomato;
@@ -44,21 +44,18 @@ body.light {
 }
 
 body {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
   background-color: var(--col_bg1);
 }
 
-.left {
-  float: left;
-}
-
-.right {
-  float: right;
-}
+/* --- positioning classes --- */
 
 .width_wrapper {
   width: var(--grid_width);
   max-width: var(--max_grid_width);
-  margin: 0 auto 0 auto;
+  margin: 0 auto;
   text-align: center;
 }
 
@@ -67,100 +64,125 @@ body {
   justify-content: space-between;
 }
 
-.align_bottom {
-  align-items: flex-end;
-}
-
-header {
+.pos_container {
   position: relative;
-  padding: 0.5vh 0 0.5vh 0;
-  background-color: var(--col_bg2);
 }
 
-h2 {
-  color: var(--col_game_text);
-  /* padding: 1vh 0 1vh 0; */
-  font-size: 2.5vh;
-  font-weight: 500;
-  /* text-shadow: 4px 4px 4px var(--col_grid_bg2); */
-}
-
-#title {
+.middle {
   position: absolute;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
 }
 
+/* --- header --- */
+
+header {
+  padding: 0.75vh 0;
+  background-color: var(--col_bg2);
+}
+
+#title {
+  margin: 0;
+  color: var(--col_game_text);
+  font-size: 2.5vh;
+  font-weight: 500;
+}
+
+/* --- sign boxes --- */
+
 #plusminus_pair {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  border: 1px solid var(--col_grid_bg0);
+  border: 1px solid var(--col_border);
+  box-sizing: border-box;
+  font-size: 2.3vh;
 }
 
-#plusminus_pair div {
+.plusminus_pair_pregame {
+  background-color: var(--col_bg1);
+  color: var(--col_game_text);
+}
+
+.plusminus_pair_in_game {
+  background-color: var(--col_grid_bg1);
+  color: var(--col_grid_text);
+}
+
+.plusminus_box {
   display: flex;
   align-items: center;
   justify-content: center;
   width: 3.5vh;
   height: 3.5vh;
-  border: 1px solid var(--col_grid_bg0);
-  color: var(--col_game_text);
-  font-size: 2.3vh;
+  border: 1px solid var(--col_border);
+  box-sizing: border-box;
 }
 
-#plusminus_pair div.sign_box_in_game {
-  color: var(--col_grid_text);
+.plusminus_box_bg {
+  background-color: var(--col_grid_bg2);
 }
 
-#plusminus_pair div.current_sign {
+.current_sign {
   color: var(--col_grid_hover);
   border-color: var(--col_grid_hover);
   border-width: 0.45vh;
 }
 
-#toggle_box {
+/* --- color theme toggle --- */
+
+#theme_toggler {
   display: flex;
   align-items: center;
+  padding: 0;
   border: none;
   outline: none;
   background: none;
   color: var(--col_game_text);
-  font-size: 2.5vh;
+  font-size: 2.8vh;
 }
 
-#col_tog {
+#theme_toggle_icon {
   font-size: 3.3vh;
-  margin-bottom: -2px;
+  transition: color 0.25s;
 }
 
-#toggle_box:active #col_tog {
+#theme_toggler:active #theme_toggle_icon {
   color: var(--col_btn_press);
 }
 
 @media (hover: hover) {
-  #toggle_box:hover #col_tog {
+  #theme_toggler:hover #theme_toggle_icon {
     color: var(--col_btn_press);
   }
 }
 
+/* --- UI buttons --- */
+
+.btn_holder {
+  margin: 1vh 0;
+  box-sizing: border-box;
+}
+
 .btn_pair {
+  box-sizing: border-box;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-gap: 1vh;
+  grid-gap: 1vmin;
 }
 
 .btn {
-  /* margin: 1vh; */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0;
   border: none;
   outline: none;
   background: none;
-  text-align: center;
   color: var(--col_game_text);
-  font-size: 2vh;
+  font-size: 1.8vh;
   font-weight: 300;
-  transition: color 0.4s, transform 0.25s ease-in-out;
-  /* transform-origin: center; */
+  transition: color 0.25s, transform 0.25s ease-in-out;
 }
 
 .btn:active {
@@ -175,30 +197,88 @@ h2 {
 }
 
 .btn .mdi {
-    /* display: inline-block; */
-    font-size: 5vh;
-    margin-right: -4px;
+  font-size: 5vh;
 }
+
+/* --- generic text elements --- */
 
 .gameText {
   font-size: 2.3vh;
   color: var(--col_game_text);
 }
 
-#info_text {
-  margin-top: 2vh;
-  margin-left: 2vh;
-  text-align: left;
+.textBox {
+  margin: 1vh 0;
+  padding: 0.5vh;
+  box-sizing: border-box;
+  background-color: var(--col_bg2);
+  border: 2px solid var(--col_border);
   font-size: 1em;
+  text-align: left;
 }
 
+#info_text{
+  padding-left: 3.5vh;
+}
+
+/* --- post to leaderboard --- */
+
+#leaderboard_post_hider {
+  margin: 0;
+  padding: 2vh 3vh;
+  background-color: var(--col_bg2);
+}
+
+#leaderboard_post_wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+}
+
+#username_input_lbl {
+  margin-top: 2vh;
+  display: inline-block;
+  color: var(--col_game_text);
+  font-size: 2vh;
+}
+
+#username_input_field {
+  border: 2px solid var(--col_border);
+  outline: none;
+  background-color: var(--col_bg1);
+  color: var(--col_game_text);
+  font-size: 2.3vh;
+  /* width: 10ch; */
+  text-align: center;
+}
+
+/* --- show leaderboard --- */
+
+.leaderboard_list_item {
+  display: grid;
+  grid-template-columns: 1fr 5fr;
+  grid-gap: 1vh;
+}
+
+.leaderboard_score {
+  text-align: center;
+}
+
+.leaderboard_names {
+  text-align: left;
+}
+
+/* --- game grid and tiles --- */
+
 #grid {
+  margin: 0.75vh 0 0.5vh 0;
+  border: 1px solid var(--col_border);
   width: var(--grid_width);
   height: var(--grid_width);
   max-width: var(--max_grid_width);
   max-height: var(--max_grid_width);
-  margin: 0.5vh auto 0.5vh auto;
-  border: 1px solid var(--col_grid_bg0);
+  box-sizing: border-box;
   background-color: var(--col_grid_bg0);
   display: grid;
   grid-template-rows: repeat(var(--grid_size), 1fr);
@@ -209,40 +289,39 @@ h2 {
   grid-template-columns: repeat(var(--grid_size), 1fr);
 }
 
-#grid .row:nth-child(even) button:nth-child(even) {
+#grid .row:nth-child(even) .tile:nth-child(even) {
   background-color: var(--col_grid_bg2);
 }
 
-#grid .row:nth-child(odd) button:nth-child(odd) {
+#grid .row:nth-child(odd) .tile:nth-child(odd) {
   background-color: var(--col_grid_bg2);
 }
 
-#grid button {
+#grid .tile {
   outline: none;
   max-width: var(--max_cell_width);
   max-height: var(--max_cell_width);
-  border: 1px solid var(--col_grid_bg0);
+  border: 1px solid var(--col_border);
   background-color: var(--col_grid_bg1);
   color: var(--col_grid_text);
   font-size: 4vh;
-  /* font-family: inherit; */
-  /* line-height: 0; */
-  /* overflow: hidden; */
 }
 
-#grid button:hover {
+#grid .tile:hover {
   color: var(--col_grid_hover);
-  border-color: var(--col_grid_hover);
-  border-width: 0.45vh;
+  border: 0.45vh solid var(--col_grid_hover);
 }
 
-#grid button:disabled {
+#grid .tile:disabled {
   color: var(--col_grid_text);
-  border-color: var(--col_grid_bg0);
-  border-width: 1px;
+  border: 1px solid var(--col_grid_bg0);
 }
 
 .player_token {
   font-size: 4vh;
   color: var(--col_player);
+}
+
+.tile_dimmed {
+  opacity: 0.5;
 }

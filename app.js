@@ -1,12 +1,8 @@
-let color_theme = 'light';
+'use strict';
 
-const nLevels = 10;
+/* -------------- CLASSES -------------- */
 
-const gridSize = 6;
-const nTiles = gridSize * gridSize;
-const maxTileVal = 7;
-const minTileVal = 1;
-
+// class to store values of tiles and booleans of whether they're taken
 class TileTemplate {
   constructor(value) {
     this.value = value;
@@ -14,13 +10,10 @@ class TileTemplate {
   }
 }
 
-const tiles = new Array(gridSize);
-for (let iRow = 0; iRow < gridSize; iRow++) {
-  tiles[iRow] = new Array(gridSize);
-}
-
+// class to record details of a game
 class GameRecord {
   constructor(lvlID) {
+    this.playerName = '';
     this.lvlID = lvlID;
     this.coords = [];
     this.vals = [];
@@ -32,20 +25,87 @@ class GameRecord {
   }
 }
 
-let lvl_id = 1;
+/* -------------- GLOBAL PARAMETERS -------------- */
 
-let thisGame = new GameRecord(lvl_id);
+// local storage keys
+const keyRoot = 'plusminus_grid_puzzle_';
+const colorThemeKey = keyRoot + 'color_theme';
+const userNameKey = keyRoot + 'username';
+const currentLvlKey = keyRoot + 'current_lvl';
+
+// theme
+let colorTheme
+
+// leaderboard
+// const api = 'http://localhost:27017';
+const api = 'https://plus-minus-grid-puzzle.herokuapp.com';
+let leaderboardMin;
+
+// game parameters
+const nLevels = 10;
+const gridSize = 6;
+const maxTileVal = 7;
+const minTileVal = 1;
+
+// 2D array that stores tile objects
+const tiles = new Array(gridSize);
+for (let iRow = 0; iRow < gridSize; iRow++) {
+  tiles[iRow] = new Array(gridSize);
+}
+
+// current level and current game record
+let lvl_id;
+let thisGame;
+
+/* -------------- CORE FUNCTIONS -------------- */
+
+function getRandomIntIncl(min, max, randFunc = Math.random) {
+  return Math.floor(randFunc() * (max - min + 1)) + min;
+}
+
+/* -------------- LOCAL STORAGE -------------- */
+
+function getFromLocalStorage(key, defaultValue = '0') {
+  if (!(key in localStorage)) return defaultValue;
+  else return localStorage.getItem(key);
+}
+
+function setToLocalStorage(key, value) {
+  localStorage.setItem(key, value);
+}
+
+/* -------------- THEME -------------- */
+
+function setColorTheme() {
+  const themeToggleIcon = document.getElementById('theme_toggle_icon');
+  if (colorTheme == 'dark') {
+    document.body.classList.remove('light');
+    document.body.classList.add('dark');
+    themeToggleIcon.classList.add('mdi-toggle-switch-outline');
+    themeToggleIcon.classList.remove('mdi-toggle-switch-off-outline');
+  } else {
+    document.body.classList.add('light');
+    document.body.classList.remove('dark');
+    themeToggleIcon.classList.add('mdi-toggle-switch-off-outline');
+    themeToggleIcon.classList.remove('mdi-toggle-switch-outline');
+  }
+}
+
+function toggleTheme() {
+  colorTheme = colorTheme === 'dark' ? 'light' : 'dark';
+  setToLocalStorage(colorThemeKey, colorTheme);
+  setColorTheme();
+}
+
+document
+  .getElementById('theme_toggler')
+  .addEventListener('click', toggleTheme);
+
+/*--------------CREATE GRID--------------*/
 
 document.documentElement.style.setProperty('--grid_size', gridSize);
 
-grid();
-
-resetGame(lvl_id);
-
-document.addEventListener('keydown', () => keyDownHandler(event), false);
-
-// creating the grid
-function grid() {
+function createGrid() {
   const grid = document.getElementById('grid');
 
   for (let iRow = 0; iRow < gridSize; iRow += 1) {
@@ -64,94 +124,133 @@ function grid() {
   }
 }
 
-// add values to tiles
-function resetGame(lvlID) {
+/* -------------- GENERATE LEVEL -------------- */
+
+// load level: add values to tiles, according to puzzle ID
+function loadLevel(lvlID) {
+  // create random number generator for this level
+  let lvlRNG = new Math.seedrandom(lvlID);
+
+  // add values to tiles
+  for (let iRow = 0; iRow < gridSize; iRow++) {
+    for (let iCol = 0; iCol < gridSize; iCol++) {
+      // obtain random integer in range [minTileVal, maxTileVal]
+      const val = getRandomIntIncl(minTileVal, maxTileVal, lvlRNG);
+      // add tile object to 2D array
+      tiles[iRow][iCol] = new TileTemplate(val);
+    }
+  }
+
+  // store current level ID in local storage
+  // to allow continue playing same level after browser refresh
+  setToLocalStorage(currentLvlKey, lvlID);
+
+  // show level ID
+  document.getElementById('lvlText').innerHTML = `Puzzle ID: ${lvlID}`;
+
+  // get level high score from local storage (defaults to -inf), and show it
+  const highScoreKey = getHighScoreKey(lvlID);
+  const highScore = +getFromLocalStorage(highScoreKey,
+    Number.NEGATIVE_INFINITY);
+  updateHighScoreDisplay(highScore);
+
+  // retrieve leaderboard data from server and show
+  makeLeaderboard();
+}
+
+/* -------------- NEW GAME -------------- */
+
+function resetGame() {
+  // show and enable tiles
+  resetLevel();
+
+  // reset game record
+  thisGame = new GameRecord(lvl_id);
+
+  // disable button to post scores to leaderboard
+  hideLeaderboardPost();
+
+  // reset score indicator to 0
+  updateScoreDisplay(thisGame.score);
 
   // remove colors and focus borders from sign boxes
   resetSignBoxColors();
   resetPlusMinusBorders();
+}
 
-  let highScore = +getHighScoreFromLocalStorage(lvlID);
-  document.getElementById('highScoreText')
-    .innerHTML = `Highscore: ${highScore}`;
-
-  document.getElementById('lvlText').innerHTML = `Puzzle ID: ${lvlID}`;
-
-  thisGame = new GameRecord(lvlID);
-
-  showGameSpecs();
-
-  // Create random number generator for this level
-  let lvlRNG = new Math.seedrandom(lvlID);
-
+function resetLevel() {
   for (let iRow = 0; iRow < gridSize; iRow++) {
     for (let iCol = 0; iCol < gridSize; iCol++) {
-      let val =
-        Math.floor(lvlRNG() * (maxTileVal - minTileVal + 1)) + minTileVal;
-
-      tiles[iRow][iCol] = new TileTemplate(val);
-
+      // mark all tiles as available
+      tiles[iRow][iCol].taken = false;
+      // show tile values in UI
       showTile([iRow, iCol]);
-
-      // enable all tiles
-      let tile = document.getElementById(`tile${iRow}${iCol}`);
+      // enable all tile buttons
+      const tile = document.getElementById(`tile${iRow}${iCol}`);
       tile.disabled = false;
     }
   }
 }
 
-function keyDownHandler(event) {
-  if (thisGame.iMoveCur >= 0) {
-    let [iRowCur, iColCur] = thisGame.coords[thisGame.iMoveCur];
-    let keyCode = event.keyCode;
-    if (keyCode == 37) {
-      // left
-      checkMove([iRowCur, iColCur - 1]);
-    } else if (keyCode == 38) {
-      // up
-      checkMove([iRowCur - 1, iColCur]);
-    } else if (keyCode == 39) {
-      // right
-      checkMove([iRowCur, iColCur + 1]);
-    } else if (keyCode == 40) {
-      // down
-      checkMove([iRowCur + 1, iColCur]);
-    }
-  }
+/* -------------- KEYBOARD INPUT -------------- */
+
+document.onkeydown = (event) => {
+  // no keyboard input allowed before first tile is selected
+  if (thisGame.iMoveCur < 0) return;
+
+  // get keycode from keydown event and select coords of move accordingly
+  let [iRowCur, iColCur] = thisGame.coords[thisGame.iMoveCur];
+  let keyCode = event.keyCode;
+  if (keyCode == 37) checkMove([iRowCur, iColCur - 1]); // left
+  else if (keyCode == 38) checkMove([iRowCur - 1, iColCur]); // up
+  else if (keyCode == 39) checkMove([iRowCur, iColCur + 1]); // right
+  else if (keyCode == 40) checkMove([iRowCur + 1, iColCur]); // down
+};
+
+// allow move if destination tile is not beyond edge and not taken
+function checkMove([iRow, iCol]) {
+  if (
+    iRow >= 0 &&
+    iRow < gridSize &&
+    iCol >= 0 &&
+    iCol < gridSize &&
+    !tiles[iRow][iCol].taken
+  ) newMove([iRow, iCol]);
 }
 
-function checkMove([iRow, iCol]) {
-  if (iRow >= 0 && iRow < gridSize && iCol >= 0 && iCol < gridSize) {
-    if (!tiles[iRow][iCol].taken) newMove([iRow, iCol]);
-  }
-}
+/* -------------- MOVING -------------- */
 
 function newMove([iRow, iCol]) {
+  // on first move, set colors of sign boxes
   if (thisGame.iMoveCur < 0) setSignBoxColors([iRow, iCol]);
 
   // remove player token from previous tile, if game started
   if (thisGame.iMoveCur >= 0) hideTile(thisGame.coords[thisGame.iMoveCur]);
 
+  // mark tile as taken
   tiles[iRow][iCol].taken = true;
 
-  let val = tiles[iRow][iCol].value;
+  const val = tiles[iRow][iCol].value;
 
+  // insert new move into stack, deleting move stack beyond current move
+  const maxMoves = gridSize * gridSize;
   thisGame.iMoveCur++;
-  thisGame.vals.splice(thisGame.iMoveCur, nTiles, val);
-  thisGame.coords.splice(thisGame.iMoveCur, nTiles, [iRow, iCol]);
+  thisGame.vals.splice(thisGame.iMoveCur, maxMoves, val);
+  thisGame.coords.splice(thisGame.iMoveCur, maxMoves, [iRow, iCol]);
   thisGame.nMoves = thisGame.iMoveCur + 1;
 
+  // update score and flip sign for next move
   thisGame.score += thisGame.sign * val;
   thisGame.sign *= -1;
 
   doMove([iRow, iCol]);
 }
 
-function onPressUndo() {
-  //If first move - reset game
-  if (thisGame.iMoveCur <= 0) resetGame(lvl_id);
+function undoMove() {
+  // if first move - reset game
+  if (thisGame.iMoveCur <= 0) resetGame();
   else {
-    undoVal = thisGame.vals[thisGame.iMoveCur];
+    const undoVal = thisGame.vals[thisGame.iMoveCur];
     const [iRowUndo, iColUndo] = thisGame.coords[thisGame.iMoveCur];
     thisGame.sign *= -1;
     thisGame.score -= thisGame.sign * undoVal;
@@ -161,31 +260,46 @@ function onPressUndo() {
     tiles[iRowUndo][iColUndo].taken = false;
     showTile([iRowUndo, iColUndo]);
 
-    doMove(thisGame.coords[thisGame.iMoveCur]);
+    if (thisGame.finished) {
+      // undo end-of-game state
+      thisGame.finished = false;
 
-    // undo end-of-game state
-    if (thisGame.finished) thisGame.finished = false;
+      // disable posting to the leaderboard
+      hideLeaderboardPost();
+
+      // undo removal of sign box borders
+      if (thisGame.sign == 1)
+        document.getElementById('minus_box').classList.add('current_sign');
+      else
+        document.getElementById('plus_box').classList.add('current_sign');
+    }
+
+    doMove(thisGame.coords[thisGame.iMoveCur]);
   }
 }
 
-function onPressRedo() {
+function redoMove() {
   // only redo if not first move, and if current move is less than number
   // of moves made (nothing to redo)
-  if (thisGame.iMoveCur >= 0 && thisGame.iMoveCur < thisGame.nMoves - 1) {
-    thisGame.iMoveCur++;
-    redoVal = thisGame.vals[thisGame.iMoveCur];
-    const [iRowRedo, iColRedo] = thisGame.coords[thisGame.iMoveCur - 1];
-    thisGame.score += thisGame.sign * redoVal;
-    thisGame.sign *= -1;
+  if (
+    thisGame.iMoveCur < 0 ||
+    thisGame.iMoveCur == thisGame.nMoves - 1
+  ) return;
 
-    // remove tile
-    tiles[iRowRedo][iColRedo].taken = true;
-    hideTile([iRowRedo, iColRedo]);
+  thisGame.iMoveCur++;
+  const redoVal = thisGame.vals[thisGame.iMoveCur];
+  const [iRowRedo, iColRedo] = thisGame.coords[thisGame.iMoveCur - 1];
+  thisGame.score += thisGame.sign * redoVal;
+  thisGame.sign *= -1;
 
-    doMove(thisGame.coords[thisGame.iMoveCur]);
-  }
+  // remove tile
+  tiles[iRowRedo][iColRedo].taken = true;
+  hideTile([iRowRedo, iColRedo]);
+
+  doMove(thisGame.coords[thisGame.iMoveCur]);
 }
 
+// move functionality common for new move, undo, and redo
 function doMove([iRow, iCol]) {
   //show icon on new tile coords
   showPlayer([iRow, iCol]);
@@ -202,65 +316,26 @@ function doMove([iRow, iCol]) {
   } else {
     thisGame.finished = true;
     // changes opacity of current tile
-    dimTile([iRow, iCol]);
+    document
+      .getElementById(`tile${iRow}${iCol}`)
+      .classList.add('tile_dimmed');
     resetPlusMinusBorders();
     checkForHighScore(thisGame.lvlID);
   }
 
-  showGameSpecs();
-
+  updateScoreDisplay(thisGame.score);
 }
 
-// 4 FUNCTIONS TO CONTROL TILES APPEARANCE
+/* -------------- ENABLING AND DISABLING TILES -------------- */
 
-//add number and opacity 1
-function showTile([iRow, iCol]) {
-  let tile = document.getElementById(`tile${iRow}${iCol}`);
-  tile.innerHTML = tiles[iRow][iCol].value;
-  tile.style.setProperty('opacity', 1);
+function disableAllTiles () {
+  [...document.getElementsByClassName('tile')].forEach(
+    (tile, index, array) => { tile.disabled = true; }
+  );
 }
 
-//remove number and decreases opacity
-function hideTile([iRow, iCol]) {
-  document.getElementById(`tile${iRow}${iCol}`).innerHTML = '';
-  dimTile([iRow, iCol]);
-}
-
-//decreases opacity to .5
-function dimTile([iRow, iCol]) {
-  document
-    .getElementById(`tile${iRow}${iCol}`)
-    .style.setProperty('opacity', 0.5);
-}
-
-//add icon of player, and sets opacity to 1 (for undoMove)
-function showPlayer([iRow, iCol]) {
-  let tileCur = document.getElementById(`tile${iRow}${iCol}`);
-  let emoji;
-  //happy/neutral/sad depending on score
-  if (thisGame.score > 0) {
-    emoji = 'happy';
-  } else if (thisGame.score == 0) {
-    emoji = 'neutral';
-  } else {
-    emoji = 'sad';
-  }
-  tileCur.innerHTML =
-    `<span class="mdi mdi-emoticon-${emoji}-outline player_token"></span>`;
-  tileCur.style.setProperty('opacity', 1);
-}
-
-//3 FUNCTIONS FOR ENABLING AND DISABLING TILES
-
-function disableAllTiles() {
-  for (let iRow = 0; iRow < gridSize; iRow++) {
-    for (let iCol = 0; iCol < gridSize; iCol++) {
-      let tile = document.getElementById(`tile${iRow}${iCol}`);
-      tile.disabled = true;
-    }
-  }
-}
-
+// enable tile adjacent to new player position, if available
+// returns boolean of whether any tiles were in fact enabaled
 function enableAdjacentTiles([iRowNow, iColNow]) {
   let enabledTiles = false;
 
@@ -274,140 +349,341 @@ function enableAdjacentTiles([iRowNow, iColNow]) {
   return enabledTiles;
 }
 
+// enable tile if not beyond edge and not taken
+// return true if tile enabled
 function enableTileIfPresent([iRow, iCol]) {
-  let enabledTile = false;
-  //enable tiles if not beyond edge and not taken return if tile enabled
-  if (iRow >= 0 && iRow < gridSize && iCol >= 0 && iCol < gridSize) {
-    if (!tiles[iRow][iCol].taken) {
-      document.getElementById(`tile${iRow}${iCol}`).disabled = false;
-      enabledTile = true;
-    }
+  if (
+    iRow < 0 ||
+    iRow >= gridSize ||
+    iCol < 0 ||
+    iCol >= gridSize ||
+    tiles[iRow][iCol].taken
+  ) return false;
+  else {
+    document.getElementById(`tile${iRow}${iCol}`).disabled = false;
+    return true;
   }
-  return enabledTile;
 }
 
-// 5 FUNCTIONS TO CHANGE DISPLAY
+/* -------------- TILES APPEARANCE -------------- */
 
-//change game score
-function showGameSpecs() {
-  // let scoreString = thisGame.score.toString().padStart(3, ' ');
-  let scoreString = thisGame.score.toString();
-  document.getElementById("scoreText").innerHTML = `Score: ${scoreString}`;
-  // let signString = thisGame.sign == 1 ? '+' : '-';
-  // document.getElementById('signText').innerHTML = `Next sign: ${signString}`;
+// add number and opacity 1
+function showTile([iRow, iCol]) {
+  const tile = document.getElementById(`tile${iRow}${iCol}`);
+  tile.innerHTML = tiles[iRow][iCol].value;
+  tile.classList.remove('tile_dimmed');
 }
+
+// remove number and decrease opacity
+function hideTile([iRow, iCol]) {
+  const tile = document.getElementById(`tile${iRow}${iCol}`);
+  tile.innerHTML = '';
+  tile.classList.add('tile_dimmed');
+}
+
+// add icon of player, and sets opacity to 1 (for undoMove)
+function showPlayer([iRow, iCol]) {
+  let tileCur = document.getElementById(`tile${iRow}${iCol}`);
+  let emoji;
+  // happy/neutral/sad depending on score
+  if (thisGame.score > 0) emoji = 'happy';
+  else if (thisGame.score == 0) emoji = 'neutral';
+  else emoji = 'sad';
+  tileCur.innerHTML =
+    `<span class='mdi mdi-emoticon-${emoji}-outline player_token'></span>`;
+  tileCur.classList.remove('tile_dimmed');
+}
+
+/* -------------- SHOW SCORE AND HIGHSCORE -------------- */
+
+// display game score
+function updateScoreDisplay(score) {
+  document
+    .getElementById('scoreDisplay')
+    .innerHTML = `Score: ${score}`;
+}
+
+// display high score
+function updateHighScoreDisplay(highScore) {
+  const highScoreString =
+    highScore === Number.NEGATIVE_INFINITY ? '--' : highScore;
+  document
+    .getElementById('highScoreDisplay')
+    .innerHTML = `Highscore: ${highScoreString}`;
+}
+
+/* -------------- CHANGE SIGN BOXES DISPLAY -------------- */
 
 function resetSignBoxColors() {
+  const plusMinusPair = document.getElementById('plusminus_pair');
   const plusBox = document.getElementById('plus_box');
   const minusBox = document.getElementById('minus_box');
 
-  plusBox.classList.remove('sign_box_in_game');
-  minusBox.classList.remove('sign_box_in_game');
+  plusMinusPair.classList.add('plusminus_pair_pregame');
+  plusMinusPair.classList.remove('plusminus_pair_in_game');
 
-  plusBox.style.setProperty('background-color', 'var(--col_bg1)');
-  minusBox.style.setProperty('background-color', 'var(--col_bg1)');
+  plusBox.classList.remove('plusminus_box_bg');
+  minusBox.classList.remove('plusminus_box_bg');
 }
 
 function setSignBoxColors([iRow, iCol]) {
+  const plusMinusPair = document.getElementById('plusminus_pair');
   const plusBox = document.getElementById('plus_box');
   const minusBox = document.getElementById('minus_box');
 
-  const signIndex = (iRow + iCol) % 2;
+  plusMinusPair.classList.remove('plusminus_pair_pregame');
+  plusMinusPair.classList.add('plusminus_pair_in_game');
 
-  plusBox.classList.add('sign_box_in_game');
-  minusBox.classList.add('sign_box_in_game');
+  if ((iRow + iCol) % 2 == 0) plusBox.classList.add('plusminus_box_bg');
+  else minusBox.classList.add('plusminus_box_bg');
 
-  if (signIndex == 1) {
-    plusBox.style.setProperty('background-color', 'var(--col_grid_bg1)');
-    minusBox.style.setProperty('background-color', 'var(--col_grid_bg2)');
-  } else {
-    plusBox.style.setProperty('background-color', 'var(--col_grid_bg2)');
-    minusBox.style.setProperty('background-color', 'var(--col_grid_bg1)');
-  }
+  plusBox.classList.add('current_sign');
 }
 
 function togglePlusMinusBorders() {
   const plusBox = document.getElementById('plus_box');
   const minusBox = document.getElementById('minus_box');
 
-  if (thisGame.sign == 1) {
-    plusBox.classList.add('current_sign');
-    minusBox.classList.remove('current_sign');
-  } else {
-    plusBox.classList.remove('current_sign');
-    minusBox.classList.add('current_sign');
-  }
+  plusBox.classList.toggle('current_sign');
+  minusBox.classList.toggle('current_sign');
 }
 
 function resetPlusMinusBorders() {
-  document.getElementById('plus_box').classList.remove('current_sign');
-  document.getElementById('minus_box').classList.remove('current_sign');
+  const plusBox = document.getElementById('plus_box');
+  const minusBox = document.getElementById('minus_box');
+
+  plusBox.classList.remove('current_sign');
+  minusBox.classList.remove('current_sign');
 }
 
-// BUTTON FUNCTIONS
+/* -------------- BUTTONS -------------- */
 
-function onPressRestart() {
-  resetGame(lvl_id);
-}
-
-function onPressPrevLevel() {
+function prevLevel() {
   lvl_id = ((lvl_id - nLevels - 1) % nLevels) + nLevels;
-  resetGame(lvl_id);
+  loadLevel(lvl_id);
+  resetGame();
 }
 
-function onPressNextLevel() {
+function nextLevel() {
   lvl_id = (lvl_id % nLevels) + 1;
-  resetGame(lvl_id);
+  loadLevel(lvl_id);
+  resetGame();
 }
 
-function onPressInfo() {
-  const infoText = document.getElementById('info_text');
-  if (infoText.style.display == 'none') infoText.style.display = 'block';
-  else infoText.style.display = 'none';
+function toggleLeaderb() {
+  document.getElementById('leaderboard_box').classList.toggle('hidden');
 }
 
-function onPressToggleColors() {
-  const body = document.body;
-  const toggle = document.getElementById('col_tog');
-  if (color_theme == 'dark') {
-    color_theme = 'light';
-    body.classList.remove('dark');
-    body.classList.add('light');
-    toggle.classList.remove('mdi-toggle-switch-outline');
-    toggle.classList.add('mdi-toggle-switch-off-outline');
-  } else {
-    color_theme = 'dark';
-    body.classList.remove('light');
-    body.classList.add('dark');
-    toggle.classList.remove('mdi-toggle-switch-off-outline');
-    toggle.classList.add('mdi-toggle-switch-outline');
-  }
+function toggleInfo() {
+  document.getElementById('info_text').classList.toggle('hidden');
 }
 
-//HIGH SCORE FUNCTIONS
+document.getElementById('prev_lvl_btn').addEventListener('click', prevLevel);
+document.getElementById('next_lvl_btn').addEventListener('click', nextLevel);
+document.getElementById('leaderb_btn').addEventListener('click', toggleLeaderb);
+document.getElementById('info_btn').addEventListener('click', toggleInfo);
+document.getElementById('restart_btn').addEventListener('click', resetGame);
+document.getElementById('undo_btn').addEventListener('click', undoMove);
+document.getElementById('redo_btn').addEventListener('click', redoMove);
+
+/* -------------- HIGH SCORE -------------- */
+
+function getHighScoreKey(lvlID) {
+  return `${keyRoot}highscore_lvl_A${lvlID}`;
+}
 
 function checkForHighScore(lvlID) {
-  let highScore = +getHighScoreFromLocalStorage(lvlID);
+  const highScoreKey = getHighScoreKey(lvlID);
+  let highScore = +getFromLocalStorage(highScoreKey, Number.NEGATIVE_INFINITY);
 
   if (thisGame.score > highScore) {
     highScore = thisGame.score;
-    document.getElementById('highScoreText')
-      .innerHTML = `Highscore: ${highScore}`;
-    setHighScoreToLocalStorage(lvlID, highScore);
+    updateHighScoreDisplay(highScore);
+    setToLocalStorage(highScoreKey, highScore);
+  }
+
+  if (thisGame.score >= leaderboardMin) showLeaderboardPost();
+}
+
+/* -------------- GENERATE LEADERBOARD -------------- */
+
+// wrapper function calling subroutines to generate the leaderboard
+async function makeLeaderboard() {
+  const leaderboardBox = document.getElementById('leaderboard_box');
+  leaderboardBox.innerHTML = 'Loading leaderboard...';
+
+  // get leaderboard data from database
+  const leaderboardData = await getLeaderboardData();
+
+  // create HTML for leaderboard depending on data returned by database
+  // and set minimum value needed to post score to leaderboard
+  if (leaderboardData === null) {
+    // error with database request
+    leaderboardBox.innerHTML = 'Problem retrieving leaderboard data';
+    leaderboardMin = Number.POSITIVE_INFINITY;
+  } else if (leaderboardData.length === 0) {
+    // leaderboard empty
+    leaderboardBox.innerHTML = 'No scores yet';
+    leaderboardMin = Number.NEGATIVE_INFINITY;
+  } else {
+    // leaderboard with content
+    const leaderboardList = processLeaderboardData(leaderboardData);
+    leaderboardBox.innerHTML = renderLeaderboard(leaderboardList);
+    leaderboardMin = leaderboardList.slice(-1)[0].score;
   }
 }
 
-function getHighScoreFromLocalStorage(lvlID) {
-  let key = localStorageKeyString(lvlID);
-  if (!(key in localStorage)) return 0;
-  else return localStorage.getItem(key);
+// get raw array of game results from database
+async function getLeaderboardData() {
+  const route = `${api}/highscores/lvl/${lvl_id}`;
+
+  try {
+    const response = await fetch(route);
+    return await response.json();
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
 }
 
-function setHighScoreToLocalStorage(lvlID, highScore) {
-  let key = localStorageKeyString(lvlID);
-  localStorage.setItem(key, highScore);
+// process raw array of game results to create array of scores with
+// all player names that achieved that score
+function processLeaderboardData(leaderboardData) {
+  // find unique scores
+  const allScores = leaderboardData.map(game => game.score);
+  const uniqueScores = [...new Set(allScores)];
+
+  let leaderboardList = [];
+  for (const score of uniqueScores) {
+    // collect player names for each score
+    let names = [];
+    for (const game of leaderboardData) {
+      if (game.score == score) names.push(game.playerName);
+    }
+    // add found names, eliminating duplicates
+    leaderboardList.push({ score: score, names: [...new Set(names)] });
+  }
+
+  return leaderboardList;
 }
 
-function localStorageKeyString(lvlID) {
-  return `plusminus_grid_puzzle_highscore_lvl${lvlID}`;
+// render HTML for leaderboard
+function renderLeaderboard(leaderboardList) {
+  return `
+    <div class= "leaderboard_list_item">
+      <span class="leaderboard_score"><u>Score</u></span>
+      <span class="leaderboard_names"><u>Players</u></span>
+    </div>
+    ` + leaderboardList.reduce((acc, current) =>
+        (acc += `
+          <div class="leaderboard_list_item">
+            <span class="leaderboard_score">${current.score}</span>
+            <span class="leaderboard_names">${current.names.join(', ')}</span>
+          </div>
+        `),
+      '');
 }
+
+/* -------------- POST TO LEADERBOARD -------------- */
+
+// reveal button to post score to the leaderboard
+function showLeaderboardPost() {
+  document
+    .getElementById('leaderboard_post_hider')
+    .classList.remove('hidden');
+
+  // retrieve username from local storage
+  // defaults to 'user' + random 4 digit integer
+  const defaultUserName = `user${getRandomIntIncl(1000, 9999)}`;
+  const userName = getFromLocalStorage(userNameKey, defaultUserName);
+
+  // show username in input text field
+  document.getElementById('username_input_field').value = userName;
+}
+
+// hide button to post score to the leaderboard
+function hideLeaderboardPost() {
+  document
+    .getElementById('leaderboard_post_hider')
+    .classList.add('hidden');
+}
+
+// post current score to the database
+async function postToLeaderboard() {
+  // get username from user
+  const userName = getUsername();
+
+  // break out of posting function if username is invalid
+  if (userName === null) return;
+
+  // add username to game record, which is sent to database
+  thisGame.playerName = userName;
+
+  // send game record to API
+  const route = api + '/submitScore';
+  const response = await fetch(route, {
+    method: 'POST',
+    mode: 'cors',
+    headers: {
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify(thisGame),
+  });
+
+  // handle errors
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  // remove box for posting to leaderboard
+  hideLeaderboardPost();
+
+  // refresh leaderboard to show new entry
+  makeLeaderboard();
+}
+
+// get username from text input field
+// return true if success, return false if username suppplied is invalid
+function getUsername() {
+  let userName = document.getElementById('username_input_field').value;
+
+  // if username supplied is invalid, alert user, and return null
+  const validUsernameRegExp = new RegExp('^([a-zA-Z0-9_-]{3,16})$');
+  if (!validUsernameRegExp.test(userName)) {
+    alert('Your username can only contain alphanumeric, '
+      + ' underscore, and hyphen characters (a-z A-Z 0-9 _ -). '
+      + 'It should be at least 3 characters long.');
+    return null;
+  }
+
+  // store username for next time
+  setToLocalStorage(userNameKey, userName);
+
+  return userName;
+}
+
+document
+  .getElementById('leaderboard_post_btn')
+  .addEventListener('click', postToLeaderboard);
+
+document
+  .getElementById('username_input_field')
+  .addEventListener('keyup', (event) => {
+    if (event.keyCode === 13) postToLeaderboard();
+  });
+
+/* -------------- STARTUP -------------- */
+
+// set color theme
+colorTheme = getFromLocalStorage(colorThemeKey, 'dark');
+setColorTheme();
+
+// construct grid of tiles
+createGrid();
+
+// get current level ID from local storage, defaults to level 1
+lvl_id = +getFromLocalStorage(currentLvlKey, 1);
+
+// generate level and start game
+loadLevel(lvl_id);
+resetGame();
