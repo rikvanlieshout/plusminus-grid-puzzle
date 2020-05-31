@@ -586,9 +586,15 @@ function postToLeaderboard() {
   // get username from text input field
   userName = document.getElementById('playername_input_field').value;
 
-  // if cancelled, retrieve username and break out of posting function
-  if (userName === '') {
+  // if invalid username, reset username, alert user,
+  // and break out of posting function
+  const validUsernameRegExp = new RegExp('^([a-zA-Z0-9_-]{3,16})$');
+  if (!validUsernameRegExp.test(userName)) {
     userName = getFromLocalStorage(userNameKey, defaultUserName);
+    document.getElementById('playername_input_field').value = userName;
+    alert('Your username can only contain alphanumeric, '
+      +' underscore, and hyphen characters (a-z A-Z 0-9 _ -). '
+      + 'It should be at least 3 characters long.');
     return;
   }
 
