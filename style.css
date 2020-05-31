@@ -236,14 +236,14 @@ header {
   text-align: center;
 }
 
-#playername_input_lbl {
+#username_input_lbl {
   margin-top: 2vh;
   display: inline-block;
   color: var(--col_game_text);
   font-size: 2vh;
 }
 
-#playername_input_field {
+#username_input_field {
   border: 2px solid var(--col_border);
   outline: none;
   background-color: var(--col_bg1);

@@ -12,8 +12,8 @@ class TileTemplate {
 
 // class to record details of a game
 class GameRecord {
-  constructor(playerName, lvlID) {
-    this.playerName = playerName;
+  constructor(lvlID) {
+    this.playerName = '';
     this.lvlID = lvlID;
     this.coords = [];
     this.vals = [];
@@ -38,7 +38,7 @@ let colorTheme
 
 // leaderboard
 const api = 'http://localhost:27017';
-let leaderboardMin = 0;
+let leaderboardMin;
 
 // game parameters
 const nLevels = 10;
@@ -51,10 +51,6 @@ const tiles = new Array(gridSize);
 for (let iRow = 0; iRow < gridSize; iRow++) {
   tiles[iRow] = new Array(gridSize);
 }
-
-// user name
-let defaultUserName;
-let userName;
 
 // current level and current game record
 let lvl_id;
@@ -158,7 +154,7 @@ function loadLevel(lvlID) {
   updateHighScoreDisplay(highScore);
 
   // retrieve leaderboard data from server and show
-  getLeaderboard();
+  makeLeaderboard();
 }
 
 /* -------------- NEW GAME -------------- */
@@ -168,10 +164,10 @@ function resetGame() {
   resetLevel();
 
   // reset game record
-  thisGame = new GameRecord(userName, lvl_id);
+  thisGame = new GameRecord(lvl_id);
 
   // disable button to post scores to leaderboard
-  disableLeaderboardPost();
+  hideLeaderboardPost();
 
   // reset score indicator to 0
   updateScoreDisplay(thisGame.score);
@@ -268,7 +264,7 @@ function undoMove() {
       thisGame.finished = false;
 
       // disable posting to the leaderboard
-      disableLeaderboardPost();
+      hideLeaderboardPost();
 
       // undo removal of sign box borders
       if (thisGame.sign == 1)
@@ -474,7 +470,7 @@ function nextLevel() {
 }
 
 function toggleLeaderb() {
-  document.getElementById('leaderboard_list').classList.toggle('hidden');
+  document.getElementById('leaderboard_box').classList.toggle('hidden');
 }
 
 function toggleInfo() {
@@ -505,55 +501,79 @@ function checkForHighScore(lvlID) {
     setToLocalStorage(highScoreKey, highScore);
   }
 
-  if (thisGame.score >= leaderboardMin) enableLeaderboardPost();
+  if (thisGame.score >= leaderboardMin) showLeaderboardPost();
 }
 
-/* -------------- SHOW LEADERBOARD -------------- */
+/* -------------- GENERATE LEADERBOARD -------------- */
 
-// get highscores from database
-async function getLeaderboard() {
-  const route = `${api}/highscores/lvl/${lvl_id}`;
+// wrapper function calling subroutines to generate the leaderboard
+async function makeLeaderboard() {
+  const leaderboardBox = document.getElementById('leaderboard_box');
+  leaderboardBox.innerHTML = 'Loading leaderboard...';
 
-  try {
-    // get leaderboard data from backend
-    const response = await fetch(route);
-    const leaderArray = await response.json();
+  // get leaderboard data from database
+  const leaderboardData = await getLeaderboardData();
 
-    let leaderbContent = [];
-    if (leaderArray.length > 0) {
-      // find unique scores
-      const allScores = leaderArray.map(game => game.score);
-      const uniqueScores = [...new Set(allScores)]; 
-      
-      // collect player names for each score
-      for (const score of uniqueScores) {
-        let names = [];
-        for (const game of leaderArray) {
-          if (game.score == score) names.push(game.playerName);
-        }
-        leaderbContent.push({ score: score, names: [...new Set(names)] } );
-      }
-
-      // get minimum score in leaderboard
-      leaderboardMin = Math.min(...uniqueScores);
-    }
-
-    renderLeaderboard(leaderbContent);
-  } catch (err) {
-    console.log(err);
+  // create HTML for leaderboard depending on data returned by database
+  // and set minimum value needed to post score to leaderboard
+  if (leaderboardData === null) {
+    // error with database request
+    leaderboardBox.innerHTML = 'Problem retrieving leaderboard data';
+    leaderboardMin = Number.POSITIVE_INFINITY;
+  } else if (leaderboardData.length === 0) {
+    // leaderboard empty
+    leaderboardBox.innerHTML = 'No scores yet';
+    leaderboardMin = Number.NEGATIVE_INFINITY;
+  } else {
+    // leaderboard with content
+    const leaderboardList = processLeaderboardData(leaderboardData);
+    leaderboardBox.innerHTML = renderLeaderboard(leaderboardList);
+    leaderboardMin = leaderboardList.slice(-1)[0].score;
   }
 }
 
+// get raw array of game results from database
+async function getLeaderboardData() {
+  const route = `${api}/highscores/lvl/${lvl_id}`;
+
+  try {
+    const response = await fetch(route);
+    return await response.json();
+  } catch (err) {
+    console.log(err);
+    return null;
+  }
+}
+
+// process raw array of game results to create array of scores with
+// all player names that achieved that score
+function processLeaderboardData(leaderboardData) {
+  // find unique scores
+  const allScores = leaderboardData.map(game => game.score);
+  const uniqueScores = [...new Set(allScores)];
+
+  let leaderboardList = [];
+  for (const score of uniqueScores) {
+    // collect player names for each score
+    let names = [];
+    for (const game of leaderboardData) {
+      if (game.score == score) names.push(game.playerName);
+    }
+    // add found names, eliminating duplicates
+    leaderboardList.push({ score: score, names: [...new Set(names)] });
+  }
+
+  return leaderboardList;
+}
+
 // render HTML for leaderboard
-function renderLeaderboard(leaderArray) {
-  const leaderbList = document.getElementById('leaderboard_list');
-  if (leaderArray.length === 0) leaderbList.innerHTML = 'No scores yet';
-  else leaderbList.innerHTML = `
+function renderLeaderboard(leaderboardList) {
+  return `
     <div class= "leaderboard_list_item">
       <span class="leaderboard_score"><u>Score</u></span>
       <span class="leaderboard_names"><u>Players</u></span>
     </div>
-    ` + leaderArray.reduce((acc, current) =>
+    ` + leaderboardList.reduce((acc, current) =>
         (acc += `
           <div class="leaderboard_list_item">
             <span class="leaderboard_score">${current.score}</span>
@@ -566,61 +586,79 @@ function renderLeaderboard(leaderArray) {
 /* -------------- POST TO LEADERBOARD -------------- */
 
 // reveal button to post score to the leaderboard
-function enableLeaderboardPost() {
+function showLeaderboardPost() {
   document
     .getElementById('leaderboard_post_hider')
     .classList.remove('hidden');
 
-  document.getElementById('playername_input_field').value = userName;
+  // retrieve username from local storage
+  // defaults to 'user' + random 4 digit integer
+  const defaultUserName = `user${getRandomIntIncl(1000, 9999)}`;
+  const userName = getFromLocalStorage(userNameKey, defaultUserName);
+
+  // show username in input text field
+  document.getElementById('username_input_field').value = userName;
 }
 
 // hide button to post score to the leaderboard
-function disableLeaderboardPost() {
+function hideLeaderboardPost() {
   document
     .getElementById('leaderboard_post_hider')
     .classList.add('hidden');
 }
 
 // post current score to the database
-function postToLeaderboard() {
-  // get username from text input field
-  userName = document.getElementById('playername_input_field').value;
+async function postToLeaderboard() {
+  // get username from user
+  const userName = getUsername();
 
-  // if invalid username, reset username, alert user,
-  // and break out of posting function
-  const validUsernameRegExp = new RegExp('^([a-zA-Z0-9_-]{3,16})$');
-  if (!validUsernameRegExp.test(userName)) {
-    userName = getFromLocalStorage(userNameKey, defaultUserName);
-    document.getElementById('playername_input_field').value = userName;
-    alert('Your username can only contain alphanumeric, '
-      +' underscore, and hyphen characters (a-z A-Z 0-9 _ -). '
-      + 'It should be at least 3 characters long.');
-    return;
-  }
-
-  // store username for next time
-  setToLocalStorage(userNameKey, userName);
+  // break out of posting function if username is invalid
+  if (userName === null) return;
 
   // add username to game record, which is sent to database
   thisGame.playerName = userName;
 
   // send game record to API
   const route = api + '/submitScore';
-  fetch(route, {
+  const response = await fetch(route, {
     method: 'POST',
     mode: 'cors',
     headers: {
       'content-type': 'application/json',
     },
     body: JSON.stringify(thisGame),
-  })
-    .then((response) => {
-      disableLeaderboardPost();
-      getLeaderboard();
-    })
-    .catch((err) => {
-      console.log(err);
-    });
+  });
+
+  // handle errors
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  // remove box for posting to leaderboard
+  hideLeaderboardPost();
+
+  // refresh leaderboard to show new entry
+  makeLeaderboard();
+}
+
+// get username from text input field
+// return true if success, return false if username suppplied is invalid
+function getUsername() {
+  let userName = document.getElementById('username_input_field').value;
+
+  // if username supplied is invalid, alert user, and return null
+  const validUsernameRegExp = new RegExp('^([a-zA-Z0-9_-]{3,16})$');
+  if (!validUsernameRegExp.test(userName)) {
+    alert('Your username can only contain alphanumeric, '
+      + ' underscore, and hyphen characters (a-z A-Z 0-9 _ -). '
+      + 'It should be at least 3 characters long.');
+    return null;
+  }
+
+  // store username for next time
+  setToLocalStorage(userNameKey, userName);
+
+  return userName;
 }
 
 document
@@ -628,7 +666,7 @@ document
   .addEventListener('click', postToLeaderboard);
 
 document
-  .getElementById('playername_input_field')
+  .getElementById('username_input_field')
   .addEventListener('keyup', (event) => {
     if (event.keyCode === 13) postToLeaderboard();
   });
@@ -641,10 +679,6 @@ setColorTheme();
 
 // construct grid of tiles
 createGrid();
-
-// set user name, defaults to 'user' + random 4 digit integer
-defaultUserName = `user${getRandomIntIncl(1000, 9999)}`;
-userName = getFromLocalStorage(userNameKey, defaultUserName);
 
 // get current level ID from local storage, defaults to level 1
 lvl_id = +getFromLocalStorage(currentLvlKey, 1);
