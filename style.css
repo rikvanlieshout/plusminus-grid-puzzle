@@ -213,12 +213,12 @@ header {
   box-sizing: border-box;
   background-color: var(--col_bg2);
   border: 2px solid var(--col_border);
-  font-size: 1em;
   text-align: left;
 }
 
 #info_text{
   padding-left: 3.5vh;
+  font-size: 1em;
 }
 
 /* --- post to leaderboard --- */
@@ -259,6 +259,7 @@ header {
   display: grid;
   grid-template-columns: 1fr 5fr;
   grid-gap: 1vh;
+  font-size: 0.9em;
 }
 
 .leaderboard_score {
