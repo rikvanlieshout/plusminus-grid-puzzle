@@ -50,6 +50,7 @@ body {
   padding: 0;
   box-sizing: border-box;
   background-color: var(--col_bg1);
+  color: var(--col_game_text);
 }
 
 /* --- positioning classes --- */
@@ -86,7 +87,6 @@ header {
 
 #title {
   margin: 0;
-  color: var(--col_game_text);
   font-size: 2.5vh;
   font-weight: 500;
 }
@@ -206,7 +206,6 @@ header {
 
 .gameText {
   font-size: 2.3vh;
-  color: var(--col_game_text);
 }
 
 .textBox {
@@ -227,32 +226,54 @@ header {
 
 #leaderboard_post_hider {
   margin: 0;
-  padding: 2vh 3vh;
+  padding: 1vh 3vh 2vh 3vh;
   background-color: var(--col_bg2);
 }
 
 #leaderboard_post_wrapper {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   text-align: center;
-}
-
-#username_input_lbl {
-  margin-top: 2vh;
-  display: inline-block;
-  color: var(--col_game_text);
   font-size: 2vh;
 }
 
+#leaderboard_post_wrapper .mdi {
+  margin-bottom: 0.25vh;
+  font-size: 5vh;
+}
+
+.input_field_wrapper {
+  margin: 2vh 0 1vh 0;
+}
+
 #username_input_field {
-  border: 2px solid var(--col_border);
-  outline: none;
+  border: 2px solid var(--col_game_text);
   background-color: var(--col_bg1);
   color: var(--col_game_text);
   font-size: 2.3vh;
-  /* width: 10ch; */
   text-align: center;
+}
+
+.btn_border {
+  padding: 0;
+  border: 2px solid var(--col_game_text);
+  background-color: var(--col_bg2);
+  color: var(--col_game_text);
+  font-size: 2vh;
+  font-weight: 300;
+  transition: color 0.25s, transform 0.25s ease-in-out;
+}
+
+.btn_border:active {
+  background-color: var(--col_game_text);
+  color: var(--col_bg2);
+}
+
+@media (hover: hover) {
+  .btn_border:hover {
+    background-color: var(--col_game_text);
+    color: var(--col_bg2);
+  }
 }
 
 /* --- show leaderboard --- */

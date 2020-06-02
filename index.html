@@ -47,19 +47,27 @@
         
         <div class="textBox middle hidden" id="leaderboard_post_hider">
           <div id="leaderboard_post_wrapper">
-            <button type="submit" class="btn" id="leaderboard_post_btn">
-              <span class="mdi mdi-trophy-outline"></span>
-              Add&nbsp;my&nbsp;score&nbsp;to<br>
-              the&nbsp;leaderboard
-            </button>
             <div>
-              <label for="username_input" id="username_input_lbl">
+              <div class="mdi mdi-trophy-outline"></div>
+              Add&nbsp;your&nbsp;score&nbsp;to<br>
+              the&nbsp;leaderboard
+            </div>
+
+            <div class="input_field_wrapper">
+              <label for="username_input">
                 Username:
               </label>
               <br>
-              <input type="text" name="username_input" maxlength="16" size="10"
+              <input type="text" name="username_input" maxlength="16" size="14"
                 onfocus="this.select();" onmouseup="return false;" 
                 id="username_input_field">
+            </div>
+
+            <div class="btn_pair">
+              <button type="button" class="btn_border"
+                id="leaderboard_post_cancel">Cancel</button>
+              <button type="button" class="btn_border"
+                id="leaderboard_post_submit">OK</button>
             </div>
           </div>
         </div>

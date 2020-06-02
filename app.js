@@ -592,10 +592,8 @@ function showLeaderboardPost() {
     .getElementById('leaderboard_post_hider')
     .classList.remove('hidden');
 
-  // retrieve username from local storage
-  // defaults to 'user' + random 4 digit integer
-  const defaultUserName = `user${getRandomIntIncl(1000, 9999)}`;
-  const userName = getFromLocalStorage(userNameKey, defaultUserName);
+  // retrieve username from local storage, defaults to empty string
+  const userName = getFromLocalStorage(userNameKey, '');
 
   // show username in input text field
   document.getElementById('username_input_field').value = userName;
@@ -603,6 +601,7 @@ function showLeaderboardPost() {
 
 // hide button to post score to the leaderboard
 function hideLeaderboardPost() {
+  // showLeaderboardPost();
   document
     .getElementById('leaderboard_post_hider')
     .classList.add('hidden');
@@ -663,12 +662,16 @@ function getUsername() {
 }
 
 document
-  .getElementById('leaderboard_post_btn')
+  .getElementById('leaderboard_post_cancel')
+  .addEventListener('click', hideLeaderboardPost);
+
+document
+  .getElementById('leaderboard_post_submit')
   .addEventListener('click', postToLeaderboard);
 
 document
   .getElementById('username_input_field')
-  .addEventListener('keyup', (event) => {
+  .addEventListener('keydown', (event) => {
     if (event.keyCode === 13) postToLeaderboard();
   });
 
