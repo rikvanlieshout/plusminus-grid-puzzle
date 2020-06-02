@@ -26,6 +26,7 @@ body.dark {
   --col_grid_text: #e43f5a;
   --col_grid_hover: tomato;
   --col_player: goldenrod;
+  --opacity_dim: 0.35;
 }
 
 body.light {
@@ -41,6 +42,7 @@ body.light {
   --col_grid_text: rebeccapurple;
   --col_grid_hover: tomato;
   --col_player: brown;
+  --opacity_dim: 0.55;
 }
 
 body {
@@ -324,5 +326,5 @@ header {
 }
 
 .tile_dimmed {
-  opacity: 0.5;
+  opacity: var(--opacity_dim);
 }
