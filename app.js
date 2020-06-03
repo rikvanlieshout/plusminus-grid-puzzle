@@ -458,16 +458,10 @@ function resetPlusMinusBorders() {
 
 /* -------------- BUTTONS -------------- */
 
-function prevLevel() {
-  lvl_id = ((lvl_id - nLevels - 1) % nLevels) + nLevels;
-  loadLevel(lvl_id);
-  resetGame();
-}
-
-function nextLevel() {
-  lvl_id = (lvl_id % nLevels) + 1;
-  loadLevel(lvl_id);
-  resetGame();
+function toggleLevel() {
+  // set input field to current puzzle id
+  document.getElementById('lvl_id_input_field').value = lvl_id;
+  document.getElementById('new_lvl_box').classList.toggle('hidden');
 }
 
 function toggleLeaderb() {
@@ -478,13 +472,43 @@ function toggleInfo() {
   document.getElementById('info_text').classList.toggle('hidden');
 }
 
-document.getElementById('prev_lvl_btn').addEventListener('click', prevLevel);
-document.getElementById('next_lvl_btn').addEventListener('click', nextLevel);
+document.getElementById('new_lvl_btn').addEventListener('click', toggleLevel);
 document.getElementById('leaderb_btn').addEventListener('click', toggleLeaderb);
 document.getElementById('info_btn').addEventListener('click', toggleInfo);
 document.getElementById('restart_btn').addEventListener('click', resetGame);
 document.getElementById('undo_btn').addEventListener('click', undoMove);
 document.getElementById('redo_btn').addEventListener('click', redoMove);
+
+/* -------------- CHANGE LEVEL -------------- */
+
+// set maximum allowed puzzle ID in text and input field
+// document.getElementById('max_lvl_text').innerHTML = nLevels;
+document.getElementById('lvl_id_input_field').max = nLevels;
+
+function changeLevel() {
+  const inputField = document.getElementById('lvl_id_input_field');
+  const lvl_id_input = parseInt(inputField.value);
+  if (lvl_id_input >= 1 && lvl_id_input <= nLevels) {
+    lvl_id = lvl_id_input;
+    toggleLevel();
+    loadLevel(lvl_id);
+    resetGame();
+  } else alert(`Puzzle ID should be between 1 and ${nLevels}.`);
+}
+
+document
+  .getElementById('new_lvl_cancel')
+  .addEventListener('click', toggleLevel);
+
+document
+  .getElementById('new_lvl_submit')
+  .addEventListener('click', changeLevel);
+
+document
+  .getElementById('lvl_id_input_field')
+  .addEventListener('keydown', (event) => {
+    if (event.keyCode === 13) changeLevel();
+  });
 
 /* -------------- HIGH SCORE -------------- */
 
@@ -589,7 +613,7 @@ function renderLeaderboard(leaderboardList) {
 // reveal button to post score to the leaderboard
 function showLeaderboardPost() {
   document
-    .getElementById('leaderboard_post_hider')
+    .getElementById('leaderboard_post_box')
     .classList.remove('hidden');
 
   // retrieve username from local storage, defaults to empty string
@@ -603,7 +627,7 @@ function showLeaderboardPost() {
 function hideLeaderboardPost() {
   // showLeaderboardPost();
   document
-    .getElementById('leaderboard_post_hider')
+    .getElementById('leaderboard_post_box')
     .classList.add('hidden');
 }
 
