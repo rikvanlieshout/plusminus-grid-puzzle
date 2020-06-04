@@ -40,6 +40,7 @@ let colorTheme
 // const api = 'http://localhost:27017';
 const api = 'https://plus-minus-grid-puzzle.herokuapp.com';
 let leaderboardMin;
+const maxEntriesLeaderboard = 10;
 
 // game parameters
 const nLevels = 10;
@@ -193,6 +194,13 @@ function resetLevel() {
 }
 
 /* -------------- KEYBOARD INPUT -------------- */
+
+// prevent scrolling from arrow keys
+window.onkeydown = (event) => {
+  if([37, 38, 39, 40].indexOf(event.keyCode) > -1) {
+    event.preventDefault();
+  }
+};
 
 document.onkeydown = (event) => {
   // no keyboard input allowed before first tile is selected
@@ -458,16 +466,10 @@ function resetPlusMinusBorders() {
 
 /* -------------- BUTTONS -------------- */
 
-function prevLevel() {
-  lvl_id = ((lvl_id - nLevels - 1) % nLevels) + nLevels;
-  loadLevel(lvl_id);
-  resetGame();
-}
-
-function nextLevel() {
-  lvl_id = (lvl_id % nLevels) + 1;
-  loadLevel(lvl_id);
-  resetGame();
+function toggleLevel() {
+  // set input field to current puzzle id
+  document.getElementById('lvl_id_input_field').value = lvl_id;
+  document.getElementById('new_lvl_box').classList.toggle('hidden');
 }
 
 function toggleLeaderb() {
@@ -478,13 +480,43 @@ function toggleInfo() {
   document.getElementById('info_text').classList.toggle('hidden');
 }
 
-document.getElementById('prev_lvl_btn').addEventListener('click', prevLevel);
-document.getElementById('next_lvl_btn').addEventListener('click', nextLevel);
+document.getElementById('new_lvl_btn').addEventListener('click', toggleLevel);
 document.getElementById('leaderb_btn').addEventListener('click', toggleLeaderb);
 document.getElementById('info_btn').addEventListener('click', toggleInfo);
 document.getElementById('restart_btn').addEventListener('click', resetGame);
 document.getElementById('undo_btn').addEventListener('click', undoMove);
 document.getElementById('redo_btn').addEventListener('click', redoMove);
+
+/* -------------- CHANGE LEVEL -------------- */
+
+// set maximum allowed puzzle ID in text and input field
+document.getElementById('max_lvl_text').innerHTML = nLevels;
+document.getElementById('lvl_id_input_field').max = nLevels;
+
+function changeLevel() {
+  const inputField = document.getElementById('lvl_id_input_field');
+  const lvl_id_input = parseInt(inputField.value);
+  if (lvl_id_input >= 1 && lvl_id_input <= nLevels) {
+    lvl_id = lvl_id_input;
+    toggleLevel();
+    loadLevel(lvl_id);
+    resetGame();
+  } else alert(`Puzzle ID should be between 1 and ${nLevels}.`);
+}
+
+document
+  .getElementById('new_lvl_cancel')
+  .addEventListener('click', toggleLevel);
+
+document
+  .getElementById('new_lvl_submit')
+  .addEventListener('click', changeLevel);
+
+document
+  .getElementById('lvl_id_input_field')
+  .addEventListener('keydown', (event) => {
+    if (event.keyCode === 13) changeLevel();
+  });
 
 /* -------------- HIGH SCORE -------------- */
 
@@ -554,14 +586,44 @@ function processLeaderboardData(leaderboardData) {
   const uniqueScores = [...new Set(allScores)];
 
   let leaderboardList = [];
+  let namesDone = [];
+  let nEntries = 0;
   for (const score of uniqueScores) {
-    // collect player names for each score
-    let names = [];
+    // find uniques number of moves for each score
+    let allMoves = [];
     for (const game of leaderboardData) {
-      if (game.score == score) names.push(game.playerName);
+      if (game.score == score) allMoves.push(game.nMoves);
     }
-    // add found names, eliminating duplicates
-    leaderboardList.push({ score: score, names: [...new Set(names)] });
+    const uniqueMoves = [...new Set(allMoves)];
+
+    for (const moves of uniqueMoves) {
+      // collect player names for each unique score-moves combination
+      let names = [];
+      let entryWithContent = false;
+      for (const game of leaderboardData) {
+        // also check if player is already listed with better score
+        if (
+            game.score == score &&
+            game.nMoves == moves &&
+            !(namesDone.includes(game.playerName))
+          ) {
+            names.push(game.playerName);
+            namesDone.push(game.playerName);
+            entryWithContent = true;
+          }
+      }
+    
+      // check if player is already lister with better score
+      if (entryWithContent) {
+        leaderboardList.push({
+          score: score,
+          moves: moves,
+          names: names
+        });
+        nEntries++;
+      }
+    }
+    if (nEntries == maxEntriesLeaderboard) break;
   }
 
   return leaderboardList;
@@ -571,13 +633,15 @@ function processLeaderboardData(leaderboardData) {
 function renderLeaderboard(leaderboardList) {
   return `
     <div class= "leaderboard_list_item">
-      <span class="leaderboard_score"><u>Score</u></span>
+      <span><u>Score</u></span>
+      <span><u>Moves</u></span>
       <span class="leaderboard_names"><u>Players</u></span>
     </div>
     ` + leaderboardList.reduce((acc, current) =>
         (acc += `
           <div class="leaderboard_list_item">
-            <span class="leaderboard_score">${current.score}</span>
+            <span>${current.score}</span>
+            <span>${current.moves}</span>
             <span class="leaderboard_names">${current.names.join(', ')}</span>
           </div>
         `),
@@ -589,22 +653,24 @@ function renderLeaderboard(leaderboardList) {
 // reveal button to post score to the leaderboard
 function showLeaderboardPost() {
   document
-    .getElementById('leaderboard_post_hider')
+    .getElementById('leaderboard_post_box')
     .classList.remove('hidden');
 
-  // retrieve username from local storage
-  // defaults to 'user' + random 4 digit integer
-  const defaultUserName = `user${getRandomIntIncl(1000, 9999)}`;
-  const userName = getFromLocalStorage(userNameKey, defaultUserName);
+  // retrieve username from local storage, defaults to empty string
+  const userName = getFromLocalStorage(userNameKey, '');
 
   // show username in input text field
   document.getElementById('username_input_field').value = userName;
+
+  // put cursor in input field
+  document.getElementById('username_input_field').focus();
 }
 
 // hide button to post score to the leaderboard
 function hideLeaderboardPost() {
+  // showLeaderboardPost();
   document
-    .getElementById('leaderboard_post_hider')
+    .getElementById('leaderboard_post_box')
     .classList.add('hidden');
 }
 
@@ -615,6 +681,9 @@ async function postToLeaderboard() {
 
   // break out of posting function if username is invalid
   if (userName === null) return;
+
+  // remove box for posting to leaderboard
+  hideLeaderboardPost();
 
   // add username to game record, which is sent to database
   thisGame.playerName = userName;
@@ -634,9 +703,6 @@ async function postToLeaderboard() {
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
-
-  // remove box for posting to leaderboard
-  hideLeaderboardPost();
 
   // refresh leaderboard to show new entry
   makeLeaderboard();
@@ -663,12 +729,16 @@ function getUsername() {
 }
 
 document
-  .getElementById('leaderboard_post_btn')
+  .getElementById('leaderboard_post_cancel')
+  .addEventListener('click', hideLeaderboardPost);
+
+document
+  .getElementById('leaderboard_post_submit')
   .addEventListener('click', postToLeaderboard);
 
 document
   .getElementById('username_input_field')
-  .addEventListener('keyup', (event) => {
+  .addEventListener('keydown', (event) => {
     if (event.keyCode === 13) postToLeaderboard();
   });
 

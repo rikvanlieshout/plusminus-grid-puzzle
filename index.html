@@ -23,8 +23,12 @@
       <div class="width_wrapper spread pos_container">
 
         <div class="plusminus_pair_pregame" id="plusminus_pair">
-          <div class="plusminus_box" id="plus_box">+</div>
-          <div class="plusminus_box" id="minus_box">-</div>
+          <div class="plusminus_box" id="plus_box">
+            <span class="mdi mdi-plus"></span>
+          </div>
+          <div class="plusminus_box" id="minus_box">
+            <span class="mdi mdi-minus"></span>
+          </div>
         </div>
 
         <h2 class="middle" id="title">Plus-minus grid puzzle</h2>
@@ -45,50 +49,82 @@
       <div class="pos_container">
         <div id="grid"></div>
         
-        <div class="textBox middle hidden" id="leaderboard_post_hider">
-          <div id="leaderboard_post_wrapper">
-            <button type="submit" class="btn" id="leaderboard_post_btn">
-              <span class="mdi mdi-trophy-outline"></span>
-              Add&nbsp;my&nbsp;score&nbsp;to<br>
-              the&nbsp;leaderboard
-            </button>
-            <div>
-              <label for="username_input" id="username_input_lbl">
-                Username:
-              </label>
-              <br>
-              <input type="text" name="username_input" maxlength="16" size="10"
-                onfocus="this.select();" onmouseup="return false;" 
-                id="username_input_field">
+        <div class="textBox middle popup hidden" id="leaderboard_post_box">
+          <div>
+            <div class="mdi mdi-trophy-outline"></div>
+            Add&nbsp;your&nbsp;score&nbsp;to<br>
+            the&nbsp;leaderboard
+          </div>
+
+          <div>
+            <label for="username_input">
+              Username:
+            </label>
+            <br>
+            <input type="text" name="username_input" maxlength="16" size="14"
+              id="username_input_field">
+          </div>
+
+          <div class="btn_pair">
+            <button type="button" class="btn_border"
+              id="leaderboard_post_cancel">Cancel</button>
+            <button type="button" class="btn_border"
+              id="leaderboard_post_submit">OK</button>
+          </div>
+        </div>
+
+        <div class="textBox middle popup hidden" id="new_lvl_box">
+          <div>
+            <div class="mdi mdi-checkerboard"></div>
+            Select&nbsp;a&nbsp;new&nbsp;puzzle
+          </div>
+
+          <div>
+            <label for="lvl_id_input">
+              Puzzle ID (1-<span id="max_lvl_text"></span>):
+            </label>
+            <br>
+            <div class="number_input_wrapper">
+              <button type="button" class="btn_border btn_step"
+                onclick="this.parentNode.querySelector('input').stepDown()">
+                <span class="mdi mdi-chevron-left"></span>
+              </button>
+              <input type="number" name="lvl_id_input" min="1"
+                onfocus="this.select();" id="lvl_id_input_field">
+              <button type="button" class="btn_border btn_step"
+                onclick="this.parentNode.querySelector('input').stepUp()">
+                <span class="mdi mdi-chevron-right"></span>
+              </button>
             </div>
+          </div>
+
+          <div class="btn_pair">
+            <button type="button" class="btn_border"
+              id="new_lvl_cancel">Cancel</button>
+            <button type="button" class="btn_border"
+              id="new_lvl_submit">OK</button>
           </div>
         </div>
       </div>
 
       <div class="spread pos_container">
-        <span class="gameText" id="lvlText">Puzzle ID: --</span>
-        <span class="gameText middle" id="scoreDisplay">Score: --</span>
-        <span class="gameText" id="highScoreDisplay">Highscore: --</span>
+        <span id="lvlText">Puzzle ID: --</span>
+        <span class="middle" id="scoreDisplay">Score: --</span>
+        <span id="highScoreDisplay">Highscore: --</span>
       </div>
 
       <div class="btn_holder spread">
-        <div class="btn_pair">
-          <button type="button" class="btn" id="prev_lvl_btn">
-            <span class="mdi mdi-chevron-left"></span>
-            Prev.
-          </button>
-          <button type="button" class="btn" id="next_lvl_btn">
-            <span class="mdi mdi-chevron-right"></span>
-            Next
-          </button>
-        </div>
+        <button type="button" class="btn" id="info_btn">
+          <span class="mdi mdi-help"></span>
+          Rules
+        </button>
         <button type="button" class="btn" id="leaderb_btn">
           <span class="mdi mdi-podium"></span>
           Leaderboard
         </button>
-        <button type="button" class="btn" id="info_btn">
-          <span class="mdi mdi-help"></span>
-          Rules
+        <button type="button" class="btn" id="new_lvl_btn">
+          <span class="mdi mdi-checkerboard"></span>
+          New&nbsp;Puzzle
         </button>
         <button type="button" class="btn" id="restart_btn">
           <span class="mdi mdi-restart"></span>
@@ -106,17 +142,18 @@
         </div>
       </div>
 
-      <ul class="gameText textBox hidden" id="info_text">
+      <ul class="textBox hidden" id="info_text">
         <li>Start on any square by selecting it.</li>
         <li>You can move horizontally and vertically only.</li>
         <li>You add up numbers as you move through the grid,
         but the sign (+/-) changes every move.</li>
         <li>The game ends once you get stuck somewhere
         (in a corner, or behind squares you already emptied).</li>
-        <li>Try to find a route that maximizes your score!</li>
+        <li>Try to find the route that gives the highest score
+        in the smallest number of moves!</li>
       </ul>
 
-      <div class="gameText textBox hidden" id="leaderboard_box"></div>
+      <div class="textBox hidden" id="leaderboard_box"></div>
 
     </div>
 
