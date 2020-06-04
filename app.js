@@ -40,6 +40,7 @@ let colorTheme
 // const api = 'http://localhost:27017';
 const api = 'https://plus-minus-grid-puzzle.herokuapp.com';
 let leaderboardMin;
+const maxEntriesLeaderboard = 10;
 
 // game parameters
 const nLevels = 10;
@@ -489,7 +490,7 @@ document.getElementById('redo_btn').addEventListener('click', redoMove);
 /* -------------- CHANGE LEVEL -------------- */
 
 // set maximum allowed puzzle ID in text and input field
-// document.getElementById('max_lvl_text').innerHTML = nLevels;
+document.getElementById('max_lvl_text').innerHTML = nLevels;
 document.getElementById('lvl_id_input_field').max = nLevels;
 
 function changeLevel() {
@@ -585,14 +586,44 @@ function processLeaderboardData(leaderboardData) {
   const uniqueScores = [...new Set(allScores)];
 
   let leaderboardList = [];
+  let namesDone = [];
+  let nEntries = 0;
   for (const score of uniqueScores) {
-    // collect player names for each score
-    let names = [];
+    // find uniques number of moves for each score
+    let allMoves = [];
     for (const game of leaderboardData) {
-      if (game.score == score) names.push(game.playerName);
+      if (game.score == score) allMoves.push(game.nMoves);
     }
-    // add found names, eliminating duplicates
-    leaderboardList.push({ score: score, names: [...new Set(names)] });
+    const uniqueMoves = [...new Set(allMoves)];
+
+    for (const moves of uniqueMoves) {
+      // collect player names for each unique score-moves combination
+      let names = [];
+      let entryWithContent = false;
+      for (const game of leaderboardData) {
+        // also check if player is already listed with better score
+        if (
+            game.score == score &&
+            game.nMoves == moves &&
+            !(namesDone.includes(game.playerName))
+          ) {
+            names.push(game.playerName);
+            namesDone.push(game.playerName);
+            entryWithContent = true;
+          }
+      }
+    
+      // check if player is already lister with better score
+      if (entryWithContent) {
+        leaderboardList.push({
+          score: score,
+          moves: moves,
+          names: names
+        });
+        nEntries++;
+      }
+    }
+    if (nEntries == maxEntriesLeaderboard) break;
   }
 
   return leaderboardList;
@@ -602,13 +633,15 @@ function processLeaderboardData(leaderboardData) {
 function renderLeaderboard(leaderboardList) {
   return `
     <div class= "leaderboard_list_item">
-      <span class="leaderboard_score"><u>Score</u></span>
+      <span><u>Score</u></span>
+      <span><u>Moves</u></span>
       <span class="leaderboard_names"><u>Players</u></span>
     </div>
     ` + leaderboardList.reduce((acc, current) =>
         (acc += `
           <div class="leaderboard_list_item">
-            <span class="leaderboard_score">${current.score}</span>
+            <span>${current.score}</span>
+            <span>${current.moves}</span>
             <span class="leaderboard_names">${current.names.join(', ')}</span>
           </div>
         `),
@@ -628,6 +661,9 @@ function showLeaderboardPost() {
 
   // show username in input text field
   document.getElementById('username_input_field').value = userName;
+
+  // put cursor in input field
+  document.getElementById('username_input_field').focus();
 }
 
 // hide button to post score to the leaderboard
@@ -645,6 +681,9 @@ async function postToLeaderboard() {
 
   // break out of posting function if username is invalid
   if (userName === null) return;
+
+  // remove box for posting to leaderboard
+  hideLeaderboardPost();
 
   // add username to game record, which is sent to database
   thisGame.playerName = userName;
@@ -664,9 +703,6 @@ async function postToLeaderboard() {
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
-
-  // remove box for posting to leaderboard
-  hideLeaderboardPost();
 
   // refresh leaderboard to show new entry
   makeLeaderboard();

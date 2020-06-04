@@ -57,10 +57,11 @@
           </div>
 
           <div>
-            <label for="username_input">Username:</label>
+            <label for="username_input">
+              Username:
+            </label>
             <br>
             <input type="text" name="username_input" maxlength="16" size="14"
-              onfocus="this.select();" onmouseup="return false;" 
               id="username_input_field">
           </div>
 
@@ -79,7 +80,9 @@
           </div>
 
           <div>
-            <label for="lvl_id_input">Puzzle ID:</label>
+            <label for="lvl_id_input">
+              Puzzle ID (1-<span id="max_lvl_text"></span>):
+            </label>
             <br>
             <div class="number_input_wrapper">
               <button type="button" class="btn_border btn_step"
@@ -87,7 +90,7 @@
                 <span class="mdi mdi-chevron-left"></span>
               </button>
               <input type="number" name="lvl_id_input" min="1"
-                id="lvl_id_input_field">
+                onfocus="this.select();" id="lvl_id_input_field">
               <button type="button" class="btn_border btn_step"
                 onclick="this.parentNode.querySelector('input').stepUp()">
                 <span class="mdi mdi-chevron-right"></span>
@@ -111,17 +114,17 @@
       </div>
 
       <div class="btn_holder spread">
-        <button type="button" class="btn" id="new_lvl_btn">
-          <span class="mdi mdi-checkerboard"></span>
-          New&nbsp;Puzzle
+        <button type="button" class="btn" id="info_btn">
+          <span class="mdi mdi-help"></span>
+          Rules
         </button>
         <button type="button" class="btn" id="leaderb_btn">
           <span class="mdi mdi-podium"></span>
           Leaderboard
         </button>
-        <button type="button" class="btn" id="info_btn">
-          <span class="mdi mdi-help"></span>
-          Rules
+        <button type="button" class="btn" id="new_lvl_btn">
+          <span class="mdi mdi-checkerboard"></span>
+          New&nbsp;Puzzle
         </button>
         <button type="button" class="btn" id="restart_btn">
           <span class="mdi mdi-restart"></span>
@@ -146,7 +149,8 @@
         but the sign (+/-) changes every move.</li>
         <li>The game ends once you get stuck somewhere
         (in a corner, or behind squares you already emptied).</li>
-        <li>Try to find a route that maximizes your score!</li>
+        <li>Try to find the route that gives the highest score
+        in the smallest number of moves!</li>
       </ul>
 
       <div class="textBox hidden" id="leaderboard_box"></div>

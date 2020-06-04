@@ -51,6 +51,7 @@ body {
   background-color: var(--col_bg1);
   color: var(--col_game_text);
   font-size: 2.3vh;
+  text-align: center;
 }
 
 /* --- display and positioning classes --- */
@@ -63,7 +64,6 @@ body {
   width: var(--grid_width);
   max-width: var(--max_grid_width);
   margin: 0 auto;
-  text-align: center;
 }
 
 .spread {
@@ -265,11 +265,11 @@ input[type=number]::-webkit-outer-spin-button {
   padding: 0.5vh;
   background-color: var(--col_bg2);
   border: 2px solid var(--col_border);
-  text-align: left;
 }
 
 #info_text{
   padding-left: 3.5vh;
+  text-align: left;
   font-size: 1em;
 }
 
@@ -280,7 +280,6 @@ input[type=number]::-webkit-outer-spin-button {
   background-color: var(--col_bg2);
   display: flex;
   flex-direction: column;
-  text-align: center;
   font-size: 2vh;
 }
 
@@ -297,13 +296,9 @@ div.mdi {
 
 .leaderboard_list_item {
   display: grid;
-  grid-template-columns: 1fr 5fr;
+  grid-template-columns: 1fr 1fr 6fr;
   grid-gap: 1vh;
   font-size: 0.9em;
-}
-
-.leaderboard_score {
-  text-align: center;
 }
 
 .leaderboard_names {
