@@ -194,6 +194,13 @@ function resetLevel() {
 
 /* -------------- KEYBOARD INPUT -------------- */
 
+// prevent scrolling from arrow keys
+window.onkeydown = (event) => {
+  if([37, 38, 39, 40].indexOf(event.keyCode) > -1) {
+    event.preventDefault();
+  }
+};
+
 document.onkeydown = (event) => {
   // no keyboard input allowed before first tile is selected
   if (thisGame.iMoveCur < 0) return;
