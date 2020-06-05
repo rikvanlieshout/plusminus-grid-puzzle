@@ -561,7 +561,9 @@ async function makeLeaderboard() {
     // leaderboard with content
     const leaderboardList = processLeaderboardData(leaderboardData);
     leaderboardBox.innerHTML = renderLeaderboard(leaderboardList);
-    leaderboardMin = leaderboardList.slice(-1)[0].score;
+    if (leaderboardList.length == maxEntriesLeaderboard)
+      leaderboardMin = leaderboardList[maxEntriesLeaderboard-1].score;
+    else leaderboardMin = Number.NEGATIVE_INFINITY;
   }
 }
 
