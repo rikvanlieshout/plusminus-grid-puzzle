@@ -296,13 +296,13 @@ function redoMove() {
 
   thisGame.iMoveCur++;
   const redoVal = thisGame.vals[thisGame.iMoveCur];
-  const [iRowRedo, iColRedo] = thisGame.coords[thisGame.iMoveCur - 1];
+  const [iRowRedo, iColRedo] = thisGame.coords[thisGame.iMoveCur];
   thisGame.score += thisGame.sign * redoVal;
   thisGame.sign *= -1;
 
   // remove tile
   tiles[iRowRedo][iColRedo].taken = true;
-  hideTile([iRowRedo, iColRedo]);
+  hideTile(thisGame.coords[thisGame.iMoveCur - 1]);
 
   doMove(thisGame.coords[thisGame.iMoveCur]);
 }
