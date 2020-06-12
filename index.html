@@ -1,4 +1,5 @@
 <html lang="en">
+
   <head>
     <meta charset="UTF-8">
     <link
@@ -16,12 +17,25 @@
 
     <title>Plus-minus grid puzzle</title>
   </head>
+  
   <body>
 
     <header>
+      <div class="width_wrapper spread">
+        <h2 id="title">Plus-minus grid puzzle</h2>
+        <button type="button" id="theme_toggler">
+          <span class="mdi mdi-weather-sunny"></span>
+          <span class="mdi mdi-toggle-switch-outline"
+            id="theme_toggle_icon"></span>
+          <span class="mdi mdi-weather-night"></span>
+        </div>
+      </div>
+    </header>
 
-      <div class="width_wrapper spread pos_container">
+    <div class="width_wrapper">
 
+      <!-- Game status indicators -->
+      <div class="spread pos_container">
         <div class="plusminus_pair_pregame" id="plusminus_pair">
           <div class="plusminus_box" id="plus_box">
             <span class="mdi mdi-plus"></span>
@@ -31,97 +45,16 @@
           </div>
         </div>
 
-        <h2 class="middle" id="title">Plus-minus grid puzzle</h2>
+        <h3 class="middle" id="scoreDisplay">Score: --</h3>
 
-        <button type="button" id="theme_toggler">
-          <span class="mdi mdi-weather-sunny"></span>
-          <span class="mdi mdi-toggle-switch-outline"
-            id="theme_toggle_icon"></span>
-          <span class="mdi mdi-weather-night"></span>
-        </div>
-
+        <h3 class="right" id="movesDisplay">Moves: --</h3>
       </div>
-
-    </header>
-
-    <div class="width_wrapper">
       
-      <div class="pos_container">
-        <div id="grid"></div>
-        
-        <div class="textBox middle popup hidden" id="leaderboard_post_box">
-          <div>
-            <div class="mdi mdi-trophy-outline"></div>
-            Add&nbsp;your&nbsp;score&nbsp;to<br>
-            the&nbsp;leaderboard
-          </div>
+      <!-- Puzzle grid -->
+      <div id="grid"></div>
 
-          <div>
-            <label for="username_input">
-              Username:
-            </label>
-            <br>
-            <input type="text" name="username_input" maxlength="16" size="14"
-              id="username_input_field">
-          </div>
-
-          <div class="btn_pair">
-            <button type="button" class="btn_border"
-              id="leaderboard_post_cancel">Cancel</button>
-            <button type="button" class="btn_border"
-              id="leaderboard_post_submit">OK</button>
-          </div>
-        </div>
-
-        <div class="textBox middle popup hidden" id="new_lvl_box">
-          <div>
-            <div class="mdi mdi-checkerboard"></div>
-            Select&nbsp;a&nbsp;new&nbsp;puzzle
-          </div>
-
-          <div>
-            <label for="lvl_id_input">
-              Puzzle ID (1-<span id="max_lvl_text"></span>):
-            </label>
-            <br>
-            <div class="number_input_wrapper">
-              <button type="button" class="btn_border btn_step"
-                onclick="this.parentNode.querySelector('input').stepDown()">
-                <span class="mdi mdi-chevron-left"></span>
-              </button>
-              <input type="number" name="lvl_id_input" min="1"
-                onfocus="this.select();" id="lvl_id_input_field">
-              <button type="button" class="btn_border btn_step"
-                onclick="this.parentNode.querySelector('input').stepUp()">
-                <span class="mdi mdi-chevron-right"></span>
-              </button>
-            </div>
-          </div>
-
-          <div class="btn_pair">
-            <button type="button" class="btn_border"
-              id="new_lvl_cancel">Cancel</button>
-            <button type="button" class="btn_border"
-              id="new_lvl_submit">OK</button>
-          </div>
-        </div>
-      </div>
-
-      <div class="spread pos_container">
-        <span id="lvlText">Puzzle ID: --</span>
-        <span class="middle" id="scoreDisplay">Score: --</span>
-        <span id="highScoreDisplay">Highscore: --</span>
-      </div>
-
-      <div class="btn_holder spread">
-        <button type="button" class="btn" id="info_btn">
-          <span class="mdi mdi-help"></span>
-          Rules
-        </button>
-        <button type="button" class="btn" id="leaderb_btn">
-          <span class="mdi mdi-podium"></span>
-          Leaderboard
-        </button>
+      <!-- UI buttons -->
+      <div class="btn_holder">
         <button type="button" class="btn" id="new_lvl_btn">
           <span class="mdi mdi-checkerboard"></span>
           New&nbsp;Puzzle
@@ -130,30 +63,124 @@
           <span class="mdi mdi-restart"></span>
           Start&nbsp;Over
         </button>
+        <button type="button" class="btn" id="undo_btn">
+          <span class="mdi mdi-undo"></span>
+          Undo
+        </button>
+        <button type="button" class="btn" id="redo_btn">
+          <span class="mdi mdi-redo"></span>
+          Redo
+        </button>
+      </div>
+
+      <!-- Puzzle results -->
+      <div class="textBox">
+        <h3 class="center_text" id="lvlText">Puzzle ID: --</h3>
+        <div class= "leaderboard_list_item">
+          <span class="center_text"><u>Score</u></span>
+          <span class="center_text"><u>Moves</u></span>
+        </div>
+        <div class="leaderboard_list_item">
+          <span class="center_text" id="optimalScore">--</span>
+          <span class="center_text" id="optimalMoves">--</span>
+          <span id="optimalText">Best possible result for this puzzle</span>
+        </div>
+        <div class="leaderboard_list_item">
+          <span class="center_text" id="highScoreDisplay">--</span>
+          <span class="center_text" id="bestMovesDisplay">--</span>
+          <span>Best result on this device so far</span>
+        </div>
+        <br>
+        <div id="leaderboard_box"></div>
+      </div>
+
+      <!-- Instructions -->
+      <div class="textBox">
+        <h3>Instructions</h3>
+        <ul>
+          <li>Start on any of the tiles in the grid by selecting it.</li>
+          <li>Move to neighbouring tiles by pressing them
+            or by using the arrow keys.</li>
+          <li>As you move through the grid, you collect the numbers in the
+            tiles that you pass, but they are are alternatingly added to (+)
+            or subtracted from (&ndash;) your score.</li>
+          <!-- <li>You add up numbers as you move through the grid,
+            but the sign (+/-) changes every move.</li> -->
+          <li>The game ends once you get stuck somewhere
+            (in a corner, or behind squares you already emptied).</li>
+          <li>Try to find the route that gives the highest score
+            in the smallest number of moves!</li>
+        </ul>
+      </div>
+
+    </div>
+
+    <!-- Popup backdrop -->
+    <div class="hidden" id="popup_backdrop">
+
+      <!-- Leaderboard post popup -->
+      <div class="textBox popup hidden" id="leaderboard_post_box">
+        <div>
+          <div class="mdi mdi-trophy-outline"></div>
+          Add&nbsp;your&nbsp;result&nbsp;to<br>
+          the&nbsp;leaderboard
+        </div>
+
+        <div class="spread">
+          <div>Score: <span id="leaderboard_post_score">--</span></div>
+          <div>Moves: <span id="leaderboard_post_moves">--</span></div>
+        </div>
+
+        <div>
+          <label for="username_input">
+            Username:
+          </label>
+          <br>
+          <input type="text" name="username_input" maxlength="16" size="14"
+            id="username_input_field">
+        </div>
+
         <div class="btn_pair">
-          <button type="button" class="btn" id="undo_btn">
-            <span class="mdi mdi-undo"></span>
-            Undo
-          </button>
-          <button type="button" class="btn" id="redo_btn">
-            <span class="mdi mdi-redo"></span>
-            Redo
-          </button>
+          <button type="button" class="btn_border"
+            id="leaderboard_post_cancel">Cancel</button>
+          <button type="button" class="btn_border"
+            id="leaderboard_post_submit">OK</button>
         </div>
       </div>
 
-      <ul class="textBox hidden" id="info_text">
-        <li>Start on any square by selecting it.</li>
-        <li>You can move horizontally and vertically only.</li>
-        <li>You add up numbers as you move through the grid,
-        but the sign (+/-) changes every move.</li>
-        <li>The game ends once you get stuck somewhere
-        (in a corner, or behind squares you already emptied).</li>
-        <li>Try to find the route that gives the highest score
-        in the smallest number of moves!</li>
-      </ul>
+      <!-- Level selection popup -->
+      <div class="textBox popup hidden" id="new_lvl_box">
+        <div>
+          <div class="mdi mdi-checkerboard"></div>
+          Select&nbsp;a&nbsp;new&nbsp;puzzle
+        </div>
 
-      <div class="textBox hidden" id="leaderboard_box"></div>
+        <div>
+          <label for="lvl_id_input">
+            Puzzle ID (1-<span id="max_lvl_text"></span>):
+          </label>
+          <br>
+          <div class="number_input_wrapper">
+            <button type="button" class="btn_border btn_step"
+              onclick="this.parentNode.querySelector('input').stepDown()">
+              <span class="mdi mdi-chevron-left"></span>
+            </button>
+            <input type="number" name="lvl_id_input" min="1"
+              onfocus="this.select();" id="lvl_id_input_field">
+            <button type="button" class="btn_border btn_step"
+              onclick="this.parentNode.querySelector('input').stepUp()">
+              <span class="mdi mdi-chevron-right"></span>
+            </button>
+          </div>
+        </div>
+
+        <div class="btn_pair">
+          <button type="button" class="btn_border"
+            id="new_lvl_cancel">Cancel</button>
+          <button type="button" class="btn_border"
+            id="new_lvl_submit">OK</button>
+        </div>
+      </div>
 
     </div>
 
