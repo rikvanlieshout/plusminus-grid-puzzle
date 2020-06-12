@@ -42,6 +42,9 @@ const api = 'https://plus-minus-grid-puzzle.herokuapp.com';
 let leaderboardMin;
 const maxEntriesLeaderboard = 10;
 
+const optimalScore = [29, 30, 43, 34, 34, 40, 35, 40, 24, 41];
+const optimalMoves = [21, 21, 27, 25, 19, 23, 21, 21, 21, 25];
+
 // game parameters
 const nLevels = 10;
 const gridSize = 6;
@@ -149,11 +152,22 @@ function loadLevel(lvlID) {
   // show level ID
   document.getElementById('lvlText').innerHTML = `Puzzle ID: ${lvlID}`;
 
+  // show optimal score and nr. of moves for level
+  let optimalScoreString =
+    (lvlID <= optimalScore.length) ? optimalScore[lvlID-1] : '--';
+  let optimalMovesString = 
+    (lvlID <= optimalScore.length) ? optimalMoves[lvlID-1] : '--';
+  document.getElementById('optimalScore').innerHTML = optimalScoreString;
+  document.getElementById('optimalMoves').innerHTML = optimalMovesString;
+
   // get level high score from local storage (defaults to -inf), and show it
   const highScoreKey = getHighScoreKey(lvlID);
+  const bestMovesKey = getBestMovesKey(lvlID);
   const highScore = +getFromLocalStorage(highScoreKey,
     Number.NEGATIVE_INFINITY);
-  updateHighScoreDisplay(highScore);
+  const bestMoves = +getFromLocalStorage(bestMovesKey,
+    Number.POSITIVE_INFINITY);
+  updateHighScoreDisplay(highScore, bestMoves);
 
   // retrieve leaderboard data from server and show
   makeLeaderboard();
@@ -172,7 +186,7 @@ function resetGame() {
   hideLeaderboardPost();
 
   // reset score indicator to 0
-  updateScoreDisplay(thisGame.score);
+  updateScoreDisplay(thisGame.score, thisGame.nMoves);
 
   // remove colors and focus borders from sign boxes
   resetSignBoxColors();
@@ -296,13 +310,13 @@ function redoMove() {
 
   thisGame.iMoveCur++;
   const redoVal = thisGame.vals[thisGame.iMoveCur];
-  const [iRowRedo, iColRedo] = thisGame.coords[thisGame.iMoveCur - 1];
+  const [iRowRedo, iColRedo] = thisGame.coords[thisGame.iMoveCur];
   thisGame.score += thisGame.sign * redoVal;
   thisGame.sign *= -1;
 
   // remove tile
   tiles[iRowRedo][iColRedo].taken = true;
-  hideTile([iRowRedo, iColRedo]);
+  hideTile(thisGame.coords[thisGame.iMoveCur - 1]);
 
   doMove(thisGame.coords[thisGame.iMoveCur]);
 }
@@ -331,7 +345,7 @@ function doMove([iRow, iCol]) {
     checkForHighScore(thisGame.lvlID);
   }
 
-  updateScoreDisplay(thisGame.score);
+  updateScoreDisplay(thisGame.score, thisGame.nMoves);
 }
 
 /* -------------- ENABLING AND DISABLING TILES -------------- */
@@ -405,19 +419,19 @@ function showPlayer([iRow, iCol]) {
 /* -------------- SHOW SCORE AND HIGHSCORE -------------- */
 
 // display game score
-function updateScoreDisplay(score) {
-  document
-    .getElementById('scoreDisplay')
-    .innerHTML = `Score: ${score}`;
+function updateScoreDisplay(score, moves) {
+  document.getElementById('scoreDisplay').innerHTML = `Score: ${score}`;
+  document.getElementById('movesDisplay').innerHTML = `Moves: ${moves}`;
 }
 
 // display high score
-function updateHighScoreDisplay(highScore) {
+function updateHighScoreDisplay(highScore, bestMoves) {
   const highScoreString =
     highScore === Number.NEGATIVE_INFINITY ? '--' : highScore;
-  document
-    .getElementById('highScoreDisplay')
-    .innerHTML = `Highscore: ${highScoreString}`;
+  const bestMovesString =
+    bestMoves === Number.POSITIVE_INFINITY ? '--' : bestMoves;
+  document.getElementById('highScoreDisplay').innerHTML = `${highScoreString}`;
+  document.getElementById('bestMovesDisplay').innerHTML = `${bestMovesString}`;
 }
 
 /* -------------- CHANGE SIGN BOXES DISPLAY -------------- */
@@ -466,26 +480,25 @@ function resetPlusMinusBorders() {
 
 /* -------------- BUTTONS -------------- */
 
-function toggleLevel() {
+function toggleLevelBox() {
   // set input field to current puzzle id
   document.getElementById('lvl_id_input_field').value = lvl_id;
+  document.getElementById('popup_backdrop').classList.toggle('hidden');
   document.getElementById('new_lvl_box').classList.toggle('hidden');
 }
 
-function toggleLeaderb() {
-  document.getElementById('leaderboard_box').classList.toggle('hidden');
-}
-
-function toggleInfo() {
-  document.getElementById('info_text').classList.toggle('hidden');
-}
-
-document.getElementById('new_lvl_btn').addEventListener('click', toggleLevel);
-document.getElementById('leaderb_btn').addEventListener('click', toggleLeaderb);
-document.getElementById('info_btn').addEventListener('click', toggleInfo);
-document.getElementById('restart_btn').addEventListener('click', resetGame);
-document.getElementById('undo_btn').addEventListener('click', undoMove);
-document.getElementById('redo_btn').addEventListener('click', redoMove);
+document
+  .getElementById('new_lvl_btn')
+  .addEventListener('click', toggleLevelBox);
+document
+  .getElementById('restart_btn')
+  .addEventListener('click', resetGame);
+document
+  .getElementById('undo_btn')
+  .addEventListener('click', undoMove);
+document
+  .getElementById('redo_btn')
+  .addEventListener('click', redoMove);
 
 /* -------------- CHANGE LEVEL -------------- */
 
@@ -498,7 +511,7 @@ function changeLevel() {
   const lvl_id_input = parseInt(inputField.value);
   if (lvl_id_input >= 1 && lvl_id_input <= nLevels) {
     lvl_id = lvl_id_input;
-    toggleLevel();
+    toggleLevelBox();
     loadLevel(lvl_id);
     resetGame();
   } else alert(`Puzzle ID should be between 1 and ${nLevels}.`);
@@ -506,7 +519,7 @@ function changeLevel() {
 
 document
   .getElementById('new_lvl_cancel')
-  .addEventListener('click', toggleLevel);
+  .addEventListener('click', toggleLevelBox);
 
 document
   .getElementById('new_lvl_submit')
@@ -524,14 +537,26 @@ function getHighScoreKey(lvlID) {
   return `${keyRoot}highscore_lvl_A${lvlID}`;
 }
 
+function getBestMovesKey(lvlID) {
+  return `${keyRoot}bestmoves_lvl_A${lvlID}`;
+}
+
 function checkForHighScore(lvlID) {
   const highScoreKey = getHighScoreKey(lvlID);
+  const bestMovesKey = getBestMovesKey(lvlID);
   let highScore = +getFromLocalStorage(highScoreKey, Number.NEGATIVE_INFINITY);
+  let bestMoves = +getFromLocalStorage(bestMovesKey, Number.POSITIVE_INFINITY);
 
   if (thisGame.score > highScore) {
     highScore = thisGame.score;
-    updateHighScoreDisplay(highScore);
+    bestMoves = thisGame.nMoves;
+    updateHighScoreDisplay(highScore, bestMoves);
     setToLocalStorage(highScoreKey, highScore);
+    setToLocalStorage(bestMovesKey, bestMoves);
+  } else if (thisGame.score == highScore && thisGame.nMoves < bestMoves) {
+    bestMoves = thisGame.nMoves;
+    updateHighScoreDisplay(highScore, bestMoves);
+    setToLocalStorage(bestMovesKey, bestMoves);
   }
 
   if (thisGame.score >= leaderboardMin) showLeaderboardPost();
@@ -561,7 +586,9 @@ async function makeLeaderboard() {
     // leaderboard with content
     const leaderboardList = processLeaderboardData(leaderboardData);
     leaderboardBox.innerHTML = renderLeaderboard(leaderboardList);
-    leaderboardMin = leaderboardList.slice(-1)[0].score;
+    if (leaderboardList.length == maxEntriesLeaderboard)
+      leaderboardMin = leaderboardList[maxEntriesLeaderboard-1].score;
+    else leaderboardMin = Number.NEGATIVE_INFINITY;
   }
 }
 
@@ -633,16 +660,16 @@ function processLeaderboardData(leaderboardData) {
 function renderLeaderboard(leaderboardList) {
   return `
     <div class= "leaderboard_list_item">
-      <span><u>Score</u></span>
-      <span><u>Moves</u></span>
-      <span class="leaderboard_names"><u>Players</u></span>
+      <span class="center_text"><u>Score</u></span>
+      <span class="center_text"><u>Moves</u></span>
+      <span><u>Leaderboard</u></span>
     </div>
     ` + leaderboardList.reduce((acc, current) =>
         (acc += `
           <div class="leaderboard_list_item">
-            <span>${current.score}</span>
-            <span>${current.moves}</span>
-            <span class="leaderboard_names">${current.names.join(', ')}</span>
+            <span class="center_text">${current.score}</span>
+            <span class="center_text">${current.moves}</span>
+            <span>${current.names.join(', ')}</span>
           </div>
         `),
       '');
@@ -653,8 +680,15 @@ function renderLeaderboard(leaderboardList) {
 // reveal button to post score to the leaderboard
 function showLeaderboardPost() {
   document
+    .getElementById('popup_backdrop')
+    .classList.remove('hidden');
+  document
     .getElementById('leaderboard_post_box')
     .classList.remove('hidden');
+
+  // show score and moves
+  document.getElementById('leaderboard_post_score').innerHTML = thisGame.score;
+  document.getElementById('leaderboard_post_moves').innerHTML = thisGame.nMoves;
 
   // retrieve username from local storage, defaults to empty string
   const userName = getFromLocalStorage(userNameKey, '');
@@ -668,7 +702,9 @@ function showLeaderboardPost() {
 
 // hide button to post score to the leaderboard
 function hideLeaderboardPost() {
-  // showLeaderboardPost();
+  document
+    .getElementById('popup_backdrop')
+    .classList.add('hidden');
   document
     .getElementById('leaderboard_post_box')
     .classList.add('hidden');
