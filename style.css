@@ -71,6 +71,11 @@ body {
   justify-content: space-between;
 }
 
+.space_evenly {
+  display: flex;
+  justify-content: space-evenly;
+}
+
 .pos_container {
   position: relative;
 }
@@ -169,11 +174,6 @@ header {
 
 /* --- buttons without borders --- */
 
-.btn_holder {
-  display: flex;
-  justify-content: space-evenly;
-}
-
 .btn {
   display: flex;
   flex-direction: column;
@@ -207,14 +207,15 @@ header {
 .btn_pair {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  grid-gap: 1vmin;
+  grid-gap: 1.5vh;
 }
 
 .btn_border {
+  padding: 1.5vh;
   border: 2px solid var(--col_game_text);
   background-color: var(--col_bg2);
   color: var(--col_game_text);
-  font-size: 2vh;
+  font-size: 2.5vh;
   font-weight: 300;
   transition: color 0.25s;
 }
@@ -235,22 +236,23 @@ header {
 
 input {
   display: inline-block;
-  border: 2px solid var(--col_game_text);
+  padding: 1.5vh;
+  border: 1px solid var(--col_game_text);
   background-color: var(--col_bg1);
   color: var(--col_game_text);
-  font-size: 2.3vh;
+  font-size: 3.5vh;
   text-align: center;
 }
 
-.number_input_wrapper {
-  display: inline-flex;
+.input_wrapper {
+  display: flex;
   justify-content: center;
+  margin-bottom: 1.5vh;
   border: 1px solid var(--col_game_text);
 }
 
 input[type="number"] {
-  width: 9ch;
-  border-width: 1px;
+  width: 8ch;
   -webkit-appearance: textfield;
      -moz-appearance: textfield;
           appearance: textfield;
@@ -265,6 +267,11 @@ input[type=number]::-webkit-outer-spin-button {
   border-width: 1px;
   outline: none;
   font-size: 3.5vh;
+}
+
+label {
+  display: inline-block;
+  margin-bottom: 0.5vh;
 }
 
 /* --- generic text elements --- */
@@ -312,21 +319,17 @@ ul {
   top: 35%;
   left: 50%;
   transform: translate(-50%, -50%);
-  padding: 1vh 3vh;
+  padding: 1vh 3vh 2vh 3vh;
   background-color: var(--col_bg2);
   display: flex;
   flex-direction: column;
-  font-size: 2vh;
+  font-size: 2.5vh;
   text-align: center;
 }
 
-div.mdi {
+.popup .mdi {
   margin-bottom: 0.25vh;
   font-size: 5vh;
-}
-
-.popup > div {
-  margin: 0 0 1vh 0;
 }
 
 /* --- game grid and tiles --- */

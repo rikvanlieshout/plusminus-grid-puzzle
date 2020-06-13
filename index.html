@@ -54,7 +54,7 @@
       <div id="grid"></div>
 
       <!-- UI buttons -->
-      <div class="btn_holder">
+      <div class="space_evenly">
         <button type="button" class="btn" id="new_lvl_btn">
           <span class="mdi mdi-checkerboard"></span>
           New&nbsp;Puzzle
@@ -123,21 +123,27 @@
         <div>
           <div class="mdi mdi-trophy-outline"></div>
           Add&nbsp;your&nbsp;result&nbsp;to<br>
-          the&nbsp;leaderboard
+          the&nbsp;leaderboard<br>
+          &nbsp;
         </div>
 
-        <div class="spread">
-          <div>Score: <span id="leaderboard_post_score">--</span></div>
-          <div>Moves: <span id="leaderboard_post_moves">--</span></div>
+        <div class="space_evenly">
+          <div>Score:&nbsp;<span id="leaderboard_post_score">--</span></div>
+          &nbsp;
+          <div>Moves:&nbsp;<span id="leaderboard_post_moves">--</span></div>
         </div>
+
+        &nbsp;
 
         <div>
           <label for="username_input">
             Username:
           </label>
           <br>
-          <input type="text" name="username_input" maxlength="16" size="14"
-            id="username_input_field">
+          <div class="input_wrapper">
+            <input type="text" name="username_input" maxlength="16" size="14"
+              id="username_input_field">
+          </div>
         </div>
 
         <div class="btn_pair">
@@ -152,7 +158,8 @@
       <div class="textBox popup hidden" id="new_lvl_box">
         <div>
           <div class="mdi mdi-checkerboard"></div>
-          Select&nbsp;a&nbsp;new&nbsp;puzzle
+          Select&nbsp;a&nbsp;new&nbsp;puzzle<br>
+          &nbsp;
         </div>
 
         <div>
@@ -160,7 +167,7 @@
             Puzzle ID (1-<span id="max_lvl_text"></span>):
           </label>
           <br>
-          <div class="number_input_wrapper">
+          <div class="input_wrapper">
             <button type="button" class="btn_border btn_step"
               onclick="this.parentNode.querySelector('input').stepDown()">
               <span class="mdi mdi-chevron-left"></span>
