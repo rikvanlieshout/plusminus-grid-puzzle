@@ -182,11 +182,8 @@ function resetGame() {
   // reset game record
   thisGame = new GameRecord(lvl_id);
 
-  // disable button to post scores to leaderboard
-  hideLeaderboardPost();
-
   // reset score indicator to 0
-  updateScoreDisplay(thisGame.score, thisGame.nMoves);
+  updateScoreDisplay(thisGame.score, thisGame.iMoveCur + 1);
 
   // remove colors and focus borders from sign boxes
   resetSignBoxColors();
@@ -286,9 +283,6 @@ function undoMove() {
       // undo end-of-game state
       thisGame.finished = false;
 
-      // disable posting to the leaderboard
-      hideLeaderboardPost();
-
       // undo removal of sign box borders
       if (thisGame.sign == 1)
         document.getElementById('minus_box').classList.add('current_sign');
@@ -345,7 +339,7 @@ function doMove([iRow, iCol]) {
     checkForHighScore(thisGame.lvlID);
   }
 
-  updateScoreDisplay(thisGame.score, thisGame.nMoves);
+  updateScoreDisplay(thisGame.score, thisGame.iMoveCur + 1);
 }
 
 /* -------------- ENABLING AND DISABLING TILES -------------- */
@@ -567,6 +561,10 @@ function checkForHighScore(lvlID) {
 // wrapper function calling subroutines to generate the leaderboard
 async function makeLeaderboard() {
   const leaderboardBox = document.getElementById('leaderboard_box');
+
+  // set leaderboard posting treshold to infinity to temporarily disable
+  // posting while the leaderboard is retrieved from the database
+  leaderboardMin = Number.POSITIVE_INFINITY;
   leaderboardBox.innerHTML = 'Loading leaderboard...';
 
   // get leaderboard data from database
