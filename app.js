@@ -37,8 +37,8 @@ const currentLvlKey = keyRoot + 'current_lvl';
 let colorTheme
 
 // leaderboard
-// const api = 'http://localhost:27017';
-const api = 'https://plus-minus-grid-puzzle.herokuapp.com';
+const api = 'http://localhost:27017';
+// const api = 'https://plus-minus-grid-puzzle.herokuapp.com';
 let leaderboardMin;
 const maxEntriesLeaderboard = 10;
 
@@ -472,7 +472,7 @@ function resetPlusMinusBorders() {
   minusBox.classList.remove('current_sign');
 }
 
-/* -------------- BUTTONS -------------- */
+/* -------------- CHANGE LEVEL -------------- */
 
 function toggleLevelBox() {
   // set input field to current puzzle id
@@ -480,25 +480,6 @@ function toggleLevelBox() {
   document.getElementById('popup_backdrop').classList.toggle('hidden');
   document.getElementById('new_lvl_box').classList.toggle('hidden');
 }
-
-document
-  .getElementById('new_lvl_btn')
-  .addEventListener('click', toggleLevelBox);
-document
-  .getElementById('restart_btn')
-  .addEventListener('click', resetGame);
-document
-  .getElementById('undo_btn')
-  .addEventListener('click', undoMove);
-document
-  .getElementById('redo_btn')
-  .addEventListener('click', redoMove);
-
-/* -------------- CHANGE LEVEL -------------- */
-
-// set maximum allowed puzzle ID in text and input field
-document.getElementById('max_lvl_text').innerHTML = nLevels;
-document.getElementById('lvl_id_input_field').max = nLevels;
 
 function changeLevel() {
   const inputField = document.getElementById('lvl_id_input_field');
@@ -511,14 +492,17 @@ function changeLevel() {
   } else alert(`Puzzle ID should be between 1 and ${nLevels}.`);
 }
 
+// set maximum allowed puzzle ID in text and input field
+document.getElementById('max_lvl_text').innerHTML = nLevels;
+document.getElementById('lvl_id_input_field').max = nLevels;
+
+// cancel and ok button functionality, and submit on press enter
 document
   .getElementById('new_lvl_cancel')
   .addEventListener('click', toggleLevelBox);
-
 document
   .getElementById('new_lvl_submit')
   .addEventListener('click', changeLevel);
-
 document
   .getElementById('lvl_id_input_field')
   .addEventListener('keydown', (event) => {
@@ -527,20 +511,24 @@ document
 
 /* -------------- HIGH SCORE -------------- */
 
+// generate local storage key for high score of this level
 function getHighScoreKey(lvlID) {
   return `${keyRoot}highscore_lvl_A${lvlID}`;
 }
 
+// generate local storage key for lowest number of moves for this level
 function getBestMovesKey(lvlID) {
   return `${keyRoot}bestmoves_lvl_A${lvlID}`;
 }
 
 function checkForHighScore(lvlID) {
+  // retrieve best result of this level from local storage to compare against
   const highScoreKey = getHighScoreKey(lvlID);
   const bestMovesKey = getBestMovesKey(lvlID);
   let highScore = +getFromLocalStorage(highScoreKey, Number.NEGATIVE_INFINITY);
   let bestMoves = +getFromLocalStorage(bestMovesKey, Number.POSITIVE_INFINITY);
 
+  // replace best result with new result if latter is better
   if (thisGame.score > highScore) {
     highScore = thisGame.score;
     bestMoves = thisGame.nMoves;
@@ -623,10 +611,10 @@ function processLeaderboardData(leaderboardData) {
 
     for (const moves of uniqueMoves) {
       // collect player names for each unique score-moves combination
+      // also check if player is already listed with better score
       let names = [];
       let entryWithContent = false;
       for (const game of leaderboardData) {
-        // also check if player is already listed with better score
         if (
             game.score == score &&
             game.nMoves == moves &&
@@ -638,7 +626,8 @@ function processLeaderboardData(leaderboardData) {
           }
       }
     
-      // check if player is already lister with better score
+      // add entry unless all players in entry are already listed
+      // in earlier entries (with better score)
       if (entryWithContent) {
         leaderboardList.push({
           score: score,
@@ -648,6 +637,8 @@ function processLeaderboardData(leaderboardData) {
         nEntries++;
       }
     }
+
+    // stop if leaderboard reaches its maximum allowed length
     if (nEntries == maxEntriesLeaderboard) break;
   }
 
@@ -762,19 +753,33 @@ function getUsername() {
   return userName;
 }
 
+// cancel and ok button functionality, and submit on press enter
 document
   .getElementById('leaderboard_post_cancel')
   .addEventListener('click', hideLeaderboardPost);
-
 document
   .getElementById('leaderboard_post_submit')
   .addEventListener('click', postToLeaderboard);
-
 document
   .getElementById('username_input_field')
   .addEventListener('keydown', (event) => {
     if (event.keyCode === 13) postToLeaderboard();
   });
+
+/* -------------- MAIN UI BUTTONS -------------- */
+
+document
+  .getElementById('new_lvl_btn')
+  .addEventListener('click', toggleLevelBox);
+document
+  .getElementById('restart_btn')
+  .addEventListener('click', resetGame);
+document
+  .getElementById('undo_btn')
+  .addEventListener('click', undoMove);
+document
+  .getElementById('redo_btn')
+  .addEventListener('click', redoMove);
 
 /* -------------- STARTUP -------------- */
 
