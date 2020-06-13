@@ -186,7 +186,7 @@ function resetGame() {
   hideLeaderboardPost();
 
   // reset score indicator to 0
-  updateScoreDisplay(thisGame.score, thisGame.nMoves);
+  updateScoreDisplay(thisGame.score, thisGame.iMoveCur + 1);
 
   // remove colors and focus borders from sign boxes
   resetSignBoxColors();
@@ -345,7 +345,7 @@ function doMove([iRow, iCol]) {
     checkForHighScore(thisGame.lvlID);
   }
 
-  updateScoreDisplay(thisGame.score, thisGame.nMoves);
+  updateScoreDisplay(thisGame.score, thisGame.iMoveCur + 1);
 }
 
 /* -------------- ENABLING AND DISABLING TILES -------------- */
