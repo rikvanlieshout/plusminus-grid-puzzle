@@ -183,7 +183,7 @@ function resetGame() {
   thisGame = new GameRecord(lvl_id);
 
   // reset score indicator to 0
-  updateScoreDisplay(thisGame.score, thisGame.iMoveCur + 1);
+  updateScoreDisplay(0, 0);
 
   // remove colors and focus borders from sign boxes
   resetSignBoxColors();
@@ -414,8 +414,8 @@ function showPlayer([iRow, iCol]) {
 
 // display game score
 function updateScoreDisplay(score, moves) {
-  document.getElementById('scoreDisplay').innerHTML = `Score: ${score}`;
-  document.getElementById('movesDisplay').innerHTML = `Moves: ${moves}`;
+  document.getElementById('scoreDisplay').innerHTML = `${score}`;
+  document.getElementById('movesDisplay').innerHTML = `${moves}`;
 }
 
 // display high score
@@ -679,14 +679,15 @@ function showLeaderboardPost() {
   document.getElementById('leaderboard_post_score').innerHTML = thisGame.score;
   document.getElementById('leaderboard_post_moves').innerHTML = thisGame.nMoves;
 
-  // retrieve username from local storage, defaults to empty string
-  const userName = getFromLocalStorage(userNameKey, '');
+  // retrieve username from local storage, defaults to null
+  const userName = getFromLocalStorage(userNameKey, null);
 
   // show username in input text field
   document.getElementById('username_input_field').value = userName;
 
-  // put cursor in input field
-  document.getElementById('username_input_field').focus();
+  // if there is no username yet, put cursor in input field
+  if (userName === null)
+    document.getElementById('username_input_field').focus();
 }
 
 // hide button to post score to the leaderboard
@@ -704,8 +705,12 @@ async function postToLeaderboard() {
   // get username from user
   const userName = getUsername();
 
-  // break out of posting function if username is invalid
-  if (userName === null) return;
+  // if username is invalid, break out of posting function
+  // and put cursor back to input field
+  if (userName === null) {
+    document.getElementById('username_input_field').focus();
+    return;
+  }
 
   // remove box for posting to leaderboard
   hideLeaderboardPost();
