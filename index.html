@@ -75,7 +75,7 @@
 
       <!-- Puzzle results -->
       <div class="textBox">
-        <h3 class="center_text" id="lvlText">Puzzle ID: --</h3>
+        <h3 class="center_text" id="lvlText">Puzzle number --</h3>
         <div class= "leaderboard_list_item">
           <span class="center_text"><u>Score</u></span>
           <span class="center_text"><u>Moves</u></span>
@@ -86,9 +86,9 @@
           <span id="optimalText">Best possible result for this puzzle</span>
         </div>
         <div class="leaderboard_list_item">
-          <span class="center_text" id="highScoreDisplay">--</span>
-          <span class="center_text" id="bestMovesDisplay">--</span>
-          <span>Best result on this device so far</span>
+          <span class="center_text" id="localBestScore">--</span>
+          <span class="center_text" id="localBestMoves">--</span>
+          <span id="localBestText">Best result on this device so far</span>
         </div>
         <br>
         <div id="leaderboard_box"></div>
@@ -96,7 +96,7 @@
 
       <!-- Instructions -->
       <div class="textBox">
-        <h3>Instructions</h3>
+        <h3>How to play</h3>
         <ul>
           <li>Start on any of the tiles in the grid by selecting it.</li>
           <li>Move to neighbouring tiles using the arrow keys
@@ -158,13 +158,14 @@
       <div class="textBox popup hidden" id="new_lvl_box">
         <div>
           <div class="mdi mdi-checkerboard"></div>
-          Select&nbsp;a&nbsp;new&nbsp;puzzle<br>
-          &nbsp;
+          Select&nbsp;a&nbsp;new&nbsp;puzzle
         </div>
+
+        &nbsp;<br>
 
         <div>
           <label for="lvl_id_input">
-            Puzzle ID (1-<span id="max_lvl_text"></span>):
+            Puzzle number (1-<span id="max_lvl_text"></span>):
           </label>
           <br>
           <div class="input_wrapper">

@@ -42,11 +42,30 @@ const api = 'http://localhost:27017';
 let leaderboardMin;
 const maxEntriesLeaderboard = 10;
 
-const optimalScore = [29, 30, 43, 34, 34, 40, 35, 40, 24, 41];
-const optimalMoves = [21, 21, 27, 25, 19, 23, 21, 21, 21, 25];
+// level solutions
+const optimalScore = [29, 30, 43, 34, 34, 40, 35, 40, 24, 41,
+  37, 29, 28, 30, 46, 36, 29, 31, 29, 33,
+  35, 43, 39, 25, 33, 29, 42, 30, 41, 33,
+  25, 35, 32, 42, 32, 35, 31, 31, 33, 36,
+  39, 32, 41, 31, 30, 24, 28, 30, 25, 23,
+  31, 34, 32, 28, 37, 28, 30, 37, 34, 35,
+  35, 26, 30, 40, 32, 32, 23, 28, 30, 30,
+  42, 33, 35, 35, 29, 31, 29, 37, 27, 39,
+  28, 38, 32, 32, 32, 37, 25, 36, 30, 30,
+  33, 30, 31, 29, 29, 31, 39, 35, 35, 43];
+const optimalMoves = [21, 21, 27, 25, 19, 23, 21, 21, 21, 25,
+  19, 25, 21, 23, 27, 17, 21, 17, 23, 21,
+  23, 27, 23, 15, 19, 19, 21, 19, 25, 23,
+  23, 27, 21, 19, 25, 19, 23, 19, 17, 23,
+  21, 23, 27, 25, 23, 19, 23, 21, 19, 23,
+  27, 25, 17, 23, 23, 25, 23, 27, 23, 23,
+  25, 23, 19, 25, 25, 23, 19, 23, 23, 21,
+  23, 21, 25, 23, 21, 25, 21, 25, 21, 23,
+  21, 25, 25, 25, 23, 21, 17, 29, 23, 21,
+  21, 21, 27, 21, 23, 21, 21, 21, 19, 27];
 
 // game parameters
-const nLevels = 10;
+const nLevels = 100;
 const gridSize = 6;
 const maxTileVal = 7;
 const minTileVal = 1;
@@ -118,6 +137,7 @@ function createGrid() {
 
     for (let iCol = 0; iCol < gridSize; iCol += 1) {
       const tile = document.createElement('button');
+      tile.disabled = true;
       tile.className = 'tile';
       tile.id = `tile${iRow}${iCol}`;
       tile.addEventListener('click', () => newMove([iRow, iCol]));
@@ -150,24 +170,20 @@ function loadLevel(lvlID) {
   setToLocalStorage(currentLvlKey, lvlID);
 
   // show level ID
-  document.getElementById('lvlText').innerHTML = `Puzzle ID: ${lvlID}`;
+  document.getElementById('lvlText').innerHTML = `Puzzle number ${lvlID}`;
 
   // show optimal score and nr. of moves for level
-  let optimalScoreString =
-    (lvlID <= optimalScore.length) ? optimalScore[lvlID-1] : '--';
-  let optimalMovesString = 
-    (lvlID <= optimalScore.length) ? optimalMoves[lvlID-1] : '--';
-  document.getElementById('optimalScore').innerHTML = optimalScoreString;
-  document.getElementById('optimalMoves').innerHTML = optimalMovesString;
+  document.getElementById('optimalScore').innerHTML = optimalScore[lvlID-1];
+  document.getElementById('optimalMoves').innerHTML = optimalMoves[lvlID-1];
 
   // get level high score from local storage (defaults to -inf), and show it
-  const highScoreKey = getHighScoreKey(lvlID);
-  const bestMovesKey = getBestMovesKey(lvlID);
-  const highScore = +getFromLocalStorage(highScoreKey,
+  const localBestScoreKey = getLocalBestScoreKey(lvlID);
+  const localBestMovesKey = getLocalBestMovesKey(lvlID);
+  const localBestScore = +getFromLocalStorage(localBestScoreKey,
     Number.NEGATIVE_INFINITY);
-  const bestMoves = +getFromLocalStorage(bestMovesKey,
+  const localBestMoves = +getFromLocalStorage(localBestMovesKey,
     Number.POSITIVE_INFINITY);
-  updateHighScoreDisplay(highScore, bestMoves);
+  updateLocalBestDisplay(localBestScore, localBestMoves);
 
   // retrieve leaderboard data from server and show
   makeLeaderboard();
@@ -208,7 +224,7 @@ function resetLevel() {
 
 // prevent scrolling from arrow keys
 window.onkeydown = (event) => {
-  if([37, 38, 39, 40].indexOf(event.keyCode) > -1) {
+  if([38, 40].indexOf(event.keyCode) > -1) {
     event.preventDefault();
   }
 };
@@ -410,22 +426,12 @@ function showPlayer([iRow, iCol]) {
   tileCur.classList.remove('tile_dimmed');
 }
 
-/* -------------- SHOW SCORE AND HIGHSCORE -------------- */
+/* -------------- SHOW SCORE AND MOVES -------------- */
 
 // display game score
 function updateScoreDisplay(score, moves) {
   document.getElementById('scoreDisplay').innerHTML = `${score}`;
   document.getElementById('movesDisplay').innerHTML = `${moves}`;
-}
-
-// display high score
-function updateHighScoreDisplay(highScore, bestMoves) {
-  const highScoreString =
-    highScore === Number.NEGATIVE_INFINITY ? '--' : highScore;
-  const bestMovesString =
-    bestMoves === Number.POSITIVE_INFINITY ? '--' : bestMoves;
-  document.getElementById('highScoreDisplay').innerHTML = `${highScoreString}`;
-  document.getElementById('bestMovesDisplay').innerHTML = `${bestMovesString}`;
 }
 
 /* -------------- CHANGE SIGN BOXES DISPLAY -------------- */
@@ -496,7 +502,8 @@ function changeLevel() {
 document.getElementById('max_lvl_text').innerHTML = nLevels;
 document.getElementById('lvl_id_input_field').max = nLevels;
 
-// cancel and ok button functionality, and submit on press enter
+// cancel and ok button functionality,
+// cancel on press escape, submit on press enter
 document
   .getElementById('new_lvl_cancel')
   .addEventListener('click', toggleLevelBox);
@@ -506,39 +513,59 @@ document
 document
   .getElementById('lvl_id_input_field')
   .addEventListener('keydown', (event) => {
-    if (event.keyCode === 13) changeLevel();
+    if (event.keyCode === 27) toggleLevelBox(); // escape
+    else if (event.keyCode === 13) changeLevel(); // enter
   });
 
-/* -------------- HIGH SCORE -------------- */
+/* -------------- LOCAL BEST RESULT -------------- */
 
 // generate local storage key for high score of this level
-function getHighScoreKey(lvlID) {
-  return `${keyRoot}highscore_lvl_A${lvlID}`;
+function getLocalBestScoreKey(lvlID) {
+  return `${keyRoot}localbestscore_lvl_${lvlID}`;
 }
 
 // generate local storage key for lowest number of moves for this level
-function getBestMovesKey(lvlID) {
-  return `${keyRoot}bestmoves_lvl_A${lvlID}`;
+function getLocalBestMovesKey(lvlID) {
+  return `${keyRoot}localbestmoves_lvl_A${lvlID}`;
+}
+
+// display high score
+function updateLocalBestDisplay(localBestScore, localBestMoves) {
+  const localBestScoreString =
+    localBestScore === Number.NEGATIVE_INFINITY ? '--' : localBestScore;
+  const localBestMovesString =
+    localBestMoves === Number.POSITIVE_INFINITY ? '--' : localBestMoves;
+  document
+    .getElementById('localBestScore')
+    .innerHTML = `${localBestScoreString}`;
+  document
+    .getElementById('localBestMoves')
+    .innerHTML = `${localBestMovesString}`;
 }
 
 function checkForHighScore(lvlID) {
   // retrieve best result of this level from local storage to compare against
-  const highScoreKey = getHighScoreKey(lvlID);
-  const bestMovesKey = getBestMovesKey(lvlID);
-  let highScore = +getFromLocalStorage(highScoreKey, Number.NEGATIVE_INFINITY);
-  let bestMoves = +getFromLocalStorage(bestMovesKey, Number.POSITIVE_INFINITY);
+  const localBestScoreKey = getLocalBestScoreKey(lvlID);
+  const localBestMovesKey = getLocalBestMovesKey(lvlID);
+  let localBestScore = +getFromLocalStorage(localBestScoreKey,
+    Number.NEGATIVE_INFINITY);
+  let localBestMoves = +getFromLocalStorage(localBestMovesKey,
+    Number.POSITIVE_INFINITY);
 
   // replace best result with new result if latter is better
-  if (thisGame.score > highScore) {
-    highScore = thisGame.score;
-    bestMoves = thisGame.nMoves;
-    updateHighScoreDisplay(highScore, bestMoves);
-    setToLocalStorage(highScoreKey, highScore);
-    setToLocalStorage(bestMovesKey, bestMoves);
-  } else if (thisGame.score == highScore && thisGame.nMoves < bestMoves) {
-    bestMoves = thisGame.nMoves;
-    updateHighScoreDisplay(highScore, bestMoves);
-    setToLocalStorage(bestMovesKey, bestMoves);
+  if (thisGame.score > localBestScore) {
+    localBestScore = thisGame.score;
+    localBestMoves = thisGame.nMoves;
+    updateLocalBestDisplay(localBestScore, localBestMoves);
+    setToLocalStorage(localBestScoreKey, localBestScore);
+    setToLocalStorage(localBestMovesKey, localBestMoves);
+  } else if (
+    thisGame.score == localBestScore &&
+    thisGame.nMoves < localBestMoves
+  ) {
+    localBestMoves = thisGame.nMoves;
+    updateLocalBestDisplay(localBestScore, localBestMoves);
+    setToLocalStorage(localBestMovesKey, localBestMoves);
   }
 
   if (thisGame.score >= leaderboardMin) showLeaderboardPost();
@@ -758,7 +785,8 @@ function getUsername() {
   return userName;
 }
 
-// cancel and ok button functionality, and submit on press enter
+// cancel and ok button functionality,
+// cancel on press escape, submit on press enter
 document
   .getElementById('leaderboard_post_cancel')
   .addEventListener('click', hideLeaderboardPost);
@@ -768,7 +796,8 @@ document
 document
   .getElementById('username_input_field')
   .addEventListener('keydown', (event) => {
-    if (event.keyCode === 13) postToLeaderboard();
+    if (event.keyCode === 27) hideLeaderboardPost(); // escape
+    else if (event.keyCode === 13) postToLeaderboard(); // enter
   });
 
 /* -------------- MAIN UI BUTTONS -------------- */
