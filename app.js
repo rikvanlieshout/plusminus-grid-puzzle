@@ -37,8 +37,8 @@ const currentLvlKey = keyRoot + 'current_lvl';
 let colorTheme
 
 // leaderboard
-// const api = 'http://localhost:27017';
-const api = 'https://plus-minus-grid-puzzle.herokuapp.com';
+const api = 'http://localhost:27017';
+// const api = 'https://plus-minus-grid-puzzle.herokuapp.com';
 let leaderboardMin;
 const maxEntriesLeaderboard = 10;
 
@@ -82,8 +82,31 @@ let thisGame;
 
 /* -------------- CORE FUNCTIONS -------------- */
 
+// random integer within range (min and max both included)
 function getRandomIntIncl(min, max, randFunc = Math.random) {
   return Math.floor(randFunc() * (max - min + 1)) + min;
+}
+
+// hash function (MurmurHash3's mixing function)
+function xmur3(str) {
+  for(var i = 0, h = 1779033703 ^ str.length; i < str.length; i++)
+    h = Math.imul(h ^ str.charCodeAt(i), 3432918353),
+    h = h << 13 | h >>> 19;
+  return function() {
+    h = Math.imul(h ^ h >>> 16, 2246822507);
+    h = Math.imul(h ^ h >>> 13, 3266489909);
+    return (h ^= h >>> 16) >>> 0;
+  }
+}
+
+// seeded pseuso random number generator (Mulberry32)
+function mulberry32(a) {
+  return function() {
+    var t = a += 0x6D2B79F5;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  }
 }
 
 /* -------------- LOCAL STORAGE -------------- */
@@ -153,7 +176,8 @@ function createGrid() {
 // load level: add values to tiles, according to puzzle ID
 function loadLevel(lvlID) {
   // create random number generator for this level
-  let lvlRNG = new Math.seedrandom(lvlID);
+  const seed = xmur3(lvlID);
+  const lvlRNG = mulberry32(seed());
 
   // add values to tiles
   for (let iRow = 0; iRow < gridSize; iRow++) {
@@ -173,8 +197,10 @@ function loadLevel(lvlID) {
   document.getElementById('lvlText').innerHTML = `Puzzle number ${lvlID}`;
 
   // show optimal score and nr. of moves for level
-  document.getElementById('optimalScore').innerHTML = optimalScore[lvlID-1];
-  document.getElementById('optimalMoves').innerHTML = optimalMoves[lvlID-1];
+  document.getElementById('optimalScore').innerHTML = '--';
+  document.getElementById('optimalMoves').innerHTML = '--';
+  // document.getElementById('optimalScore').innerHTML = optimalScore[lvlID-1];
+  // document.getElementById('optimalMoves').innerHTML = optimalMoves[lvlID-1];
 
   // get level high score from local storage (defaults to -inf), and show it
   const localBestScoreKey = getLocalBestScoreKey(lvlID);
