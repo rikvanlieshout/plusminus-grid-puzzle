@@ -3,6 +3,7 @@
   --grid_width: 97vw;
   --max_grid_width: 55vh;
   --max_cell_width: calc(var(--max_grid_width) / var(--grid_size));
+  --font_size_tile: 4vh;
 }
 
 * {
@@ -210,6 +211,12 @@ header {
   grid-gap: 1.5vh;
 }
 
+.btn_trio {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 1.5vh;
+}
+
 .btn_border {
   padding: 1.5vh;
   border: 2px solid var(--col_game_text);
@@ -220,7 +227,7 @@ header {
   transition: color 0.25s;
 }
 
-.btn_border:active {
+.btn_border:active, .btn_border.active {
   background-color: var(--col_game_text);
   color: var(--col_bg2);
 }
@@ -366,7 +373,7 @@ ul {
   border: 1px solid var(--col_border);
   background-color: var(--col_grid_bg1);
   color: var(--col_grid_text);
-  font-size: 4vh;
+  font-size: var(--font_size_tile);
 }
 
 #grid .tile:hover {

@@ -12,9 +12,11 @@ class TileTemplate {
 
 // class to record details of a game
 class GameRecord {
-  constructor(lvlID) {
+  constructor() {
     this.playerName = '';
-    this.lvlID = lvlID;
+    this.lvlID = getLvlID();
+    this.gridSize = gridSize;
+    this.lvlNumber = lvlNumber;
     this.coords = [];
     this.vals = [];
     this.iMoveCur = -1;
@@ -32,6 +34,7 @@ const keyRoot = 'plusminus_grid_puzzle_';
 const colorThemeKey = keyRoot + 'color_theme';
 const userNameKey = keyRoot + 'username';
 const currentLvlKey = keyRoot + 'current_lvl';
+const currentGridSizeKey = keyRoot + 'current_gridsize';
 
 // theme
 let colorTheme
@@ -43,48 +46,37 @@ let leaderboardMin;
 const maxEntriesLeaderboard = 10;
 
 // level solutions
-const optimalScore = [29, 30, 43, 34, 34, 40, 35, 40, 24, 41,
-  37, 29, 28, 30, 46, 36, 29, 31, 29, 33,
-  35, 43, 39, 25, 33, 29, 42, 30, 41, 33,
-  25, 35, 32, 42, 32, 35, 31, 31, 33, 36,
-  39, 32, 41, 31, 30, 24, 28, 30, 25, 23,
-  31, 34, 32, 28, 37, 28, 30, 37, 34, 35,
-  35, 26, 30, 40, 32, 32, 23, 28, 30, 30,
-  42, 33, 35, 35, 29, 31, 29, 37, 27, 39,
-  28, 38, 32, 32, 32, 37, 25, 36, 30, 30,
-  33, 30, 31, 29, 29, 31, 39, 35, 35, 43];
-const optimalMoves = [21, 21, 27, 25, 19, 23, 21, 21, 21, 25,
-  19, 25, 21, 23, 27, 17, 21, 17, 23, 21,
-  23, 27, 23, 15, 19, 19, 21, 19, 25, 23,
-  23, 27, 21, 19, 25, 19, 23, 19, 17, 23,
-  21, 23, 27, 25, 23, 19, 23, 21, 19, 23,
-  27, 25, 17, 23, 23, 25, 23, 27, 23, 23,
-  25, 23, 19, 25, 25, 23, 19, 23, 23, 21,
-  23, 21, 25, 23, 21, 25, 21, 25, 21, 23,
-  21, 25, 25, 25, 23, 21, 17, 29, 23, 21,
-  21, 21, 27, 21, 23, 21, 21, 21, 19, 27];
+const optimalScore = [29, 29, 30, 28, 28, 22, 23, 31, 27, 28];
+const optimalMoves = [19, 17, 23, 21, 23, 23, 23, 19, 19, 25];
 
 // game parameters
-const nLevels = 100;
-const gridSize = 6;
-const maxTileVal = 7;
 const minTileVal = 1;
+const maxTileVal = 7;
+const nLevels = 10;
+const possibleGridSizes = [4, 6, 8];
+const leaderboardGridSize = 8;
+
+// current grid size, current level, and current game record
+let gridSize;
+let lvlNumber;
+let thisGame;
 
 // 2D array that stores tile objects
-const tiles = new Array(gridSize);
-for (let iRow = 0; iRow < gridSize; iRow++) {
-  tiles[iRow] = new Array(gridSize);
-}
-
-// current level and current game record
-let lvl_id;
-let thisGame;
+let tiles;
 
 /* -------------- CORE FUNCTIONS -------------- */
 
 // random integer within range (min and max both included)
 function getRandomIntIncl(min, max, randFunc = Math.random) {
   return Math.floor(randFunc() * (max - min + 1)) + min;
+}
+
+// shuffle function (Durstenfeld shuffle, randomizes positions of array elements)
+function shuffleArray(array, randFunc = Math.random) {
+  for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(randFunc() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+  }
 }
 
 // hash function (MurmurHash3's mixing function)
@@ -120,6 +112,23 @@ function setToLocalStorage(key, value) {
   localStorage.setItem(key, value);
 }
 
+// generate local storage key for high score of this level
+function getLocalBestScoreKey() {
+  const lvlID = getLvlID();
+  return `${keyRoot}localbestscore_lvl_${lvlID}`;
+}
+
+// generate local storage key for lowest number of moves for this level
+function getLocalBestMovesKey() {
+  const lvlID = getLvlID();
+  return `${keyRoot}localbestmoves_lvl_${lvlID}`;
+}
+
+// level indentifier from grid size and level number
+function getLvlID() {
+  return `${gridSize}x${gridSize}_nr${lvlNumber}`;
+}
+
 /* -------------- THEME -------------- */
 
 function setColorTheme() {
@@ -147,12 +156,58 @@ document
   .getElementById('theme_toggler')
   .addEventListener('click', toggleTheme);
 
-/*--------------CREATE GRID--------------*/
+/* -------------- MAKE LEVEL -------------- */
 
-document.documentElement.style.setProperty('--grid_size', gridSize);
+// wrapper function calling subroutines to load level
+function loadLevel() {
+  // make grid of tiles (buttons) in HTML
+  createGrid();
 
+  // make 2D array that holds tile objects
+  tiles = new Array(gridSize);
+  for (let iRow = 0; iRow < gridSize; iRow++) {
+    tiles[iRow] = new Array(gridSize);
+  }
+
+  // generate random tile values and add values to HTML tiles
+  generateLevel();
+
+  // store current grid size and level ID in local storage
+  // to allow continue playing same level after browser refresh
+  setToLocalStorage(currentGridSizeKey, gridSize);
+  setToLocalStorage(currentLvlKey, lvlNumber);
+
+  // show level ID
+  document.getElementById('lvlText').innerHTML = `Puzzle number ${lvlNumber}`;
+    // .innerHTML = `Puzzle ID: ${gridSize}x${gridSize} nr. ${lvlNumber}`;
+
+  // show optimal score and nr. of moves for level
+  showOptimalResult();
+
+  // get level high score from local storage (defaults to -inf), and show it
+  const localBestScoreKey = getLocalBestScoreKey();
+  const localBestMovesKey = getLocalBestMovesKey();
+  const localBestScore = +getFromLocalStorage(localBestScoreKey,
+    Number.NEGATIVE_INFINITY);
+  const localBestMoves = +getFromLocalStorage(localBestMovesKey,
+    Number.POSITIVE_INFINITY);
+  updateLocalBestDisplay(localBestScore, localBestMoves);
+
+  // retrieve leaderboard data from server and show
+  document.getElementById('leaderboard_box').innerHTML = '';
+  if (gridSize >= leaderboardGridSize) makeLeaderboard();
+}
+
+// make grid of tiles (buttons) in HTML
 function createGrid() {
+  // set CSS properties
+  document.documentElement.style.setProperty('--grid_size', gridSize);
+  document.documentElement.style
+    .setProperty('--font_size_tile', `${6 - gridSize/3}vh`);
+
+  // get grid HTML element and empty its content from previous grid
   const grid = document.getElementById('grid');
+  grid.innerHTML = '';
 
   for (let iRow = 0; iRow < gridSize; iRow += 1) {
     const row = document.createElement('div');
@@ -171,68 +226,68 @@ function createGrid() {
   }
 }
 
-/* -------------- GENERATE LEVEL -------------- */
-
-// load level: add values to tiles, according to puzzle ID
-function loadLevel(lvlID) {
+// generate tile values, add values to HTML tiles, according to puzzle ID
+function generateLevel() {
   // create random number generator for this level
+  const lvlID = getLvlID();
   const seed = xmur3(lvlID);
   const lvlRNG = mulberry32(seed());
 
+  // number of tiles per parity; minimum and maximum tile values
+  const nHalfTiles = gridSize * gridSize / 2;
+
+  // generate random values for even-indexed tiles
+  // by obtaining random integers in range [minTileVal, maxTileVal]
+  const tileValsEven = new Array(nHalfTiles);
+  for (let i = 0; i < nHalfTiles; i++) {
+    tileValsEven[i] = getRandomIntIncl(minTileVal, maxTileVal, lvlRNG);
+  }
+
+  // duplicate and shuffle values for odd-indexed tiles
+  const tileValsOdd = Array.from(tileValsEven);
+  shuffleArray(tileValsOdd, lvlRNG);
+
   // add values to tiles
+  let iTileEven = 0;
+  let iTileOdd = 0;
   for (let iRow = 0; iRow < gridSize; iRow++) {
     for (let iCol = 0; iCol < gridSize; iCol++) {
-      // obtain random integer in range [minTileVal, maxTileVal]
-      const val = getRandomIntIncl(minTileVal, maxTileVal, lvlRNG);
+      // obtain tile value from array (even or odd) of tile values
+      let val;
+      if ((iRow + iCol) % 2 == 0) {
+        val = tileValsEven[iTileEven];
+        iTileEven++;
+      } else {
+        val = tileValsOdd[iTileOdd];
+        iTileOdd++;
+      }
+
       // add tile object to 2D array
       tiles[iRow][iCol] = new TileTemplate(val);
     }
   }
+}
 
-  // store current level ID in local storage
-  // to allow continue playing same level after browser refresh
-  setToLocalStorage(currentLvlKey, lvlID);
-
-  // show level ID
-  document.getElementById('lvlText').innerHTML = `Puzzle number ${lvlID}`;
-
-  // show optimal score and nr. of moves for level
-  document.getElementById('optimalScore').innerHTML = '--';
-  document.getElementById('optimalMoves').innerHTML = '--';
-  // document.getElementById('optimalScore').innerHTML = optimalScore[lvlID-1];
-  // document.getElementById('optimalMoves').innerHTML = optimalMoves[lvlID-1];
-
-  // get level high score from local storage (defaults to -inf), and show it
-  const localBestScoreKey = getLocalBestScoreKey(lvlID);
-  const localBestMovesKey = getLocalBestMovesKey(lvlID);
-  const localBestScore = +getFromLocalStorage(localBestScoreKey,
-    Number.NEGATIVE_INFINITY);
-  const localBestMoves = +getFromLocalStorage(localBestMovesKey,
-    Number.POSITIVE_INFINITY);
-  updateLocalBestDisplay(localBestScore, localBestMoves);
-
-  // retrieve leaderboard data from server and show
-  makeLeaderboard();
+function showOptimalResult() {
+  const optimalScoreDisplay = document.getElementById('optimalScore');
+  const optimalMovesDisplay = document.getElementById('optimalMoves');
+  optimalScoreDisplay.innerHTML = '--';
+  optimalMovesDisplay.innerHTML = '--';
+  if (gridSize >= leaderboardGridSize)
+    document.getElementById('optimalBox').classList.add('hidden');
+  else if (gridSize == 6) {
+    document.getElementById('optimalBox').classList.remove('hidden');
+    optimalScoreDisplay.innerHTML = optimalScore[lvlNumber-1];
+    optimalMovesDisplay.innerHTML = optimalMoves[lvlNumber-1];
+  } else {
+    document.getElementById('optimalBox').classList.remove('hidden');
+  }
 }
 
 /* -------------- NEW GAME -------------- */
 
 function resetGame() {
   // show and enable tiles
-  resetLevel();
-
-  // reset game record
-  thisGame = new GameRecord(lvl_id);
-
-  // reset score indicator to 0
-  updateScoreDisplay(0, 0);
-
-  // remove colors and focus borders from sign boxes
-  resetSignBoxColors();
-  resetPlusMinusBorders();
-}
-
-function resetLevel() {
   for (let iRow = 0; iRow < gridSize; iRow++) {
     for (let iCol = 0; iCol < gridSize; iCol++) {
       // mark all tiles as available
@@ -244,6 +299,16 @@ function resetLevel() {
       tile.disabled = false;
     }
   }
+
+  // reset game record
+  thisGame = new GameRecord();
+
+  // reset score indicator to 0
+  updateScoreDisplay(0, 0);
+
+  // remove colors and focus borders from sign boxes
+  resetSignBoxColors();
+  resetPlusMinusBorders();
 }
 
 /* -------------- KEYBOARD INPUT -------------- */
@@ -378,7 +443,7 @@ function doMove([iRow, iCol]) {
       .getElementById(`tile${iRow}${iCol}`)
       .classList.add('tile_dimmed');
     resetPlusMinusBorders();
-    checkForHighScore(thisGame.lvlID);
+    checkForHighScore();
   }
 
   updateScoreDisplay(thisGame.score, thisGame.iMoveCur + 1);
@@ -507,26 +572,50 @@ function resetPlusMinusBorders() {
 /* -------------- CHANGE LEVEL -------------- */
 
 function toggleLevelBox() {
-  // set input field to current puzzle id
-  document.getElementById('lvl_id_input_field').value = lvl_id;
+  // show current gridsize using active CSS class for relevant button
+  const gridsize_btn_id = `gridsize${gridSize}_btn`;
+  document.getElementById(gridsize_btn_id).classList.add('active');
+
+  // set input field to current level number
+  document.getElementById('lvl_nr_input_field').value = lvlNumber;
+
   document.getElementById('popup_backdrop').classList.toggle('hidden');
   document.getElementById('new_lvl_box').classList.toggle('hidden');
 }
 
-function changeLevel() {
-  const inputField = document.getElementById('lvl_id_input_field');
-  const lvl_id_input = parseInt(inputField.value);
-  if (lvl_id_input >= 1 && lvl_id_input <= nLevels) {
-    lvl_id = lvl_id_input;
-    toggleLevelBox();
-    loadLevel(lvl_id);
-    resetGame();
-  } else alert(`Puzzle ID should be between 1 and ${nLevels}.`);
+// change the grid size and show
+function changeGridSize(newGridSize) {
+  const cur_gridsize_btn_id = `gridsize${gridSize}_btn`;
+  const new_gridsize_btn_id = `gridsize${newGridSize}_btn`;
+  document
+    .getElementById(cur_gridsize_btn_id)
+    .classList.remove('active');
+  document
+    .getElementById(new_gridsize_btn_id)
+    .classList.add('active');
+  gridSize = newGridSize;
 }
 
-// set maximum allowed puzzle ID in text and input field
+for (const gridSizeVal of possibleGridSizes) {
+  document
+    .getElementById(`gridsize${gridSizeVal}_btn`)
+    .addEventListener('click', () => changeGridSize(gridSizeVal));
+}
+
+function changeLevel() {
+  const inputFieldLvlNr = document.getElementById('lvl_nr_input_field');
+  const lvl_nr_input = parseInt(inputFieldLvlNr.value);
+  if (lvl_nr_input >= 1 && lvl_nr_input <= nLevels) {
+    lvlNumber = lvl_nr_input;
+    toggleLevelBox();
+    loadLevel();
+    resetGame();
+  } else alert(`Puzzle number should be between 1 and ${nLevels}.`);
+}
+
+// set maximum allowed level number in text and input field
 document.getElementById('max_lvl_text').innerHTML = nLevels;
-document.getElementById('lvl_id_input_field').max = nLevels;
+document.getElementById('lvl_nr_input_field').max = nLevels;
 
 // cancel and ok button functionality,
 // cancel on press escape, submit on press enter
@@ -537,23 +626,13 @@ document
   .getElementById('new_lvl_submit')
   .addEventListener('click', changeLevel);
 document
-  .getElementById('lvl_id_input_field')
+  .getElementById('lvl_nr_input_field')
   .addEventListener('keydown', (event) => {
     if (event.keyCode === 27) toggleLevelBox(); // escape
     else if (event.keyCode === 13) changeLevel(); // enter
   });
 
 /* -------------- LOCAL BEST RESULT -------------- */
-
-// generate local storage key for high score of this level
-function getLocalBestScoreKey(lvlID) {
-  return `${keyRoot}localbestscore_lvl_${lvlID}`;
-}
-
-// generate local storage key for lowest number of moves for this level
-function getLocalBestMovesKey(lvlID) {
-  return `${keyRoot}localbestmoves_lvl_A${lvlID}`;
-}
 
 // display high score
 function updateLocalBestDisplay(localBestScore, localBestMoves) {
@@ -569,10 +648,10 @@ function updateLocalBestDisplay(localBestScore, localBestMoves) {
     .innerHTML = `${localBestMovesString}`;
 }
 
-function checkForHighScore(lvlID) {
+function checkForHighScore() {
   // retrieve best result of this level from local storage to compare against
-  const localBestScoreKey = getLocalBestScoreKey(lvlID);
-  const localBestMovesKey = getLocalBestMovesKey(lvlID);
+  const localBestScoreKey = getLocalBestScoreKey();
+  const localBestMovesKey = getLocalBestMovesKey();
   let localBestScore = +getFromLocalStorage(localBestScoreKey,
     Number.NEGATIVE_INFINITY);
   let localBestMoves = +getFromLocalStorage(localBestMovesKey,
@@ -594,7 +673,8 @@ function checkForHighScore(lvlID) {
     setToLocalStorage(localBestMovesKey, localBestMoves);
   }
 
-  if (thisGame.score >= leaderboardMin) showLeaderboardPost();
+  if (gridSize >= leaderboardGridSize && thisGame.score >= leaderboardMin)
+    showLeaderboardPost();
 }
 
 /* -------------- GENERATE LEADERBOARD -------------- */
@@ -633,7 +713,8 @@ async function makeLeaderboard() {
 
 // get raw array of game results from database
 async function getLeaderboardData() {
-  const route = `${api}/highscores/lvl/${lvl_id}`;
+  const lvlID = getLvlID();
+  const route = `${api}/highscores/lvl/${lvlID}`;
 
   try {
     const response = await fetch(route);
@@ -843,16 +924,18 @@ document
 
 /* -------------- STARTUP -------------- */
 
-// set color theme
-colorTheme = getFromLocalStorage(colorThemeKey, 'dark');
-setColorTheme();
-
-// construct grid of tiles
-createGrid();
-
-// get current level ID from local storage, defaults to level 1
-lvl_id = +getFromLocalStorage(currentLvlKey, 1);
-
-// generate level and start game
-loadLevel(lvl_id);
-resetGame();
+(function startup() {
+  // set color theme, defaults to dark
+  colorTheme = getFromLocalStorage(colorThemeKey, 'dark');
+  setColorTheme();
+  
+  // get current grid size from local storage, defaults to 6x6
+  gridSize = +getFromLocalStorage(currentGridSizeKey, 6);
+  
+  // get current level ID from local storage, defaults to level 1
+  lvlNumber = +getFromLocalStorage(currentLvlKey, 1);
+  
+  // generate level and start game
+  loadLevel();
+  resetGame();
+})();

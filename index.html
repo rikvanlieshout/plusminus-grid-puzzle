@@ -78,7 +78,7 @@
           <span class="center_text"><u>Score</u></span>
           <span class="center_text"><u>Moves</u></span>
         </div>
-        <div class="leaderboard_list_item">
+        <div class="leaderboard_list_item" id="optimalBox">
           <span class="center_text" id="optimalScore">--</span>
           <span class="center_text" id="optimalMoves">--</span>
           <span id="optimalText">Best possible result for this puzzle</span>
@@ -162,6 +162,23 @@
         &nbsp;<br>
 
         <div>
+          <label>
+            Grid size:
+          </label>
+          <br>
+          <div class="btn_trio">
+            <button type="button" class="btn_border"
+              id="gridsize4_btn">4 x 4</button>
+            <button type="button" class="btn_border"
+              id="gridsize6_btn">6 x 6</button>
+            <button type="button" class="btn_border"
+              id="gridsize8_btn">8 x 8</button>
+          </div>
+        </div>
+
+        &nbsp;<br>
+
+        <div>
           <label for="lvl_id_input">
             Puzzle number (1-<span id="max_lvl_text"></span>):
           </label>
@@ -172,7 +189,7 @@
               <span class="mdi mdi-chevron-left"></span>
             </button>
             <input type="number" name="lvl_id_input" min="1"
-              onfocus="this.select();" id="lvl_id_input_field">
+              onfocus="this.select();" id="lvl_nr_input_field">
             <button type="button" class="btn_border btn_step"
               onclick="this.parentNode.querySelector('input').stepUp()">
               <span class="mdi mdi-chevron-right"></span>
