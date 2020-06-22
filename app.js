@@ -46,8 +46,8 @@ let leaderboardMin;
 const maxEntriesLeaderboard = 10;
 
 // level solutions
-const optimalScore = [29, 29, 30, 28, 28, 22, 23, 31, 27, 28];
-const optimalMoves = [19, 17, 23, 21, 23, 23, 23, 19, 19, 25];
+// const optimalScore = [29, 29, 30, 28, 28, 22, 23, 31, 27, 28];
+// const optimalMoves = [19, 17, 23, 21, 23, 23, 23, 19, 19, 25];
 
 // game parameters
 const minTileVal = 1;
@@ -233,18 +233,33 @@ function generateLevel() {
   const seed = xmur3(lvlID);
   const lvlRNG = mulberry32(seed());
 
-  // number of tiles per parity; minimum and maximum tile values
-  const nHalfTiles = gridSize * gridSize / 2;
-
-  // generate random values for even-indexed tiles
-  // by obtaining random integers in range [minTileVal, maxTileVal]
-  const tileValsEven = new Array(nHalfTiles);
-  for (let i = 0; i < nHalfTiles; i++) {
-    tileValsEven[i] = getRandomIntIncl(minTileVal, maxTileVal, lvlRNG);
+  // generate random values for tiles
+  const tileVals = new Array(gridSize * gridSize);
+  for (let i = 0; i < gridSize * gridSize; i++) {
+    tileVals[i] = getRandomIntIncl(minTileVal, maxTileVal, lvlRNG);
   }
 
-  // duplicate and shuffle values for odd-indexed tiles
-  const tileValsOdd = Array.from(tileValsEven);
+  // sort tile values
+  tileVals.sort((a, b) => b - a);
+
+  // pick values for odd and even-indexed tiles following ABBA scheme
+  const tileValsEven = new Array();
+  const tileValsOdd = new Array();
+  for (let i = 0; i < gridSize * gridSize; i += 4) {
+    tileValsEven.push(tileVals[i])
+  }
+  for (let i = 1; i < gridSize * gridSize; i += 4) {
+    tileValsOdd.push(tileVals[i])
+  }
+  for (let i = 2; i < gridSize * gridSize; i += 4) {
+    tileValsOdd.push(tileVals[i])
+  }
+  for (let i = 3; i < gridSize * gridSize; i += 4) {
+    tileValsEven.push(tileVals[i])
+  }
+
+  // shuffle values in both arrays
+  shuffleArray(tileValsEven, lvlRNG);
   shuffleArray(tileValsOdd, lvlRNG);
 
   // add values to tiles
@@ -268,6 +283,67 @@ function generateLevel() {
   }
 }
 
+// // generate tile values, add values to HTML tiles, according to puzzle ID
+// function generateLevel() {
+//   // create random number generator for this level
+//   const lvlID = getLvlID();
+//   const seed = xmur3(lvlID);
+//   const lvlRNG = mulberry32(seed());
+
+//   // add values to tiles
+//   for (let iRow = 0; iRow < gridSize; iRow++) {
+//     for (let iCol = 0; iCol < gridSize; iCol++) {
+//       // obtain random integers in range [minTileVal, maxTileVal]
+//       let val = getRandomIntIncl(minTileVal, maxTileVal, lvlRNG);
+
+//       // add tile object to 2D array
+//       tiles[iRow][iCol] = new TileTemplate(val);
+//     }
+//   }
+// }
+
+// // generate tile values, add values to HTML tiles, according to puzzle ID
+// function generateLevel() {
+//   // create random number generator for this level
+//   const lvlID = getLvlID();
+//   const seed = xmur3(lvlID);
+//   const lvlRNG = mulberry32(seed());
+
+//   // number of tiles per parity; minimum and maximum tile values
+//   const nHalfTiles = gridSize * gridSize / 2;
+
+//   // generate random values for even-indexed tiles
+//   // by obtaining random integers in range [minTileVal, maxTileVal]
+//   const tileValsEven = new Array(nHalfTiles);
+//   for (let i = 0; i < nHalfTiles; i++) {
+//     tileValsEven[i] = getRandomIntIncl(minTileVal, maxTileVal, lvlRNG);
+//   }
+
+//   // duplicate and shuffle values for odd-indexed tiles
+//   const tileValsOdd = Array.from(tileValsEven);
+//   shuffleArray(tileValsOdd, lvlRNG);
+
+//   // add values to tiles
+//   let iTileEven = 0;
+//   let iTileOdd = 0;
+//   for (let iRow = 0; iRow < gridSize; iRow++) {
+//     for (let iCol = 0; iCol < gridSize; iCol++) {
+//       // obtain tile value from array (even or odd) of tile values
+//       let val;
+//       if ((iRow + iCol) % 2 == 0) {
+//         val = tileValsEven[iTileEven];
+//         iTileEven++;
+//       } else {
+//         val = tileValsOdd[iTileOdd];
+//         iTileOdd++;
+//       }
+
+//       // add tile object to 2D array
+//       tiles[iRow][iCol] = new TileTemplate(val);
+//     }
+//   }
+// }
+
 function showOptimalResult() {
   const optimalScoreDisplay = document.getElementById('optimalScore');
   const optimalMovesDisplay = document.getElementById('optimalMoves');
@@ -277,8 +353,8 @@ function showOptimalResult() {
     document.getElementById('optimalBox').classList.add('hidden');
   else if (gridSize == 6) {
     document.getElementById('optimalBox').classList.remove('hidden');
-    optimalScoreDisplay.innerHTML = optimalScore[lvlNumber-1];
-    optimalMovesDisplay.innerHTML = optimalMoves[lvlNumber-1];
+    // optimalScoreDisplay.innerHTML = optimalScore[lvlNumber-1];
+    // optimalMovesDisplay.innerHTML = optimalMoves[lvlNumber-1];
   } else {
     document.getElementById('optimalBox').classList.remove('hidden');
   }
