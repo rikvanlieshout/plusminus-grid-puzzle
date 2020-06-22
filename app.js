@@ -101,6 +101,14 @@ function mulberry32(a) {
   }
 }
 
+// get nth digit in the Thue-Morse sequence
+function nthThueMorse(n) {
+  const binStr = (n).toString(2);
+  const re = /[1]/g;
+  const oneCount = ((binStr || '').match(re) || []).length;
+  return oneCount % 2;
+}
+
 /* -------------- LOCAL STORAGE -------------- */
 
 function getFromLocalStorage(key, defaultValue = '0') {
@@ -232,117 +240,53 @@ function generateLevel() {
   const lvlID = getLvlID();
   const seed = xmur3(lvlID);
   const lvlRNG = mulberry32(seed());
+  
+  let tileValsOdd, tileValsEven;
+  let sumOdd, sumEven;
 
-  // generate random values for tiles
-  const tileVals = new Array(gridSize * gridSize);
-  for (let i = 0; i < gridSize * gridSize; i++) {
-    tileVals[i] = getRandomIntIncl(minTileVal, maxTileVal, lvlRNG);
-  }
+  // ensure tile vals sum to zero
+  do {
+    // generate random values for all tiles
+    const tileVals = new Array(gridSize * gridSize);
+    for (let i = 0; i < gridSize * gridSize; i++) {
+      tileVals[i] = getRandomIntIncl(minTileVal, maxTileVal, lvlRNG);
+    }
 
-  // sort tile values
-  tileVals.sort((a, b) => b - a);
+    // sort tile values (in descending order)
+    tileVals.sort((a, b) => b - a);
 
-  // pick values for odd and even-indexed tiles following ABBA scheme
-  const tileValsEven = new Array();
-  const tileValsOdd = new Array();
-  for (let i = 0; i < gridSize * gridSize; i += 4) {
-    tileValsEven.push(tileVals[i])
-  }
-  for (let i = 1; i < gridSize * gridSize; i += 4) {
-    tileValsOdd.push(tileVals[i])
-  }
-  for (let i = 2; i < gridSize * gridSize; i += 4) {
-    tileValsOdd.push(tileVals[i])
-  }
-  for (let i = 3; i < gridSize * gridSize; i += 4) {
-    tileValsEven.push(tileVals[i])
-  }
+    // pick values for odd and even-indexed tiles following Thue-Morse sequence
+    tileValsOdd = [];
+    tileValsEven = [];
+    for (let i = 0; i < gridSize * gridSize; i++) {
+      if (nthThueMorse(i)) tileValsOdd.push(tileVals[i]);
+      else tileValsEven.push(tileVals[i]);
+    }
+
+    // compute sums of tile values in both arrays
+    sumOdd = tileValsOdd.reduce((a, b) => a + b, 0);
+    sumEven = tileValsEven.reduce((a, b) => a + b, 0);
+
+    // repeat until odd and even tile values add up to the same sum
+  } while (sumOdd != sumEven);
 
   // shuffle values in both arrays
   shuffleArray(tileValsEven, lvlRNG);
   shuffleArray(tileValsOdd, lvlRNG);
 
   // add values to tiles
-  let iTileEven = 0;
-  let iTileOdd = 0;
   for (let iRow = 0; iRow < gridSize; iRow++) {
     for (let iCol = 0; iCol < gridSize; iCol++) {
       // obtain tile value from array (even or odd) of tile values
       let val;
-      if ((iRow + iCol) % 2 == 0) {
-        val = tileValsEven[iTileEven];
-        iTileEven++;
-      } else {
-        val = tileValsOdd[iTileOdd];
-        iTileOdd++;
-      }
+      if ((iRow + iCol) % 2 == 0) val = tileValsEven.pop();
+      else val = tileValsOdd.pop();
 
       // add tile object to 2D array
       tiles[iRow][iCol] = new TileTemplate(val);
     }
   }
 }
-
-// // generate tile values, add values to HTML tiles, according to puzzle ID
-// function generateLevel() {
-//   // create random number generator for this level
-//   const lvlID = getLvlID();
-//   const seed = xmur3(lvlID);
-//   const lvlRNG = mulberry32(seed());
-
-//   // add values to tiles
-//   for (let iRow = 0; iRow < gridSize; iRow++) {
-//     for (let iCol = 0; iCol < gridSize; iCol++) {
-//       // obtain random integers in range [minTileVal, maxTileVal]
-//       let val = getRandomIntIncl(minTileVal, maxTileVal, lvlRNG);
-
-//       // add tile object to 2D array
-//       tiles[iRow][iCol] = new TileTemplate(val);
-//     }
-//   }
-// }
-
-// // generate tile values, add values to HTML tiles, according to puzzle ID
-// function generateLevel() {
-//   // create random number generator for this level
-//   const lvlID = getLvlID();
-//   const seed = xmur3(lvlID);
-//   const lvlRNG = mulberry32(seed());
-
-//   // number of tiles per parity; minimum and maximum tile values
-//   const nHalfTiles = gridSize * gridSize / 2;
-
-//   // generate random values for even-indexed tiles
-//   // by obtaining random integers in range [minTileVal, maxTileVal]
-//   const tileValsEven = new Array(nHalfTiles);
-//   for (let i = 0; i < nHalfTiles; i++) {
-//     tileValsEven[i] = getRandomIntIncl(minTileVal, maxTileVal, lvlRNG);
-//   }
-
-//   // duplicate and shuffle values for odd-indexed tiles
-//   const tileValsOdd = Array.from(tileValsEven);
-//   shuffleArray(tileValsOdd, lvlRNG);
-
-//   // add values to tiles
-//   let iTileEven = 0;
-//   let iTileOdd = 0;
-//   for (let iRow = 0; iRow < gridSize; iRow++) {
-//     for (let iCol = 0; iCol < gridSize; iCol++) {
-//       // obtain tile value from array (even or odd) of tile values
-//       let val;
-//       if ((iRow + iCol) % 2 == 0) {
-//         val = tileValsEven[iTileEven];
-//         iTileEven++;
-//       } else {
-//         val = tileValsOdd[iTileOdd];
-//         iTileOdd++;
-//       }
-
-//       // add tile object to 2D array
-//       tiles[iRow][iCol] = new TileTemplate(val);
-//     }
-//   }
-// }
 
 function showOptimalResult() {
   const optimalScoreDisplay = document.getElementById('optimalScore');
