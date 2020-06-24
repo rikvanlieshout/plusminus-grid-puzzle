@@ -46,14 +46,32 @@ let leaderboardMin;
 const maxEntriesLeaderboard = 10;
 
 // level solutions
-// const optimalScore = [29, 29, 30, 28, 28, 22, 23, 31, 27, 28];
-// const optimalMoves = [19, 17, 23, 21, 23, 23, 23, 19, 19, 25];
+const optimalScore = [28, 33, 27, 30, 33, 27, 29, 31, 28, 30,
+                      30, 25, 29, 25, 27, 26, 30, 24, 25, 26,
+                      22, 26, 25, 28, 31, 25, 24, 31, 27, 28,
+                      26, 31, 25, 29, 27, 30, 23, 29, 28, 27,
+                      28, 26, 29, 36, 27, 30, 28, 28, 30, 33,
+                      24, 26, 29, 28, 31, 29, 31, 23, 30, 26,
+                      28, 29, 28, 31, 25, 25, 30, 27, 24, 31,
+                      23, 25, 29, 25, 25, 24, 30, 27, 28, 25,
+                      27, 27, 25, 26, 23, 28, 29, 28, 27, 29,
+                      32, 23, 26, 25, 30, 27, 29, 30, 31, 29];
+const optimalMoves = [21, 21, 23, 23, 19, 23, 21, 21, 21, 21,
+                      21, 21, 21, 23, 21, 25, 21, 15, 21, 23,
+                      21, 17, 21, 19, 15, 23, 23, 23, 23, 21,
+                      23, 21, 19, 21, 21, 21, 19, 21, 19, 21,
+                      21, 21, 17, 19, 23, 15, 23, 19, 19, 17,
+                      19, 21, 23, 21, 21, 23, 23, 19, 19, 19,
+                      21, 15, 21, 19, 19, 21, 23, 15, 17, 19,
+                      21, 25, 19, 19, 21, 23, 21, 23, 15, 17,
+                      23, 23, 19, 23, 19, 19, 19, 13, 21, 17,
+                      23, 19, 23, 19, 21, 23, 23, 23, 19, 17];
 
 // game parameters
 const minTileVal = 1;
 const maxTileVal = 7;
-const nLevels = 10;
-const possibleGridSizes = [4, 6, 8];
+const nLevels = 100;
+const possibleGridSizes = [4, 6, 8, 10, 12];
 const leaderboardGridSize = 8;
 
 // current grid size, current level, and current game record
@@ -286,6 +304,19 @@ function generateLevel() {
       tiles[iRow][iCol] = new TileTemplate(val);
     }
   }
+
+  // // print level
+  // console.log(`lvlID: ${lvlID}`);
+  // let tile_vals = 'board_values = [\n';
+  // for (let iRow = 0; iRow < gridSize; iRow++) {
+  //   let row_vals = '';
+  //   for (let iCol = 0; iCol < gridSize; iCol++) {
+  //     row_vals += tiles[iRow][iCol].value + ', ';
+  //   }
+  //   tile_vals += '    [' + row_vals + '],\n';
+  // }
+  // tile_vals += ']\n';
+  // console.log(tile_vals);
 }
 
 function showOptimalResult() {
@@ -295,10 +326,10 @@ function showOptimalResult() {
   optimalMovesDisplay.innerHTML = '--';
   if (gridSize >= leaderboardGridSize)
     document.getElementById('optimalBox').classList.add('hidden');
-  else if (gridSize == 6) {
+  else if (gridSize == 6 && lvlNumber <= optimalScore.length) {
     document.getElementById('optimalBox').classList.remove('hidden');
-    // optimalScoreDisplay.innerHTML = optimalScore[lvlNumber-1];
-    // optimalMovesDisplay.innerHTML = optimalMoves[lvlNumber-1];
+    optimalScoreDisplay.innerHTML = optimalScore[lvlNumber-1];
+    optimalMovesDisplay.innerHTML = optimalMoves[lvlNumber-1];
   } else {
     document.getElementById('optimalBox').classList.remove('hidden');
   }
@@ -444,12 +475,12 @@ function redoMove() {
 
 // move functionality common for new move, undo, and redo
 function doMove([iRow, iCol]) {
-  //show icon on new tile coords
+  // show icon on new tile coords
   showPlayer([iRow, iCol]);
 
   disableAllTiles();
 
-  //enables adjacent tiles, and returns boolean of whether any moves are left
+  // enables adjacent tiles, and returns boolean of whether any moves are left
   const optionsLeft = enableAdjacentTiles([iRow, iCol]);
 
   // check for game end
@@ -458,12 +489,9 @@ function doMove([iRow, iCol]) {
     togglePlusMinusBorders();
   } else {
     thisGame.finished = true;
-    // changes opacity of current tile
-    document
-      .getElementById(`tile${iRow}${iCol}`)
-      .classList.add('tile_dimmed');
+    showPlayer([iRow, iCol], true);
     resetPlusMinusBorders();
-    checkForHighScore();
+    checkForLocalBest();
   }
 
   updateScoreDisplay(thisGame.score, thisGame.iMoveCur + 1);
@@ -526,15 +554,17 @@ function hideTile([iRow, iCol]) {
 
 // add icon of player, and sets opacity to 1 (for undoMove)
 function showPlayer([iRow, iCol]) {
-  let tileCur = document.getElementById(`tile${iRow}${iCol}`);
+  const tileCur = document.getElementById(`tile${iRow}${iCol}`);
+  // happy, neutral, or sad emoji, depending on score
   let emoji;
-  // happy/neutral/sad depending on score
   if (thisGame.score > 0) emoji = 'happy';
   else if (thisGame.score == 0) emoji = 'neutral';
   else emoji = 'sad';
   tileCur.innerHTML =
-    `<span class='mdi mdi-emoticon-${emoji}-outline player_token'></span>`;
-  tileCur.classList.remove('tile_dimmed');
+    `<span class="mdi mdi-emoticon-${emoji}-outline player_token"></span>`;
+  // dim tile if game is finished, undim for undoing a finished game
+  if (thisGame.finished) tileCur.classList.add('tile_dimmed');
+  else tileCur.classList.remove('tile_dimmed');
 }
 
 /* -------------- SHOW SCORE AND MOVES -------------- */
@@ -654,21 +684,8 @@ document
 
 /* -------------- LOCAL BEST RESULT -------------- */
 
-// display high score
-function updateLocalBestDisplay(localBestScore, localBestMoves) {
-  const localBestScoreString =
-    localBestScore === Number.NEGATIVE_INFINITY ? '--' : localBestScore;
-  const localBestMovesString =
-    localBestMoves === Number.POSITIVE_INFINITY ? '--' : localBestMoves;
-  document
-    .getElementById('localBestScore')
-    .innerHTML = `${localBestScoreString}`;
-  document
-    .getElementById('localBestMoves')
-    .innerHTML = `${localBestMovesString}`;
-}
-
-function checkForHighScore() {
+// check if result is improvement on previous best result on device
+function checkForLocalBest() {
   // retrieve best result of this level from local storage to compare against
   const localBestScoreKey = getLocalBestScoreKey();
   const localBestMovesKey = getLocalBestMovesKey();
@@ -681,20 +698,35 @@ function checkForHighScore() {
   if (thisGame.score > localBestScore) {
     localBestScore = thisGame.score;
     localBestMoves = thisGame.nMoves;
-    updateLocalBestDisplay(localBestScore, localBestMoves);
     setToLocalStorage(localBestScoreKey, localBestScore);
     setToLocalStorage(localBestMovesKey, localBestMoves);
+    updateLocalBestDisplay(localBestScore, localBestMoves);
+    showPlayer(thisGame.coords[thisGame.iMoveCur], true, true);
   } else if (
-    thisGame.score == localBestScore &&
-    thisGame.nMoves < localBestMoves
+    thisGame.score == localBestScore && thisGame.nMoves < localBestMoves
   ) {
     localBestMoves = thisGame.nMoves;
-    updateLocalBestDisplay(localBestScore, localBestMoves);
     setToLocalStorage(localBestMovesKey, localBestMoves);
+    updateLocalBestDisplay(localBestScore, localBestMoves);
+    showPlayer(thisGame.coords[thisGame.iMoveCur], true, true);
   }
 
   if (gridSize >= leaderboardGridSize && thisGame.score >= leaderboardMin)
     showLeaderboardPost();
+}
+
+// display best result on device
+function updateLocalBestDisplay(localBestScore, localBestMoves) {
+  const localBestScoreString =
+    localBestScore === Number.NEGATIVE_INFINITY ? '--' : localBestScore;
+  const localBestMovesString =
+    localBestMoves === Number.POSITIVE_INFINITY ? '--' : localBestMoves;
+  document
+    .getElementById('localBestScore')
+    .innerHTML = `${localBestScoreString}`;
+  document
+    .getElementById('localBestMoves')
+    .innerHTML = `${localBestMovesString}`;
 }
 
 /* -------------- GENERATE LEADERBOARD -------------- */
@@ -893,7 +925,7 @@ async function postToLeaderboard() {
 }
 
 // get username from text input field
-// return true if success, return false if username suppplied is invalid
+// return null if username supplied is invalid
 function getUsername() {
   let userName = document.getElementById('username_input_field').value;
 
