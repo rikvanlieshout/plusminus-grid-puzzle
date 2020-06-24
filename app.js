@@ -243,7 +243,7 @@ function createGrid() {
       const tile = document.createElement('button');
       tile.disabled = true;
       tile.className = 'tile';
-      tile.id = `tile${iRow}${iCol}`;
+      tile.id = `tileR${iRow}C${iCol}`;
       tile.addEventListener('click', () => newMove([iRow, iCol]));
       row.appendChild(tile);
     }
@@ -346,7 +346,7 @@ function resetGame() {
       // show tile values in UI
       showTile([iRow, iCol]);
       // enable all tile buttons
-      const tile = document.getElementById(`tile${iRow}${iCol}`);
+      const tile = document.getElementById(`tileR${iRow}C${iCol}`);
       tile.disabled = false;
     }
   }
@@ -531,7 +531,7 @@ function enableTileIfPresent([iRow, iCol]) {
     tiles[iRow][iCol].taken
   ) return false;
   else {
-    document.getElementById(`tile${iRow}${iCol}`).disabled = false;
+    document.getElementById(`tileR${iRow}C${iCol}`).disabled = false;
     return true;
   }
 }
@@ -540,21 +540,21 @@ function enableTileIfPresent([iRow, iCol]) {
 
 // add number and opacity 1
 function showTile([iRow, iCol]) {
-  const tile = document.getElementById(`tile${iRow}${iCol}`);
+  const tile = document.getElementById(`tileR${iRow}C${iCol}`);
   tile.innerHTML = tiles[iRow][iCol].value;
   tile.classList.remove('tile_dimmed');
 }
 
 // remove number and decrease opacity
 function hideTile([iRow, iCol]) {
-  const tile = document.getElementById(`tile${iRow}${iCol}`);
+  const tile = document.getElementById(`tileR${iRow}C${iCol}`);
   tile.innerHTML = '';
   tile.classList.add('tile_dimmed');
 }
 
 // add icon of player, and sets opacity to 1 (for undoMove)
 function showPlayer([iRow, iCol]) {
-  const tileCur = document.getElementById(`tile${iRow}${iCol}`);
+  const tileCur = document.getElementById(`tileR${iRow}C${iCol}`);
   // happy, neutral, or sad emoji, depending on score
   let emoji;
   if (thisGame.score > 0) emoji = 'happy';
