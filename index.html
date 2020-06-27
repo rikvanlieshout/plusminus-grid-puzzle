@@ -106,11 +106,9 @@
       </ul>
     </div>
 
-    <!-- Popup backdrop -->
-    <div class="hidden" id="popup_backdrop">
-
-      <!-- Leaderboard post popup -->
-      <div class="textBox popup hidden" id="leaderboard_post_box">
+    <!-- Leaderboard post popup -->
+    <div class="popup_backdrop hidden" id="leaderboard_post_box">
+      <div class="textBox popup">
         <div>
           <div class="mdi mdi-trophy-outline"></div>
           Add&nbsp;your&nbsp;result&nbsp;to<br>
@@ -144,9 +142,11 @@
             id="leaderboard_post_submit">OK</button>
         </div>
       </div>
+    </div>
 
-      <!-- Level selection popup -->
-      <div class="textBox popup hidden" id="new_lvl_box">
+    <!-- Level selection popup -->
+    <div class="popup_backdrop hidden" id="new_lvl_box">
+      <div class="textBox popup">
         <div>
           <div class="mdi mdi-checkerboard"></div>
           Select&nbsp;a&nbsp;new&nbsp;puzzle
@@ -203,7 +203,6 @@
             id="new_lvl_submit">OK</button>
         </div>
       </div>
-
     </div>
 
     <script type="text/javascript" src="./app.js"></script>

@@ -46,33 +46,53 @@ let leaderboardMin;
 const maxEntriesLeaderboard = 10;
 
 // level solutions
-const optimalScore = [28, 33, 27, 30, 33, 27, 29, 31, 28, 30,
-                      30, 25, 29, 25, 27, 26, 30, 24, 25, 26,
-                      22, 26, 25, 28, 31, 25, 24, 31, 27, 28,
-                      26, 31, 25, 29, 27, 30, 23, 29, 28, 27,
-                      28, 26, 29, 36, 27, 30, 28, 28, 30, 33,
-                      24, 26, 29, 28, 31, 29, 31, 23, 30, 26,
-                      28, 29, 28, 31, 25, 25, 30, 27, 24, 31,
-                      23, 25, 29, 25, 25, 24, 30, 27, 28, 25,
-                      27, 27, 25, 26, 23, 28, 29, 28, 27, 29,
-                      32, 23, 26, 25, 30, 27, 29, 30, 31, 29];
-const optimalMoves = [21, 21, 23, 23, 19, 23, 21, 21, 21, 21,
-                      21, 21, 21, 23, 21, 25, 21, 15, 21, 23,
-                      21, 17, 21, 19, 15, 23, 23, 23, 23, 21,
-                      23, 21, 19, 21, 21, 21, 19, 21, 19, 21,
-                      21, 21, 17, 19, 23, 15, 23, 19, 19, 17,
-                      19, 21, 23, 21, 21, 23, 23, 19, 19, 19,
-                      21, 15, 21, 19, 19, 21, 23, 15, 17, 19,
-                      21, 25, 19, 19, 21, 23, 21, 23, 15, 17,
-                      23, 23, 19, 23, 19, 19, 19, 13, 21, 17,
-                      23, 19, 23, 19, 21, 23, 23, 23, 19, 17];
+const optimalScore4x4 = [12, 14, 16, 18, 11, 12, 12, 15, 15, 11,
+                         15, 12, 13, 14, 13, 13, 15, 16, 11, 14,
+                         13, 17, 12, 11, 12, 14, 17, 17, 13, 14,
+                         15, 13, 12, 14, 11, 16, 14, 16, 11, 14,
+                         13, 12, 13, 16, 12, 14, 13, 16, 13, 14,
+                         10, 13, 13, 12, 11, 18, 16, 13, 15, 15,
+                         16, 14, 12, 12, 13, 11, 17,  9, 19, 14,
+                         15, 11, 16, 11, 12, 16, 11, 13, 19, 15,
+                         13, 14, 14, 15, 12, 14, 13, 12, 14, 17,
+                         11, 13, 13, 16, 14, 16, 15, 12, 16, 13];
+const optimalMoves4x4 = [11, 11,  9,  9, 11, 11,  9,  7,  9,  7,
+                          9, 11,  9,  5,  9,  9,  9, 11,  9,  9,
+                          7,  9, 11, 11,  9,  7, 11,  9, 11,  9,
+                          9, 11,  9,  7,  7,  9,  7,  7, 11,  9,
+                          9, 11,  7,  9,  7, 11, 11,  7,  9,  7,
+                         11,  9,  9, 11,  9,  7,  9, 11,  9,  7,
+                         11,  9, 11,  7, 11,  9,  9,  7,  9,  7,
+                         11,  9,  7,  9, 11, 11,  7, 11,  7,  9,
+                          7,  9, 11, 11,  5, 11,  9,  7,  9,  7,
+                          9,  7,  7,  7, 11, 11,  9,  9,  9,  9];
+const optimalScore6x6 = [28, 33, 27, 30, 33, 27, 29, 31, 28, 30,
+                         30, 25, 29, 25, 27, 26, 30, 24, 25, 26,
+                         22, 26, 25, 28, 31, 25, 24, 31, 27, 28,
+                         26, 31, 25, 29, 27, 30, 23, 29, 28, 27,
+                         28, 26, 29, 36, 27, 30, 28, 28, 30, 33,
+                         24, 26, 29, 28, 31, 29, 31, 23, 30, 26,
+                         28, 29, 28, 31, 25, 25, 30, 27, 24, 31,
+                         23, 25, 29, 25, 25, 24, 30, 27, 28, 25,
+                         27, 27, 25, 26, 23, 28, 29, 28, 27, 29,
+                         32, 23, 26, 25, 30, 27, 29, 30, 31, 29];
+const optimalMoves6x6 = [21, 21, 23, 23, 19, 23, 21, 21, 21, 21,
+                         21, 21, 21, 23, 21, 25, 21, 15, 21, 23,
+                         21, 17, 21, 19, 15, 23, 23, 23, 23, 21,
+                         23, 21, 19, 21, 21, 21, 19, 21, 19, 21,
+                         21, 21, 17, 19, 23, 15, 23, 19, 19, 17,
+                         19, 21, 23, 21, 21, 23, 23, 19, 19, 19,
+                         21, 15, 21, 19, 19, 21, 23, 15, 17, 19,
+                         21, 25, 19, 19, 21, 23, 21, 23, 15, 17,
+                         23, 23, 19, 23, 19, 19, 19, 13, 21, 17,
+                         23, 19, 23, 19, 21, 23, 23, 23, 19, 17];
 
 // game parameters
 const minTileVal = 1;
 const maxTileVal = 7;
 const nLevels = 100;
 const possibleGridSizes = [4, 6, 8, 10, 12];
-const leaderboardGridSize = 8;
+const leaderboardGridSize = 0;
 
 // current grid size, current level, and current game record
 let gridSize;
@@ -89,7 +109,7 @@ function getRandomIntIncl(min, max, randFunc = Math.random) {
   return Math.floor(randFunc() * (max - min + 1)) + min;
 }
 
-// shuffle function (Durstenfeld shuffle, randomizes positions of array elements)
+// randomize positions of array elements (Durstenfeld shuffle)
 function shuffleArray(array, randFunc = Math.random) {
   for (let i = array.length - 1; i > 0; i--) {
       const j = Math.floor(randFunc() * (i + 1));
@@ -119,9 +139,9 @@ function mulberry32(a) {
   }
 }
 
-// get nth digit in the Thue-Morse sequence
-function nthThueMorse(n) {
-  const binStr = (n).toString(2);
+// get digit i of the Thue-Morse sequence (zero-based numbering)
+function getThueMorse(i) {
+  const binStr = (i).toString(2);
   const re = /[1]/g;
   const oneCount = ((binStr || '').match(re) || []).length;
   return oneCount % 2;
@@ -182,19 +202,46 @@ document
   .getElementById('theme_toggler')
   .addEventListener('click', toggleTheme);
 
-/* -------------- MAKE LEVEL -------------- */
+/* -------------- MAKE GRID -------------- */
 
-// wrapper function calling subroutines to load level
-function loadLevel() {
-  // make grid of tiles (buttons) in HTML
-  createGrid();
+// make grid of tiles (buttons) in HTML
+function createGrid() {
+  // set CSS properties
+  document.documentElement.style.setProperty('--grid_size', gridSize);
+  document.documentElement.style
+    .setProperty('--font_size_tile_adaptable', `${6 - gridSize/3}vh`);
+
+  // get grid HTML element and empty its content from previous grid
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+
+  for (let iRow = 0; iRow < gridSize; iRow += 1) {
+    const row = document.createElement('div');
+    row.className = 'row';
+
+    for (let iCol = 0; iCol < gridSize; iCol += 1) {
+      const tile = document.createElement('button');
+      tile.disabled = true;
+      tile.className = 'tile';
+      tile.id = `tileR${iRow}C${iCol}`;
+      tile.addEventListener('click', () => newMove([iRow, iCol]));
+      row.appendChild(tile);
+    }
+
+    grid.appendChild(row);
+  }
 
   // make 2D array that holds tile objects
   tiles = new Array(gridSize);
   for (let iRow = 0; iRow < gridSize; iRow++) {
     tiles[iRow] = new Array(gridSize);
   }
+}
 
+/* -------------- MAKE LEVEL -------------- */
+
+// wrapper function calling subroutines to load level
+function loadLevel() {
   // generate random tile values and add values to HTML tiles
   generateLevel();
 
@@ -224,34 +271,6 @@ function loadLevel() {
   if (gridSize >= leaderboardGridSize) makeLeaderboard();
 }
 
-// make grid of tiles (buttons) in HTML
-function createGrid() {
-  // set CSS properties
-  document.documentElement.style.setProperty('--grid_size', gridSize);
-  document.documentElement.style
-    .setProperty('--font_size_tile_adaptable', `${6 - gridSize/3}vh`);
-
-  // get grid HTML element and empty its content from previous grid
-  const grid = document.getElementById('grid');
-  grid.innerHTML = '';
-
-  for (let iRow = 0; iRow < gridSize; iRow += 1) {
-    const row = document.createElement('div');
-    row.className = 'row';
-
-    for (let iCol = 0; iCol < gridSize; iCol += 1) {
-      const tile = document.createElement('button');
-      tile.disabled = true;
-      tile.className = 'tile';
-      tile.id = `tileR${iRow}C${iCol}`;
-      tile.addEventListener('click', () => newMove([iRow, iCol]));
-      row.appendChild(tile);
-    }
-
-    grid.appendChild(row);
-  }
-}
-
 // generate tile values, add values to HTML tiles, according to puzzle ID
 function generateLevel() {
   // create random number generator for this level
@@ -277,7 +296,7 @@ function generateLevel() {
     tileValsOdd = [];
     tileValsEven = [];
     for (let i = 0; i < gridSize * gridSize; i++) {
-      if (nthThueMorse(i)) tileValsOdd.push(tileVals[i]);
+      if (getThueMorse(i)) tileValsOdd.push(tileVals[i]);
       else tileValsEven.push(tileVals[i]);
     }
 
@@ -322,17 +341,16 @@ function generateLevel() {
 function showOptimalResult() {
   const optimalScoreDisplay = document.getElementById('optimalScore');
   const optimalMovesDisplay = document.getElementById('optimalMoves');
-  optimalScoreDisplay.innerHTML = '--';
-  optimalMovesDisplay.innerHTML = '--';
-  if (gridSize >= leaderboardGridSize)
+  if (gridSize == 4) {
+    document.getElementById('optimalBox').classList.remove('hidden');
+    optimalScoreDisplay.innerHTML = optimalScore4x4[lvlNumber-1];
+    optimalMovesDisplay.innerHTML = optimalMoves4x4[lvlNumber-1];
+  } else if (gridSize == 6) {
+    document.getElementById('optimalBox').classList.remove('hidden');
+    optimalScoreDisplay.innerHTML = optimalScore6x6[lvlNumber-1];
+    optimalMovesDisplay.innerHTML = optimalMoves6x6[lvlNumber-1];
+  } else
     document.getElementById('optimalBox').classList.add('hidden');
-  else if (gridSize == 6 && lvlNumber <= optimalScore.length) {
-    document.getElementById('optimalBox').classList.remove('hidden');
-    optimalScoreDisplay.innerHTML = optimalScore[lvlNumber-1];
-    optimalMovesDisplay.innerHTML = optimalMoves[lvlNumber-1];
-  } else {
-    document.getElementById('optimalBox').classList.remove('hidden');
-  }
 }
 
 /* -------------- NEW GAME -------------- */
@@ -346,8 +364,7 @@ function resetGame() {
       // show tile values in UI
       showTile([iRow, iCol]);
       // enable all tile buttons
-      const tile = document.getElementById(`tileR${iRow}C${iCol}`);
-      tile.disabled = false;
+      document.getElementById(`tileR${iRow}C${iCol}`).disabled = false;
     }
   }
 
@@ -359,7 +376,7 @@ function resetGame() {
 
   // remove colors and focus borders from sign boxes
   resetSignBoxColors();
-  resetPlusMinusBorders();
+  resetSignBoxBorders();
 }
 
 /* -------------- KEYBOARD INPUT -------------- */
@@ -486,11 +503,11 @@ function doMove([iRow, iCol]) {
   // check for game end
   if (optionsLeft) {
     // change plus-minus style
-    togglePlusMinusBorders();
+    toggleSignBoxBorders();
   } else {
     thisGame.finished = true;
-    showPlayer([iRow, iCol], true);
-    resetPlusMinusBorders();
+    showPlayer([iRow, iCol]);
+    resetSignBoxBorders();
     checkForLocalBest();
   }
 
@@ -603,7 +620,7 @@ function setSignBoxColors([iRow, iCol]) {
   plusBox.classList.add('current_sign');
 }
 
-function togglePlusMinusBorders() {
+function toggleSignBoxBorders() {
   const plusBox = document.getElementById('plus_box');
   const minusBox = document.getElementById('minus_box');
 
@@ -611,7 +628,7 @@ function togglePlusMinusBorders() {
   minusBox.classList.toggle('current_sign');
 }
 
-function resetPlusMinusBorders() {
+function resetSignBoxBorders() {
   const plusBox = document.getElementById('plus_box');
   const minusBox = document.getElementById('minus_box');
 
@@ -629,7 +646,7 @@ function toggleLevelBox() {
   // set input field to current level number
   document.getElementById('lvl_nr_input_field').value = lvlNumber;
 
-  document.getElementById('popup_backdrop').classList.toggle('hidden');
+  // show popup
   document.getElementById('new_lvl_box').classList.toggle('hidden');
 }
 
@@ -646,18 +663,21 @@ function changeGridSize(newGridSize) {
   gridSize = newGridSize;
 }
 
+// grid size button functionality
 for (const gridSizeVal of possibleGridSizes) {
   document
     .getElementById(`gridsize${gridSizeVal}_btn`)
     .addEventListener('click', () => changeGridSize(gridSizeVal));
 }
 
+// check level number input and make the new level if ok
 function changeLevel() {
   const inputFieldLvlNr = document.getElementById('lvl_nr_input_field');
   const lvl_nr_input = parseInt(inputFieldLvlNr.value);
   if (lvl_nr_input >= 1 && lvl_nr_input <= nLevels) {
     lvlNumber = lvl_nr_input;
     toggleLevelBox();
+    createGrid();
     loadLevel();
     resetGame();
   } else alert(`Puzzle number should be between 1 and ${nLevels}.`);
@@ -701,14 +721,14 @@ function checkForLocalBest() {
     setToLocalStorage(localBestScoreKey, localBestScore);
     setToLocalStorage(localBestMovesKey, localBestMoves);
     updateLocalBestDisplay(localBestScore, localBestMoves);
-    showPlayer(thisGame.coords[thisGame.iMoveCur], true, true);
+    showPlayer(thisGame.coords[thisGame.iMoveCur]);
   } else if (
     thisGame.score == localBestScore && thisGame.nMoves < localBestMoves
   ) {
     localBestMoves = thisGame.nMoves;
     setToLocalStorage(localBestMovesKey, localBestMoves);
     updateLocalBestDisplay(localBestScore, localBestMoves);
-    showPlayer(thisGame.coords[thisGame.iMoveCur], true, true);
+    showPlayer(thisGame.coords[thisGame.iMoveCur]);
   }
 
   if (gridSize >= leaderboardGridSize && thisGame.score >= leaderboardMin)
@@ -854,12 +874,8 @@ function renderLeaderboard(leaderboardList) {
 
 // reveal button to post score to the leaderboard
 function showLeaderboardPost() {
-  document
-    .getElementById('popup_backdrop')
-    .classList.remove('hidden');
-  document
-    .getElementById('leaderboard_post_box')
-    .classList.remove('hidden');
+  // show popup
+  document.getElementById('leaderboard_post_box').classList.remove('hidden');
 
   // show score and moves
   document.getElementById('leaderboard_post_score').innerHTML = thisGame.score;
@@ -878,12 +894,7 @@ function showLeaderboardPost() {
 
 // hide button to post score to the leaderboard
 function hideLeaderboardPost() {
-  document
-    .getElementById('popup_backdrop')
-    .classList.add('hidden');
-  document
-    .getElementById('leaderboard_post_box')
-    .classList.add('hidden');
+  document.getElementById('leaderboard_post_box').classList.add('hidden');
 }
 
 // post current score to the database
@@ -987,6 +998,9 @@ document
   // get current level ID from local storage, defaults to level 1
   lvlNumber = +getFromLocalStorage(currentLvlKey, 1);
   
+  // make grid of tiles (buttons) in HTML
+  createGrid();
+
   // generate level and start game
   loadLevel();
   resetGame();
