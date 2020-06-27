@@ -13,11 +13,22 @@
 /* --- global variables and properties--- */
 
 :root {
+  --page_width: 97vw;
   --grid_size: 6;
-  --grid_width: 97vw;
-  --max_grid_width: 55vh;
-  --max_cell_width: calc(var(--max_grid_width) / var(--grid_size));
-  --font_size_tile: 4vh;
+  --grid_width: var(--page_width);
+  --cell_width: calc(var(--grid_width) / var(--grid_size));
+  --font_size_tile_adaptable: 25px;
+  --font_size_tile: var(--font_size_tile_adaptable);
+}
+
+@media screen and (min-width: 630px) {
+  :root {
+    --page_width: 402px;
+    --grid_size: 6;
+    --cell_width: 50px;
+    --grid_width: calc(var(--cell_width) * var(--grid_size));
+    --font_size_tile: 25px;
+  }
 }
 
 * {
@@ -78,8 +89,7 @@ body.light {
 }
 
 .width_wrapper {
-  width: var(--grid_width);
-  max-width: var(--max_grid_width);
+  width: var(--page_width);
   margin: 0 auto;
 }
 
@@ -159,7 +169,7 @@ header {
 .current_sign {
   color: var(--col_grid_hover);
   border-color: var(--col_grid_hover);
-  border-width: 0.4vh;
+  border-width: 3px;
 }
 
 /* --- color theme toggle --- */
@@ -301,7 +311,7 @@ label {
 /* --- generic text elements --- */
 
 .textBox {
-  margin: 1.5vh 0;
+  margin: 1.5vh auto;
   padding: 0.5vh;
   background-color: var(--col_bg2);
   border: 2px solid var(--col_border);
@@ -360,12 +370,11 @@ ul {
 /* --- game grid and tiles --- */
 
 #grid {
-  margin: 1.5vh 0;
+  margin: 1.5vh auto;
   border: 1px solid var(--col_border);
+  box-sizing: content-box;
   width: var(--grid_width);
   height: var(--grid_width);
-  max-width: var(--max_grid_width);
-  max-height: var(--max_grid_width);
   background-color: var(--col_grid_bg0);
   display: grid;
   grid-template-rows: repeat(var(--grid_size), 1fr);
@@ -385,9 +394,9 @@ ul {
 }
 
 #grid .tile {
+  width: var(--cell_width);
+  height: var(--cell_width);
   outline: none;
-  max-width: var(--max_cell_width);
-  max-height: var(--max_cell_width);
   border: 1px solid var(--col_border);
   background-color: var(--col_grid_bg1);
   color: var(--col_grid_text);
@@ -396,7 +405,7 @@ ul {
 
 #grid .tile:hover {
   color: var(--col_grid_hover);
-  border: 0.45vh solid var(--col_grid_hover);
+  border: 3px solid var(--col_grid_hover);
 }
 
 #grid .tile:disabled {

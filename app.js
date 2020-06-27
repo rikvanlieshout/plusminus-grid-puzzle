@@ -229,7 +229,7 @@ function createGrid() {
   // set CSS properties
   document.documentElement.style.setProperty('--grid_size', gridSize);
   document.documentElement.style
-    .setProperty('--font_size_tile', `${6 - gridSize/3}vh`);
+    .setProperty('--font_size_tile_adaptable', `${6 - gridSize/3}vh`);
 
   // get grid HTML element and empty its content from previous grid
   const grid = document.getElementById('grid');
