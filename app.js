@@ -40,8 +40,8 @@ const currentGridSizeKey = keyRoot + 'current_gridsize';
 let colorTheme
 
 // leaderboard
-const api = 'http://localhost:27017';
-// const api = 'https://plus-minus-grid-puzzle.herokuapp.com';
+// const api = 'http://localhost:27017';
+const api = 'https://plus-minus-grid-puzzle.herokuapp.com';
 let leaderboardMin;
 const maxEntriesLeaderboard = 10;
 
