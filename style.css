@@ -1,19 +1,51 @@
-:root {
-  --grid_size: 6;
-  --grid_width: 97vw;
-  --max_grid_width: 55vh;
-  --max_cell_width: calc(var(--max_grid_width) / var(--grid_size));
+/* --- fonts --- */
+
+/* rubik-regular - latin */
+@font-face {
+  font-family: 'Rubik';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Rubik'), local('Rubik-Regular'),
+       url('./fonts/rubik-v9-latin-regular.woff2') format('woff2'),
+       url('./fonts/rubik-v9-latin-regular.woff') format('woff');
 }
+
+/* --- global variables and properties--- */
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  touch-action: manipulation;
 }
 
 html {
-  font-family: "Rubik", sans-serif;
+  --page_width: 97vw;
+  --grid_size: 6;
+  --grid_width: var(--page_width);
+  --cell_width: calc(var(--grid_width) / var(--grid_size));
+  --font_size_tile_adaptable: 25px;
+  --font_size_tile: var(--font_size_tile_adaptable);
 }
+
+@media screen and (min-width: 630px) {
+  html {
+    --page_width: 402px;
+    --cell_width: 50px;
+    --grid_width: calc(var(--cell_width) * var(--grid_size));
+    --font_size_tile: 25px;
+  }
+}
+
+body {
+  background-color: var(--col_bg1);
+  color: var(--col_game_text);
+  font-size: 2.3vh;
+  font-family: 'Rubik', sans-serif;
+  text-align: center;
+}
+
+/* --- color theme variables --- */
 
 body.dark {
   --col_bg1: #1d2a3a;
@@ -47,13 +79,6 @@ body.light {
   --opacity_dim: 0.55;
 }
 
-body {
-  background-color: var(--col_bg1);
-  color: var(--col_game_text);
-  font-size: 2.3vh;
-  text-align: center;
-}
-
 /* --- display and positioning classes --- */
 
 .hidden {
@@ -61,8 +86,7 @@ body {
 }
 
 .width_wrapper {
-  width: var(--grid_width);
-  max-width: var(--max_grid_width);
+  width: var(--page_width);
   margin: 0 auto;
 }
 
@@ -142,7 +166,7 @@ header {
 .current_sign {
   color: var(--col_grid_hover);
   border-color: var(--col_grid_hover);
-  border-width: 0.4vh;
+  border-width: 3px;
 }
 
 /* --- color theme toggle --- */
@@ -210,8 +234,15 @@ header {
   grid-gap: 1.5vh;
 }
 
+.btn_trio {
+  margin-bottom: 1.5vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-gap: 1.5vh;
+}
+
 .btn_border {
-  padding: 1.5vh;
+  padding: 1vh;
   border: 2px solid var(--col_game_text);
   background-color: var(--col_bg2);
   color: var(--col_game_text);
@@ -220,7 +251,7 @@ header {
   transition: color 0.25s;
 }
 
-.btn_border:active {
+.btn_border:active, .btn_border.active {
   background-color: var(--col_game_text);
   color: var(--col_bg2);
 }
@@ -277,7 +308,7 @@ label {
 /* --- generic text elements --- */
 
 .textBox {
-  margin: 1.5vh 0;
+  margin: 1.5vh auto;
   padding: 0.5vh;
   background-color: var(--col_bg2);
   border: 2px solid var(--col_border);
@@ -290,6 +321,7 @@ label {
 }
 
 ul {
+  margin-top: 0.75vh;
 	padding-left: 2.5vh;
   font-size: 0.9em;
 }
@@ -305,7 +337,7 @@ ul {
 
 /* --- popup box --- */
 
-#popup_backdrop {
+.popup_backdrop {
   position: fixed;
   left: 0;
   top: 0;
@@ -335,12 +367,11 @@ ul {
 /* --- game grid and tiles --- */
 
 #grid {
-  margin: 1.5vh 0;
+  margin: 1.5vh auto;
   border: 1px solid var(--col_border);
+  box-sizing: content-box;
   width: var(--grid_width);
   height: var(--grid_width);
-  max-width: var(--max_grid_width);
-  max-height: var(--max_grid_width);
   background-color: var(--col_grid_bg0);
   display: grid;
   grid-template-rows: repeat(var(--grid_size), 1fr);
@@ -360,18 +391,18 @@ ul {
 }
 
 #grid .tile {
+  width: var(--cell_width);
+  height: var(--cell_width);
   outline: none;
-  max-width: var(--max_cell_width);
-  max-height: var(--max_cell_width);
   border: 1px solid var(--col_border);
   background-color: var(--col_grid_bg1);
   color: var(--col_grid_text);
-  font-size: 4vh;
+  font-size: var(--font_size_tile);
 }
 
 #grid .tile:hover {
   color: var(--col_grid_hover);
-  border: 0.45vh solid var(--col_grid_hover);
+  border: 3px solid var(--col_grid_hover);
 }
 
 #grid .tile:disabled {
@@ -380,7 +411,7 @@ ul {
 }
 
 .player_token {
-  font-size: 4vh;
+  font-size: var(--font_size_tile);
   color: var(--col_player);
 }
 
